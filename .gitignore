@@ -1,0 +1,21 @@
+# Android / Gradle
+*.iml
+.gradle/
+/local.properties
+local.properties
+/.idea/
+.DS_Store
+/build
+/app/build/
+/captures
+.externalNativeBuild
+.cxx
+
+# APK : publiés dans les Releases GitHub, pas dans le dépôt
+*.apk
+*.aab
+
+# Anciens outils HyperOS (hors projet Di-Allô)
+hyperdial.html
+Lancer-Dialer-HyperOS.bat
+Set-HyperOS-Dialer.ps1

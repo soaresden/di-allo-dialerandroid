@@ -1,0 +1,430 @@
+package fr.soaresden.diallo
+
+import android.content.Context
+import android.content.Intent
+import android.os.Bundle
+import android.os.PowerManager
+import android.provider.CallLog
+import android.telecom.Call
+import android.telecom.CallAudioState
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
+
+class OngoingCallActivity : ComponentActivity() {
+    private var wake: PowerManager.WakeLock? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setShowWhenLocked(true)
+        setTurnScreenOn(true)
+        handle(intent)
+        setContent { HyperTheme(loadTheme(this)) { CallScreen(onDone = { close() }, onProximity = { proximity(it) }) } }
+    }
+
+    override fun onNewIntent(intent: Intent) { super.onNewIntent(intent); handle(intent) }
+    private fun handle(i: Intent?) { if (i?.getBooleanExtra("answer", false) == true) HyperInCallService.answer() }
+
+    /** Écran éteint contre la joue : pas de clics involontaires pendant l'appel. */
+    private fun proximity(on: Boolean) {
+        val pm = getSystemService(PowerManager::class.java) ?: return
+        if (on) {
+            if (wake == null && pm.isWakeLockLevelSupported(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK))
+                wake = pm.newWakeLock(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK, "diallo:proximity").apply { setReferenceCounted(false); acquire(4 * 60 * 60 * 1000L) }
+        } else {
+            wake?.let { if (it.isHeld) it.release(PowerManager.RELEASE_FLAG_WAIT_FOR_NO_PROXIMITY) }
+            wake = null
+        }
+    }
+
+    override fun onDestroy() { proximity(false); super.onDestroy() }
+
+    private fun close() {
+        if (isFinishing) return
+        finish()
+        @Suppress("DEPRECATION") overridePendingTransition(0, android.R.anim.fade_out)
+    }
+}
+
+private data class Hist(val type: Int, val date: Long, val dur: Int)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CallScreen(onDone: () -> Unit, onProximity: (Boolean) -> Unit) {
+    val ctx = LocalContext.current
+    val cs = MaterialTheme.colorScheme
+    val call by HyperInCallService.current
+    val state by HyperInCallService.callState
+    val audio by HyperInCallService.audio
+    val contact by HyperInCallService.contact
+    val autoOn by AutoSpeaker.active
+    val silenced by RingGestures.silenced
+    @Suppress("UNUSED_VARIABLE") val ver by HyperInCallService.version     // recompose quand un appel change
+    val others = HyperInCallService.others
+    var ending by remember { mutableStateOf(false) }
+
+    // ---- Notes (brouillon rattaché au numéro affiché)
+    var draft by rememberSaveable { mutableStateOf("") }
+    var number by remember { mutableStateOf(HyperInCallService.current.value?.let { HyperInCallService.numberOf(it) } ?: "") }
+    var notes by remember { mutableStateOf<List<NotesRepository.Note>>(emptyList()) }
+    val live = call?.let { HyperInCallService.numberOf(it) }
+    LaunchedEffect(live) {
+        if (!live.isNullOrBlank() && live != number) {
+            // on change de correspondant (double appel) : la note en cours reste à l'ancien
+            if (draft.isNotBlank() && number.isNotBlank()) { NotesRepository.add(ctx, number, null, draft); draft = "" }
+            number = live
+        }
+    }
+    LaunchedEffect(number) { if (number.isNotBlank()) notes = withContext(Dispatchers.IO) { NotesRepository.forNumber(ctx, number) } }
+    val saveDraft = {
+        if (draft.isNotBlank() && number.isNotBlank()) {
+            NotesRepository.add(ctx, number, contact?.first, draft)
+            draft = ""
+            notes = NotesRepository.forNumber(ctx, number)
+        }
+    }
+    DisposableEffect(Unit) { onDispose { if (draft.isNotBlank() && number.isNotBlank()) NotesRepository.add(ctx, number, contact?.first, draft) } }
+
+    var connectAt by remember { mutableLongStateOf(0L) }
+    val ct = call?.details?.connectTimeMillis ?: 0L
+    LaunchedEffect(call, ct) { connectAt = ct }
+
+    val over = call == null || state == Call.STATE_DISCONNECTED || state == Call.STATE_DISCONNECTING || ending
+    val ringing = !over && state == Call.STATE_RINGING
+    val conference = call?.let { HyperInCallService.isConference(it) } == true
+
+    // Fin d'appel : fermeture immédiate… sauf si une note est en cours d'écriture
+    LaunchedEffect(over) { if (over && draft.isBlank()) { delay(if (call == null) 0 else 250); onDone() } }
+
+    // ---- Historique avec ce numéro
+    val hist by produceState<List<Hist>?>(null, number) { value = if (number.isBlank()) emptyList() else withContext(Dispatchers.IO) { history(ctx, number) } }
+
+    // ---- Capteur de proximité : seulement à l'écouteur
+    val route = audio?.route ?: CallAudioState.ROUTE_EARPIECE
+    val wantProx = !over && !ringing && route == CallAudioState.ROUTE_EARPIECE
+    LaunchedEffect(wantProx) { onProximity(wantProx) }
+
+    // ---- Chrono
+    var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(state) { while (state == Call.STATE_ACTIVE || state == Call.STATE_HOLDING) { now = System.currentTimeMillis(); delay(500) } }
+    val elapsed = if (connectAt > 0) ((now - connectAt) / 1000).coerceAtLeast(0) else 0
+    val clock = "%02d:%02d".format(elapsed / 60, elapsed % 60)
+    val stateText = when {
+        over -> if (connectAt > 0) "Appel terminé · $clock" else "Appel terminé"
+        ringing -> if (others.isNotEmpty()) "Double appel…" else "Appel entrant…"
+        state == Call.STATE_DIALING || state == Call.STATE_CONNECTING || state == Call.STATE_NEW || state == Call.STATE_SELECT_PHONE_ACCOUNT -> "Appel en cours…"
+        state == Call.STATE_ACTIVE -> clock
+        state == Call.STATE_HOLDING -> "⏸ En attente · $clock"
+        else -> ""
+    }
+
+    val shown = when {
+        conference -> "Conférence"
+        else -> contact?.first ?: if (number.isBlank()) "Numéro masqué" else displayNumber(number)
+    }
+    var tab by rememberSaveable { mutableIntStateOf(0) }
+    var keypad by rememberSaveable { mutableStateOf(false) }
+    var dtmf by rememberSaveable { mutableStateOf("") }
+    var smsSheet by remember { mutableStateOf(false) }
+
+    if (smsSheet) QuickSmsSheet(onDismiss = { smsSheet = false }) { msg -> smsSheet = false; ending = others.isEmpty(); HyperInCallService.rejectWithSms(msg) }
+
+    Column(Modifier.fillMaxSize().padding(horizontal = 18.dp, vertical = 12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        // ---- Autres appels (double appel) : en attente, basculer
+        if (!over) others.forEach { o -> OtherCallRow(o, canSwap = o.state == Call.STATE_HOLDING && !ringing) }
+
+        // ---- En-tête
+        Spacer(Modifier.height(if (ringing && others.isEmpty()) 40.dp else 8.dp))
+        if (conference) Box(Modifier.size(72.dp).clip(CircleShape).background(cs.primaryContainer), contentAlignment = Alignment.Center) { Icon(Icons.Filled.Groups, null, tint = cs.onPrimaryContainer, modifier = Modifier.size(38.dp)) }
+        else Avatar(shown, contact?.second, if (ringing && others.isEmpty()) 110.dp else 72.dp)
+        Spacer(Modifier.height(10.dp))
+        Text(shown, color = cs.onBackground, fontSize = if (ringing) 28.sp else 23.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        if (number.isNotBlank() && !conference) {
+            val type = listOfNotNull(lineType(number), frRegion(number)).joinToString(" · ")
+            Text((if (contact != null) phoneText(number) + " · " else flagOf(number) + " ") + type, color = muted(), fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+        Spacer(Modifier.height(4.dp))
+        Text(stateText, color = if (state == Call.STATE_ACTIVE && !over) CallGreen else muted(), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+        if (!conference) hist?.let { h ->
+            val info = if (h.isEmpty()) "Premier appel avec ce numéro 👋"
+            else {
+                val missed = h.count { it.type == CallLog.Calls.MISSED_TYPE || it.type == CallLog.Calls.REJECTED_TYPE }
+                "${h.size} appel${if (h.size > 1) "s" else ""} · ${fmtDur(h.sumOf { it.dur })} · dernier ${fmtWhen(h.first().date)}" + if (missed > 0) " · $missed manqué${if (missed > 1) "s" else ""}" else ""
+            }
+            Text(info, color = muted(.6f), fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+        Spacer(Modifier.height(12.dp))
+
+        if (ringing) {
+            // Dernière note : utile pour savoir de quoi on parlait avant de décrocher
+            notes.firstOrNull()?.let { n ->
+                Surface(color = cs.surface, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(12.dp)) {
+                        Text("📝 Dernière note · ${fmtWhen(n.date)}", fontSize = 12.sp, color = muted(.6f))
+                        Text(n.text, fontSize = 14.sp, color = cs.onSurface, maxLines = 4, overflow = TextOverflow.Ellipsis)
+                    }
+                }
+            }
+            Spacer(Modifier.weight(1f))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                SmallAction(if (silenced) "🔕 Silencieux" else "🔕 Silence", enabled = !silenced) { RingGestures.silence(ctx) }
+                if (number.isNotBlank()) SmallAction("💬 Message") { smsSheet = true }
+            }
+            Spacer(Modifier.height(22.dp))
+            if (others.isEmpty()) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                RoundBtn(Red, Icons.Filled.CallEnd, "Refuser") { ending = true; HyperInCallService.hangup() }
+                RoundBtn(CallGreen, Icons.Filled.Call, "Répondre") { HyperInCallService.answer() }
+            } else Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.Top) {
+                RoundBtn(Red, Icons.Filled.CallEnd, "Refuser", 62.dp) { HyperInCallService.hangup() }
+                RoundBtn(CallGreen, Icons.Filled.PhonePaused, "Mettre en attente\net répondre", 62.dp) { HyperInCallService.answer() }
+                RoundBtn(Amber, Icons.Filled.PhoneForwarded, "Raccrocher\net répondre", 62.dp) { HyperInCallService.answerEndingOthers() }
+            }
+            Spacer(Modifier.height(30.dp))
+            return@Column
+        }
+
+        // ---- Participants de la conférence
+        if (conference && !over) call?.children?.takeIf { it.isNotEmpty() }?.let { kids ->
+            Surface(color = cs.surface, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
+                Column(Modifier.padding(horizontal = 12.dp, vertical = 6.dp)) {
+                    kids.forEach { k -> ParticipantRow(k) }
+                }
+            }
+        }
+
+        // ---- Commandes d'appel
+        if (!over) {
+            val speaker = route == CallAudioState.ROUTE_SPEAKER
+            val bt = route == CallAudioState.ROUTE_BLUETOOTH
+            val btAvail = ((audio?.supportedRouteMask ?: 0) and CallAudioState.ROUTE_BLUETOOTH) != 0
+            val muted = audio?.isMuted == true
+            val holding = state == Call.STATE_HOLDING
+            val canHold = call?.details?.can(Call.Details.CAPABILITY_HOLD) == true || holding
+            Row(Modifier.fillMaxWidth()) {
+                @Suppress("DEPRECATION")
+                Ctrl(Icons.Filled.VolumeUp, "Haut-parleur", speaker, Modifier.weight(1f)) { HyperInCallService.setSpeaker(!speaker) }
+                Ctrl(if (muted) Icons.Filled.MicOff else Icons.Filled.Mic, if (muted) "Coupé" else "Muet", muted, Modifier.weight(1f)) { HyperInCallService.setMuted(!muted) }
+                Ctrl(Icons.Filled.Dialpad, "Clavier", keypad, Modifier.weight(1f)) { keypad = !keypad }
+                Ctrl(Icons.Filled.PersonAdd, "Ajouter", false, Modifier.weight(1f)) {
+                    ctx.startActivity(Intent(ctx, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).putExtra("tab", 0))
+                }
+            }
+            Row(Modifier.fillMaxWidth()) {
+                Ctrl(if (holding) Icons.Filled.PlayArrow else Icons.Filled.Pause, if (holding) "Reprendre" else "Attente", holding, Modifier.weight(1f), enabled = canHold) { HyperInCallService.setHold(!holding) }
+                Ctrl(Icons.Filled.Bluetooth, "Bluetooth", bt, Modifier.weight(1f), enabled = btAvail) { HyperInCallService.setBluetooth(!bt) }
+                Ctrl(Icons.Filled.Sensors, "Auto HP", autoOn, Modifier.weight(1f)) { if (autoOn) AutoSpeaker.stop() else AutoSpeaker.start(ctx, force = true) }
+                Ctrl(Icons.Filled.CallMerge, "Fusionner", false, Modifier.weight(1f), enabled = HyperInCallService.canMerge) { HyperInCallService.merge() }
+            }
+            Spacer(Modifier.height(8.dp))
+        }
+
+        // ---- Zone : clavier DTMF ou notes / historique
+        Surface(color = cs.surface, shape = RoundedCornerShape(20.dp), modifier = Modifier.fillMaxWidth().weight(1f)) {
+            if (keypad && !over) DtmfPad(dtmf, onKey = { ch -> dtmf = (dtmf + ch).takeLast(24); HyperInCallService.dtmf(ch) }, onClose = { keypad = false })
+            else Column(Modifier.padding(10.dp)) {
+                Segmented(listOf("📝 Notes" + if (notes.isNotEmpty()) " (${notes.size})" else "", "🕘 Historique" + (hist?.let { " (${it.size})" } ?: "")), tab, { tab = it })
+                Spacer(Modifier.height(8.dp))
+                if (tab == 0) {
+                    if (number.isBlank()) { Text("Numéro masqué : impossible de ranger une note.", fontSize = 13.sp, color = muted()); return@Column }
+                    OutlinedTextField(
+                        draft, { draft = it }, Modifier.fillMaxWidth(),
+                        placeholder = { Text("Note pendant l'appel…") }, minLines = 2, maxLines = 5,
+                        trailingIcon = { if (draft.isNotBlank()) IconButton(onClick = { saveDraft() }) { Icon(Icons.Filled.Save, "Enregistrer", tint = cs.primary) } }
+                    )
+                    Spacer(Modifier.height(6.dp))
+                    NoteList(notes, Modifier.fillMaxWidth().weight(1f)) { id -> NotesRepository.delete(ctx, id); notes = NotesRepository.forNumber(ctx, number) }
+                } else {
+                    val h = hist
+                    when {
+                        h == null -> Text("Chargement…", fontSize = 13.sp, color = muted())
+                        h.isEmpty() -> Text("Aucun appel précédent avec ce numéro.", fontSize = 13.sp, color = muted())
+                        else -> LazyColumn(Modifier.fillMaxWidth().weight(1f)) { items(h.take(60)) { HistRow(it) } }
+                    }
+                }
+            }
+        }
+        Spacer(Modifier.height(12.dp))
+
+        // ---- Bas : raccrocher / fermer
+        if (over) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                OutlinedButton(onClick = { draft = ""; onDone() }, modifier = Modifier.weight(1f)) { Text("Fermer") }
+                Button(onClick = { saveDraft(); onDone() }, modifier = Modifier.weight(1.6f), enabled = draft.isNotBlank()) {
+                    Icon(Icons.Filled.Save, null, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text("Enregistrer et fermer")
+                }
+            }
+            Spacer(Modifier.height(8.dp))
+        } else {
+            RoundBtn(Red, Icons.Filled.CallEnd, null, 64.dp) { ending = draft.isBlank() && others.isEmpty(); HyperInCallService.hangup() }
+            Spacer(Modifier.height(4.dp))
+        }
+    }
+}
+
+/** Bandeau d'un autre appel (en attente) avec « Basculer ». */
+@Composable
+private fun OtherCallRow(c: Call, canSwap: Boolean) {
+    val cs = MaterialTheme.colorScheme
+    Surface(color = cs.surfaceVariant, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp)) {
+        Row(Modifier.padding(start = 10.dp, end = 4.dp, top = 6.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+            Avatar(HyperInCallService.nameOf(c), HyperInCallService.photoOf(c), 34.dp); Spacer(Modifier.width(10.dp))
+            Column(Modifier.weight(1f)) {
+                Text(HyperInCallService.nameOf(c), fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = cs.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(when (c.state) { Call.STATE_HOLDING -> "⏸ En attente"; Call.STATE_ACTIVE -> "En ligne"; Call.STATE_DIALING, Call.STATE_CONNECTING -> "Appel…"; else -> "" }, fontSize = 12.sp, color = muted())
+            }
+            if (canSwap) TextButton(onClick = { HyperInCallService.swap() }) { Icon(Icons.Filled.SwapVert, null, Modifier.size(18.dp)); Spacer(Modifier.width(4.dp)); Text("Basculer") }
+        }
+    }
+}
+
+/** Un participant de conférence : séparer (parler en privé) ou raccrocher. */
+@Composable
+private fun ParticipantRow(c: Call) {
+    Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+        Avatar(HyperInCallService.nameOf(c), HyperInCallService.photoOf(c), 30.dp); Spacer(Modifier.width(10.dp))
+        Text(HyperInCallService.nameOf(c), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+        if (c.details?.can(Call.Details.CAPABILITY_SEPARATE_FROM_CONFERENCE) == true)
+            IconButton(onClick = { c.splitFromConference() }, modifier = Modifier.size(36.dp)) { Icon(Icons.Filled.CallSplit, "Parler en privé", tint = MaterialTheme.colorScheme.primary) }
+        if (c.details?.can(Call.Details.CAPABILITY_DISCONNECT_FROM_CONFERENCE) == true)
+            IconButton(onClick = { c.disconnect() }, modifier = Modifier.size(36.dp)) { Icon(Icons.Filled.CallEnd, "Raccrocher ce participant", tint = Red) }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun QuickSmsSheet(onDismiss: () -> Unit, onSend: (String) -> Unit) {
+    val ctx = LocalContext.current
+    val list = remember { QuickReplies.load(ctx) }
+    var custom by remember { mutableStateOf("") }
+    ModalBottomSheet(onDismissRequest = onDismiss, containerColor = MaterialTheme.colorScheme.background) {
+        Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(bottom = 24.dp)) {
+            Text("Refuser avec un message", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(bottom = 10.dp))
+            list.forEach { m ->
+                Surface(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp).clip(RoundedCornerShape(14.dp)).clickable { onSend(m) }) {
+                    Text("💬  $m", fontSize = 14.5.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp))
+                }
+            }
+            OutlinedTextField(
+                custom, { custom = it }, Modifier.fillMaxWidth().padding(top = 4.dp), placeholder = { Text("Message perso…") }, shape = RoundedCornerShape(14.dp), maxLines = 3,
+                trailingIcon = { if (custom.isNotBlank()) IconButton(onClick = { onSend(custom.trim()) }) { Icon(Icons.Filled.Send, "Envoyer", tint = MaterialTheme.colorScheme.primary) } }
+            )
+        }
+    }
+}
+
+@Composable
+private fun SmallAction(label: String, enabled: Boolean = true, onClick: () -> Unit) {
+    Surface(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(50), modifier = Modifier.clip(RoundedCornerShape(50)).clickable(enabled = enabled) { onClick() }) {
+        Text(label, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = if (enabled) MaterialTheme.colorScheme.onSurface else muted(.5f), modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp))
+    }
+}
+
+@Composable
+private fun Ctrl(icon: ImageVector, label: String, on: Boolean, mod: Modifier, enabled: Boolean = true, onClick: () -> Unit) {
+    val cs = MaterialTheme.colorScheme
+    Column(mod.clip(RoundedCornerShape(18.dp)).clickable(enabled = enabled) { onClick() }.padding(vertical = 6.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(Modifier.size(52.dp).clip(CircleShape).background(if (on) cs.primary else cs.surfaceVariant), contentAlignment = Alignment.Center) {
+            Icon(icon, label, tint = if (on) cs.onPrimary else cs.onSurface.copy(alpha = if (enabled) 1f else .3f), modifier = Modifier.size(24.dp))
+        }
+        Spacer(Modifier.height(3.dp))
+        Text(label, fontSize = 11.sp, color = muted(if (enabled) .8f else .3f), maxLines = 1)
+    }
+}
+
+@Composable
+private fun DtmfPad(typed: String, onKey: (Char) -> Unit, onClose: () -> Unit) {
+    val cs = MaterialTheme.colorScheme
+    Column(Modifier.fillMaxSize().padding(10.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(typed.ifEmpty { "Tonalités" }, fontSize = 24.sp, fontWeight = FontWeight.Medium, color = if (typed.isEmpty()) muted(.4f) else cs.onSurface, maxLines = 1, modifier = Modifier.weight(1f).padding(start = 6.dp))
+            IconButton(onClick = onClose) { Icon(Icons.Filled.Close, "Fermer le clavier", tint = muted()) }
+        }
+        Column(Modifier.fillMaxWidth().weight(1f), verticalArrangement = Arrangement.SpaceEvenly) {
+            listOf("123", "456", "789", "*0#").forEach { row ->
+                Row(Modifier.fillMaxWidth().weight(1f), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    row.forEach { ch ->
+                        Box(
+                            Modifier.weight(1f).fillMaxHeight().padding(vertical = 4.dp).clip(RoundedCornerShape(16.dp)).background(cs.surfaceVariant).clickable { onKey(ch) },
+                            contentAlignment = Alignment.Center
+                        ) { Text(ch.toString(), fontSize = 26.sp, fontWeight = FontWeight.Medium, color = cs.onSurface) }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun HistRow(h: Hist) {
+    val (icon, color, label) = when (h.type) {
+        CallLog.Calls.OUTGOING_TYPE -> Triple(Icons.Filled.PhoneForwarded, OutColor, "Sortant")
+        CallLog.Calls.INCOMING_TYPE -> Triple(Icons.Filled.PhoneCallback, InColor, "Entrant")
+        CallLog.Calls.MISSED_TYPE -> Triple(Icons.Filled.PhoneMissed, Red, "Manqué")
+        CallLog.Calls.REJECTED_TYPE -> Triple(Icons.Filled.PhoneMissed, Red, "Refusé")
+        CallLog.Calls.VOICEMAIL_TYPE -> Triple(Icons.Filled.Voicemail, Amber, "Messagerie")
+        else -> Triple(Icons.Filled.Call, Color.Gray, "Appel")
+    }
+    Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+        Icon(icon, label, tint = color, modifier = Modifier.size(18.dp))
+        Spacer(Modifier.width(10.dp))
+        Column(Modifier.weight(1f)) {
+            Text(fmtWhen(h.date), fontSize = 13.5.sp, color = MaterialTheme.colorScheme.onSurface)
+            Text(label, fontSize = 11.5.sp, color = muted(.55f))
+        }
+        if (h.dur > 0) Text(fmtDur(h.dur), fontSize = 13.sp, color = muted())
+    }
+}
+
+@Composable
+private fun RoundBtn(color: Color, icon: ImageVector, label: String?, size: Dp = 70.dp, onClick: () -> Unit) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.widthIn(max = 120.dp)) {
+        Box(Modifier.size(size).clip(CircleShape).background(color).clickable { onClick() }, contentAlignment = Alignment.Center) {
+            Icon(icon, label, tint = Color.White, modifier = Modifier.size(30.dp))
+        }
+        if (label != null) { Spacer(Modifier.height(8.dp)); Text(label, color = muted(), fontSize = 12.sp, textAlign = TextAlign.Center) }
+    }
+}
+
+/** Tous les appels avec ce numéro, du plus récent au plus ancien. */
+private fun history(ctx: Context, number: String): List<Hist> {
+    val k = keyOf(number); if (k.isEmpty()) return emptyList()
+    val out = ArrayList<Hist>()
+    try {
+        ctx.contentResolver.query(
+            CallLog.Calls.CONTENT_URI, arrayOf(CallLog.Calls.NUMBER, CallLog.Calls.TYPE, CallLog.Calls.DATE, CallLog.Calls.DURATION),
+            null, null, CallLog.Calls.DATE + " DESC"
+        )?.use { c ->
+            while (c.moveToNext()) {
+                val n = c.getString(0) ?: continue
+                if (keyOf(n) == k) out.add(Hist(c.getInt(1), c.getLong(2), c.getInt(3)))
+            }
+        }
+    } catch (_: Throwable) { }
+    return out
+}

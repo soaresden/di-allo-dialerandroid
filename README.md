@@ -1,0 +1,103 @@
+<p align="center">
+  <img src="docs/logo.png" alt="Di-Allô" width="520">
+</p>
+
+<p align="center">
+  <b>Le téléphone qui dit allô 🤙</b><br>
+  Une appli Téléphone complète pour Android, gratuite et sans pub, faite pour remplacer le dialer de ton téléphone.
+</p>
+
+---
+
+## ✨ Ce que fait Di-Allô
+
+### ⌨️ Clavier
+- **Touches musicales** : piano, guitare, violon, violoncelle, batterie… (sons synthétisés, aucun fichier audio)
+- Recherche **T9** sur les noms *et* sur les chiffres du numéro (« 32 » trouve tous les numéros qui contiennent 32), avec surlignage
+- Candidats triés par nombre d'appels, contacts à plusieurs numéros gérés
+- Touche ⭐ **Favoris** directement sur le clavier
+
+### 📞 Écran d'appel
+- Haut-parleur, muet, clavier DTMF, attente, Bluetooth
+- **Double appel** : mettre en attente et répondre, raccrocher et répondre, basculer entre les deux
+- **Conférence** : fusionner, parler en privé à un participant, raccrocher un participant
+- **Refuser avec un SMS** (réponses rapides personnalisables)
+- 📝 **Notes pendant l'appel**, rangées par contact. La dernière note s'affiche quand la personne rappelle.
+- 🕘 **Historique** des appels avec la personne, directement dans l'écran d'appel
+- Écran éteint contre la joue (capteur de proximité)
+- Notification d'appel et bandeau « appel en cours » quand on réduit l'écran
+
+### 🤚 Capteurs
+- **Haut-parleur automatique** : à l'oreille → écouteur, éloigné ou posé à plat → haut-parleur
+- **Porter à l'oreille pour décrocher** (protégé contre les déclenchements dans la poche)
+- **Retourner le téléphone pour couper la sonnerie et la vibration**, puis double vibration quand cet appel est terminé
+
+### 👥 Contacts, récents, notes
+- Libellés **Google** (groupes), index A–Z au doigt, 5 tris (dont un tri « intelligent »)
+- Fiche contact : tous les numéros avec leur étiquette, triés par nombre d'appels, drapeau du pays
+- 🗺️ **Carte** des adresses de tes contacts (OpenStreetMap, sans clé)
+- Onglet **Notes** avec recherche plein texte
+
+### 📊 Stats
+- Périodes cliquables, zoom année → mois → jour
+- Origine des numéros (pays, mobile / fixe, régions), habitudes horaires, classements
+- Faits marrants : la personne que tu ghostes le plus, ton plus vieil appel, ton record…
+- 🎁 **Di-Allô Wrapped** : ton année au téléphone en stories, à partager en image
+
+### 🎨 Et aussi
+- 23 thèmes colorés
+- Widget d'écran d'accueil **Favoris** : un appui, un appel
+- 📁 **Dossier de travail** : notes et réglages synchronisés automatiquement, et **sauvegarde quotidienne complète** du journal d'appels et des SMS/MMS (photos comprises) au format *SMS Backup & Restore*. Restauration intégrée.
+
+---
+
+## 📲 Installation
+
+1. Télécharge le dernier `Di-Allo.apk` dans les [Releases](../../releases).
+2. Installe-le (autorise l'installation depuis ton navigateur ou ton gestionnaire de fichiers si Android le demande).
+3. Ouvre Di-Allô, accepte les autorisations, puis **« Définir comme téléphone par défaut »**.
+4. Choisis un **dossier de travail** (par exemple `Di-Allo`) : notes, réglages et sauvegardes y seront rangés.
+
+> Testé sur Xiaomi (HyperOS). Android 10 minimum.
+
+### Autorisations
+| Autorisation | Pourquoi |
+|---|---|
+| Journal d'appels, contacts, téléphone | Afficher, rechercher et passer les appels |
+| SMS (lecture) | Sauvegarde des SMS/MMS, réponses rapides |
+| Notifications | Appel en cours, appel entrant |
+| Internet | Tuiles de la carte et géocodage des adresses |
+| Capteurs | Proximité et accéléromètre (haut-parleur auto, gestes), sans autorisation à demander |
+
+Aucune donnée ne quitte le téléphone : pas de compte, pas de pub, pas de pisteur.
+
+---
+
+## ⚠️ Limites (Android, pas Di-Allô)
+- **Enregistrement d'appel** : impossible pour une appli non système depuis Android 10.
+- Le haut-parleur auto et les gestes ne concernent que les appels téléphoniques, pas WhatsApp, Teams, etc.
+- Restaurer des SMS demande que Di-Allô soit **temporairement** l'appli SMS par défaut. L'appli te guide et te ramène ensuite à Google Messages.
+
+---
+
+## 🛠️ Compiler
+
+Prérequis : JDK 17 et le SDK Android (via Android Studio ou les outils en ligne de commande).
+
+```bash
+./gradlew :app:assembleDebug
+# APK : app/build/outputs/apk/debug/app-debug.apk
+```
+
+La version est automatique : `AAAA-MM-JJ-NN` (NN = numéro du build du jour), voir `version.properties`.
+
+Stack : Kotlin, Jetpack Compose (Material 3), Telecom `InCallService`, osmdroid, Coil.
+
+---
+
+## 🙏 Crédits
+- Main « Call me » : [Fluent Emoji](https://github.com/microsoft/fluentui-emoji) de Microsoft (licence MIT)
+- Cartes : © les contributeurs d'[OpenStreetMap](https://www.openstreetmap.org/copyright), via [osmdroid](https://github.com/osmdroid/osmdroid)
+
+## 📄 Licence
+[MIT](LICENSE). Libre, gratuit, fais-en ce que tu veux.

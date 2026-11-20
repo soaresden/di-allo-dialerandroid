@@ -1,0 +1,305 @@
+package fr.soaresden.diallo
+
+import android.content.Intent
+import android.provider.ContactsContract
+import android.view.HapticFeedbackConstants
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Backspace
+import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.filled.Voicemail
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
+import androidx.compose.ui.unit.sp
+
+private data class K(val d: String, val l: String)
+private val KEYS = listOf(
+    K("1", "vm"), K("2", "ABC"), K("3", "DEF"),
+    K("4", "GHI"), K("5", "JKL"), K("6", "MNO"),
+    K("7", "PQRS"), K("8", "TUV"), K("9", "WXYZ"),
+    K("*", ""), K("0", "+"), K("#", "")
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun DialScreen(
+    onConfirm: (String) -> Unit, onVoicemail: () -> Unit,
+    contacts: List<CallRepository.Contact>, frequent: List<CallRepository.Stat>
+) {
+    val ctx = LocalContext.current
+    val view = LocalView.current
+    var value by rememberSaveable { mutableStateOf("") }
+    val typed = value.filter { it.isDigit() }
+    // Candidats T9 / numéro, triés par nombre d'appels décroissant (une ligne par numéro)
+    // Recherche à la fois en T9 (nom) ET dans le numéro (format national 06…, pour que "33" ne matche pas tout le +33)
+    val intl = value.startsWith("+")
+    val suggestions = remember(typed, intl, contacts) {
+        if (typed.isEmpty()) emptyList()
+        else contacts.filter { it.t9.contains(typed) || nationalDigits(it.number).contains(typed) || (intl && it.digits.contains(typed)) }
+            .sortedWith(compareByDescending<CallRepository.Contact> { it.calls }
+                .thenBy { c -> if (c.t9.split(' ').any { w -> w.startsWith(typed) } || nationalDigits(c.number).startsWith(typed)) 0 else 1 }
+                .thenBy { it.display.lowercase() })
+            .take(60)
+    }
+    val exact = remember(typed, contacts) {
+        if (typed.length < 9) null else contacts.firstOrNull { it.digits.length >= 9 && it.digits.takeLast(9) == typed.takeLast(9) }
+    }
+    val favorites = remember(contacts) { contacts.filter { it.starred || it.groups.contains("⭐ Favoris") }.sortedWith(compareByDescending<CallRepository.Contact> { it.calls }.thenBy { it.display.lowercase() }) }
+    val byKey = remember(contacts) { contacts.associateBy { keyOf(it.number) } }
+    val freqRows = remember(frequent, byKey) {
+        frequent.map { s -> byKey[keyOf(s.number)] ?: CallRepository.Contact(s.number, s.name, s.photoUri, calls = s.count) }
+    }
+    var showFav by remember { mutableStateOf(false) }
+    fun press(k: String) {
+        if (value.length < 24) value += k
+        Synth.play(k)
+        view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+    }
+
+    if (showFav) {
+        ModalBottomSheet(onDismissRequest = { showFav = false }, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true), containerColor = MaterialTheme.colorScheme.surface) {
+            Text("⭐ Favoris", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp))
+            if (favorites.isEmpty()) Hint("Aucun favori. Mets une étoile à un contact dans l'app Contacts.")
+            else LazyColumn(Modifier.fillMaxWidth().heightIn(max = 560.dp)) {
+                items(favorites.size) { i -> CompactRow(favorites[i], { showFav = false; onConfirm(it) }) }
+                item { Spacer(Modifier.height(20.dp)) }
+            }
+        }
+    }
+
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        // On réserve d'abord la place des candidats (zone haute) et de l'affichage,
+        // puis le cadran prend le reste : 5 rangées + 4 espaces (16 % d'une touche).
+        val displayH = 84.dp
+        val topMin = 190.dp
+        val byH = (maxHeight - displayH - topMin - 12.dp) / 5.64f
+        val byW = (maxWidth - 72.dp) / 3
+        val key = min(min(byH, byW), 80.dp).coerceAtLeast(46.dp)
+        val gapV = (key * 0.16f)
+        val gapH = (key * 0.42f)
+
+        Column(Modifier.fillMaxSize()) {
+            // ---------- Volet liste : favoris / fréquents, ou candidats pendant la frappe ----------
+            Surface(
+                Modifier.weight(1f).fillMaxWidth().padding(horizontal = 12.dp).padding(top = 8.dp),
+                color = MaterialTheme.colorScheme.surface.copy(alpha = .92f), shape = RoundedCornerShape(20.dp)
+            ) {
+                LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(vertical = 6.dp)) {
+                    when {
+                        value.isEmpty() -> {
+                            if (freqRows.isNotEmpty()) {
+                                item { SmallTitle("Fréquents") }
+                                items(freqRows.size) { i -> CompactRow(freqRows[i], onConfirm) }
+                            } else item { Hint("Tes contacts fréquents apparaîtront ici.") }
+                        }
+                        exact != null -> {
+                            item { SmallTitle("Contact trouvé") }
+                            item { CompactRow(exact, onConfirm) }
+                        }
+                        suggestions.isEmpty() -> item { Hint("Aucun contact ne correspond") }
+                        else -> {
+                            item { SmallTitle(if (suggestions.size >= 60) "60+ résultats" else "${suggestions.size} résultat${if (suggestions.size > 1) "s" else ""}") }
+                            items(suggestions.size) { i -> CompactRow(suggestions[i], onConfirm, typed) }
+                        }
+                    }
+                }
+            }
+
+            // ---------- Affichage du numéro ----------
+            Column(Modifier.fillMaxWidth().height(displayH).padding(horizontal = 24.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    if (value.isEmpty()) "" else prettyNumber(value),
+                    fontSize = when { value.length <= 10 -> 38.sp; value.length <= 14 -> 31.sp; else -> 25.sp },
+                    fontWeight = FontWeight.Light, letterSpacing = 1.5.sp, textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onBackground, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                when {
+                    value.isEmpty() -> Text("Saisis un numéro ou un nom (T9)", fontSize = 13.sp, color = muted(.45f))
+                    exact != null -> Text(exact.display, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    typed.length >= 6 -> Row(Modifier.clip(RoundedCornerShape(50)).clickable {
+                        try { ctx.startActivity(Intent(ContactsContract.Intents.Insert.ACTION).setType(ContactsContract.RawContacts.CONTENT_TYPE).putExtra(ContactsContract.Intents.Insert.PHONE, value)) } catch (_: Throwable) {}
+                    }.padding(horizontal = 10.dp, vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.PersonAdd, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp)); Spacer(Modifier.width(6.dp))
+                        Text("Créer un contact", fontSize = 13.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium)
+                    }
+                    else -> Spacer(Modifier.height(18.dp))
+                }
+            }
+
+            // ---------- Cadran ----------
+            Column(Modifier.fillMaxWidth().padding(bottom = 12.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(gapV)) {
+                for (r in 0 until 4) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(gapH)) {
+                        for (col in 0 until 3) {
+                            val k = KEYS[r * 3 + col]
+                            DialKey(k, key, onClick = { press(k.d) }, onLong = {
+                                when (k.d) {
+                                    "1" -> onVoicemail()
+                                    "0" -> { if (value.length < 24) value += "+"; view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS) }
+                                }
+                            })
+                        }
+                    }
+                }
+                // Rangée d'appel : [favoris] [appeler] [effacer]
+                Row(horizontalArrangement = Arrangement.spacedBy(gapH), verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(key).clip(CircleShape).clickable { showFav = true; view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP) }, contentAlignment = Alignment.Center) {
+                        Icon(Icons.Filled.Star, "Favoris", tint = Color(0xFFF5B301), modifier = Modifier.size(key * 0.38f))
+                    }
+                    Box(Modifier.size(key).shadow(8.dp, CircleShape, ambientColor = CallGreen, spotColor = CallGreen).clip(CircleShape).background(CallGreen)
+                        .clickable { if (value.isNotEmpty()) onConfirm(value) }, contentAlignment = Alignment.Center) {
+                        Icon(Icons.Filled.Call, "Appeler", tint = Color.White, modifier = Modifier.size(key * 0.4f))
+                    }
+                    BackspaceKey(key, visible = value.isNotEmpty(), onClick = {
+                        value = value.dropLast(1); view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                    }, onLong = { value = ""; view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS) })
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun DialKey(k: K, size: Dp, onClick: () -> Unit, onLong: () -> Unit) {
+    val src = remember { MutableInteractionSource() }
+    val pressed by src.collectIsPressedAsState()
+    val base = MaterialTheme.colorScheme.surface.copy(alpha = .9f)
+    val bg by animateColorAsState(if (pressed) MaterialTheme.colorScheme.primary.copy(alpha = .35f).let { it } else base, tween(70), label = "keybg")
+    val scale by animateFloatAsState(if (pressed) .9f else 1f, tween(90), label = "keyscale")
+    Box(
+        Modifier.size(size).graphicsLayer { scaleX = scale; scaleY = scale }
+            .clip(CircleShape).background(bg)
+            .combinedClickable(interactionSource = src, indication = null, onClick = onClick, onLongClick = onLong),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                k.d, fontSize = (size.value * if (k.d == "*") 0.5f else 0.4f).sp, fontWeight = FontWeight.Light,
+                color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.offset(y = if (k.d == "*") 4.dp else 0.dp)
+            )
+            when (k.l) {
+                "vm" -> Icon(Icons.Filled.Voicemail, "Messagerie", tint = muted(.5f), modifier = Modifier.size((size.value * 0.17f).dp))
+                "" -> {}
+                else -> Text(k.l, fontSize = (size.value * 0.125f).sp, fontWeight = FontWeight.SemiBold, letterSpacing = 1.5.sp, color = muted(.5f))
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun BackspaceKey(size: Dp, visible: Boolean, onClick: () -> Unit, onLong: () -> Unit) {
+    Box(
+        Modifier.size(size).clip(CircleShape).then(if (visible) Modifier.combinedClickable(onClick = onClick, onLongClick = onLong) else Modifier),
+        contentAlignment = Alignment.Center
+    ) {
+        if (visible) Icon(Icons.Filled.Backspace, "Effacer", tint = muted(.6f), modifier = Modifier.size(size * 0.34f))
+    }
+}
+
+@Composable
+private fun SmallTitle(t: String) {
+    Text(t, fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(start = 14.dp, top = 6.dp, bottom = 2.dp))
+}
+
+@Composable
+private fun Hint(t: String) {
+    Box(Modifier.fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) { Text(t, color = muted(.45f), fontSize = 13.sp) }
+}
+
+/** Vignette compacte sur UNE ligne : avatar · nom · type + numéro · nb d'appels. */
+@Composable
+private fun CompactRow(c: CallRepository.Contact, onConfirm: (String) -> Unit, query: String = "") {
+    val hl = SpanStyle(color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.ExtraBold, background = MaterialTheme.colorScheme.primary.copy(alpha = .16f))
+    val shownNumber = displayNumber(c.number)
+    Row(
+        Modifier.fillMaxWidth().height(44.dp).clickable { onConfirm(c.number) }.padding(horizontal = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Avatar(c.display, c.photoUri, 28.dp); Spacer(Modifier.width(10.dp))
+        Text(highlightName(c.display, c.t9, query, hl), Modifier.weight(1f), fontWeight = FontWeight.SemiBold, fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, color = MaterialTheme.colorScheme.onBackground)
+        Spacer(Modifier.width(8.dp))
+        Text(
+            buildAnnotatedString { append(flagOf(c.number) + " "); c.label?.let { append("$it · ") }; append(highlightDigits(shownNumber, query, hl)) },
+            fontSize = 12.sp, color = muted(.55f), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.widthIn(max = 170.dp)
+        )
+        Text(if (c.calls > 0) "${c.calls}" else "", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary, textAlign = TextAlign.End, modifier = Modifier.width(30.dp))
+    }
+}
+
+/** Chiffres au format national : +33 6… / 0033 6… -> 06… */
+internal fun nationalDigits(n: String): String {
+    val d = n.filter { it.isDigit() }
+    val t = n.trim()
+    return when {
+        t.startsWith("+33") -> "0" + d.drop(2)
+        d.startsWith("0033") -> "0" + d.drop(4)
+        else -> d
+    }
+}
+
+/** Affichage : les numéros français en 06 12 34 56 78, les autres tels quels (formatés). */
+internal fun displayNumber(n: String): String {
+    val t = n.trim()
+    return if (t.startsWith("+33") || t.filter { it.isDigit() }.startsWith("0033")) prettyNumber(nationalDigits(n)) else prettyNumber(n)
+}
+
+/** Surligne dans le nom la partie qui correspond à la saisie T9. */
+private fun highlightName(name: String, t9: String, q: String, st: SpanStyle): AnnotatedString {
+    if (q.isEmpty() || t9.length != name.length) return AnnotatedString(name)
+    // priorité à un début de mot
+    var idx = -1; var from = 0
+    while (true) { val i = t9.indexOf(q, from); if (i < 0) break; if (i == 0 || t9[i - 1] == ' ') { idx = i; break }; if (idx < 0) idx = i; from = i + 1 }
+    if (idx < 0) return AnnotatedString(name)
+    return buildAnnotatedString { append(name); addStyle(st, idx, idx + q.length) }
+}
+
+/** Surligne dans un numéro affiché (avec espaces) la suite de chiffres saisie. */
+private fun highlightDigits(shown: String, q: String, st: SpanStyle): AnnotatedString {
+    if (q.isEmpty()) return AnnotatedString(shown)
+    val pos = ArrayList<Int>(); val sb = StringBuilder()
+    shown.forEachIndexed { i, ch -> if (ch.isDigit()) { pos.add(i); sb.append(ch) } }
+    val i = sb.indexOf(q)
+    if (i < 0) return AnnotatedString(shown)
+    return buildAnnotatedString { append(shown); addStyle(st, pos[i], pos[i + q.length - 1] + 1) }
+}
