@@ -51,7 +51,7 @@ class HyperInCallService : InCallService() {
         CallNotifier.update(this)
     }
 
-    override fun onCreate() { super.onCreate(); instance = this; DataFolder.init(this) }
+    override fun onCreate() { super.onCreate(); CrashLog.install(this); instance = this; DataFolder.init(this) }
     override fun onDestroy() { AutoSpeaker.stop(); RingGestures.stop(); CallNotifier.cancel(this); if (instance === this) instance = null; super.onDestroy() }
 
     override fun onCallAdded(call: Call) {

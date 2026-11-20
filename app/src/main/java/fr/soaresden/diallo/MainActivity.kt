@@ -44,6 +44,7 @@ import kotlinx.coroutines.withContext
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        CrashLog.install(this)
         DataFolder.init(this)
         takeTab(intent)
         setContent { App() }
@@ -80,6 +81,7 @@ private fun Root(theme: String, onTheme: (String) -> Unit) {
     LaunchedEffect(askTab) { if (askTab >= 0) { tab = askTab; MainActivity.openTab.intValue = -1 } }
     var wrapped by remember { mutableStateOf(false) }
     FolderPrompt { (ctx as? android.app.Activity)?.recreate() }
+    CrashReport()
     var pending by remember { mutableStateOf<String?>(null) }
     var detail by remember { mutableStateOf<String?>(null) }
 

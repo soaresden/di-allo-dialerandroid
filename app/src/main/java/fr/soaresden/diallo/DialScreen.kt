@@ -30,6 +30,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -66,6 +68,7 @@ internal fun DialScreen(
 ) {
     val ctx = LocalContext.current
     val view = LocalView.current
+    LaunchedEffect(Unit) { Synth.warmUp() }   // flux audio ouvert + sons calculés avant le 1er appui
     var value by rememberSaveable { mutableStateOf("") }
     val typed = value.filter { it.isDigit() }
     // Candidats T9 / numéro, triés par nombre d'appels décroissant (une ligne par numéro)
@@ -171,10 +174,10 @@ internal fun DialScreen(
                     Row(horizontalArrangement = Arrangement.spacedBy(gapH)) {
                         for (col in 0 until 3) {
                             val k = KEYS[r * 3 + col]
-                            DialKey(k, key, onClick = { press(k.d) }, onLong = {
+                            DialKey(k, key, onDown = { press(k.d) }, onLong = {
                                 when (k.d) {
-                                    "1" -> onVoicemail()
-                                    "0" -> { if (value.length < 24) value += "+"; view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS) }
+                                    "1" -> { if (value.endsWith("1")) value = value.dropLast(1); onVoicemail() }
+                                    "0" -> { if (value.endsWith("0")) value = value.dropLast(1); if (value.length < 24) value += "+"; view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS) }
                                 }
                             })
                         }
@@ -200,16 +203,22 @@ internal fun DialScreen(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun DialKey(k: K, size: Dp, onClick: () -> Unit, onLong: () -> Unit) {
-    val src = remember { MutableInteractionSource() }
-    val pressed by src.collectIsPressedAsState()
+private fun DialKey(k: K, size: Dp, onDown: () -> Unit, onLong: () -> Unit) {
+    var pressed by remember { mutableStateOf(false) }
+    val down by rememberUpdatedState(onDown); val long by rememberUpdatedState(onLong)
     val base = MaterialTheme.colorScheme.surface.copy(alpha = .9f)
     val bg by animateColorAsState(if (pressed) MaterialTheme.colorScheme.primary.copy(alpha = .35f).let { it } else base, tween(70), label = "keybg")
     val scale by animateFloatAsState(if (pressed) .9f else 1f, tween(90), label = "keyscale")
     Box(
         Modifier.size(size).graphicsLayer { scaleX = scale; scaleY = scale }
             .clip(CircleShape).background(bg)
-            .combinedClickable(interactionSource = src, indication = null, onClick = onClick, onLongClick = onLong),
+            // son + vibration + chiffre dès le contact du doigt (pas au relâchement)
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onPress = { pressed = true; down(); tryAwaitRelease(); pressed = false },
+                    onLongPress = { long() }
+                )
+            },
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {

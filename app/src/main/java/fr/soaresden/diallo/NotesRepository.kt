@@ -37,7 +37,9 @@ object NotesRepository {
     private fun all(ctx: Context): MutableList<Note> {
         cache?.let { return it }
         val f = file(ctx)
-        val list = if (f.exists()) fromJson(try { f.readText() } catch (_: Throwable) { "[]" }).toMutableList() else ArrayList()
+        val raw = if (f.exists()) fromJson(try { f.readText() } catch (_: Throwable) { "[]" }) else emptyList()
+        val list = raw.distinctBy { it.id }.toMutableList()          // doublons d'une ancienne restauration
+        if (list.size != raw.size) try { f.writeText(toJson(list)) } catch (_: Throwable) { }
         cache = list
         return list
     }
@@ -49,15 +51,17 @@ object NotesRepository {
         DataFolder.scheduleSync(ctx)
     }
 
-    fun list(ctx: Context): List<Note> = all(ctx).sortedByDescending { it.date }
-    fun forNumber(ctx: Context, number: String): List<Note> { val k = keyOf(number); return all(ctx).filter { it.key == k }.sortedByDescending { it.date } }
-    fun forKey(ctx: Context, key: String): List<Note> = all(ctx).filter { it.key == key }.sortedByDescending { it.date }
+    @Synchronized fun list(ctx: Context): List<Note> = all(ctx).sortedByDescending { it.date }
+    @Synchronized fun forNumber(ctx: Context, number: String): List<Note> { val k = keyOf(number); return all(ctx).filter { it.key == k }.sortedByDescending { it.date } }
+    @Synchronized fun forKey(ctx: Context, key: String): List<Note> = all(ctx).filter { it.key == key }.sortedByDescending { it.date }
 
     @Synchronized
     fun add(ctx: Context, number: String, name: String?, text: String) {
         if (text.isBlank()) return
         val now = System.currentTimeMillis()
-        all(ctx).add(Note(now, keyOf(number), number, name, now, text.trim()))
+        val l = all(ctx)
+        val id = maxOf(now, (l.maxOfOrNull { it.id } ?: 0L) + 1)    // id toujours unique
+        l.add(Note(id, keyOf(number), number, name, now, text.trim()))
         persist(ctx)
     }
 
@@ -68,7 +72,7 @@ object NotesRepository {
     @Synchronized
     fun merge(ctx: Context, incoming: List<Note>): Int {
         val l = all(ctx); val ids = l.map { it.id }.toHashSet()
-        val add = incoming.filter { it.id !in ids }
+        val add = incoming.distinctBy { it.id }.filter { it.id !in ids }
         if (add.isNotEmpty()) { l.addAll(add); persist(ctx) }
         return add.size
     }

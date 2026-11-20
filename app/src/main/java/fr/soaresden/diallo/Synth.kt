@@ -4,7 +4,6 @@ import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioTrack
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.floor
@@ -75,30 +74,105 @@ object Synth {
     @Volatile var currentId: String = "piano"
     private val current: Instr get() = instruments.firstOrNull { it.id == currentId } ?: instruments[0]
 
-    private val exec = Executors.newFixedThreadPool(3)
-    private val releaser = Executors.newScheduledThreadPool(2)
+    private val exec = Executors.newFixedThreadPool(2)
 
-    fun setInstrument(id: String) { currentId = id }
-
-    /** Joue le son de la touche [key] ("0".."9","*","#") avec l'instrument courant. */
-    // Cache des sons déjà calculés : la 2e frappe d'une touche est instantanée
+    // Cache des sons déjà calculés (instrument courant seulement) : préparés à l'avance
     private val cache = java.util.concurrent.ConcurrentHashMap<String, ShortArray>()
+    private val KEYS = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "0", "#")
 
+    fun setInstrument(id: String) {
+        currentId = id
+        cache.keys.removeAll { !it.startsWith("$id|") }
+        prepare()
+    }
+
+    private fun render(instr: Instr, key: String): ShortArray = cache.getOrPut(instr.id + "|" + key) {
+        when (instr.kind) {
+            Kind.DRUM -> renderDrum(key)
+            Kind.DTMF -> renderDtmf(key)
+            Kind.GUITAR -> renderGuitar(freqOf[key] ?: 440.0)
+            Kind.BOWED -> renderBowed((freqOf[key] ?: 440.0) * instr.octave, instr)
+            Kind.MELODIC -> renderMelodic(freqOf[key] ?: 440.0, instr)
+        }
+    }
+
+    /** Calcule à l'avance les 12 touches de l'instrument courant. */
+    fun prepare() {
+        val instr = current
+        exec.execute { KEYS.forEach { k -> try { render(instr, k) } catch (_: Throwable) { } } }
+    }
+
+    /** Ouvre le flux audio et prépare les sons : à appeler quand le clavier s'affiche. */
+    fun warmUp() { prepare(); ensureMixer() }
+
+    /** Joue le son de la touche [key] ("0".."9","*","#") avec l'instrument courant — sans attendre. */
     fun play(key: String) {
         val instr = current
-        exec.execute {
-            try {
-                val samples = cache.getOrPut(instr.id + "|" + key) {
-                    when (instr.kind) {
-                        Kind.DRUM -> renderDrum(key)
-                        Kind.DTMF -> renderDtmf(key)
-                        Kind.GUITAR -> renderGuitar(freqOf[key] ?: 440.0)
-                        Kind.BOWED -> renderBowed((freqOf[key] ?: 440.0) * instr.octave, instr)
-                        Kind.MELODIC -> renderMelodic(freqOf[key] ?: 440.0, instr)
-                    }
+        val ready = cache[instr.id + "|" + key]
+        if (ready != null) start(ready)
+        else exec.execute { try { start(render(instr, key)) } catch (_: Throwable) { } }
+    }
+
+    // ---- Mixeur : un seul AudioTrack en flux, gardé ouvert quelques secondes ----
+    private class Voice(val s: ShortArray) { var pos = 0 }
+    private val voices = java.util.concurrent.ConcurrentLinkedQueue<Voice>()
+    private val lock = Object()
+    @Volatile private var mixer: Thread? = null
+    @Volatile private var lastUse = 0L
+    private const val CHUNK = 192          // ~4 ms par paquet
+    private const val IDLE_MS = 15_000L    // ferme le flux après 15 s sans touche
+
+    private fun start(s: ShortArray) {
+        voices.add(Voice(s))
+        while (voices.size > 6) voices.poll()   // pas plus de 6 notes à la fois
+        ensureMixer()
+    }
+
+    private fun ensureMixer() {
+        lastUse = System.currentTimeMillis()
+        synchronized(lock) {
+            if (mixer?.isAlive == true) return
+            mixer = Thread({ runMixer() }, "diallo-synth").apply { priority = Thread.MAX_PRIORITY; start() }
+        }
+    }
+
+    private fun runMixer() {
+        android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO)
+        val min = AudioTrack.getMinBufferSize(SR, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT).coerceAtLeast(CHUNK * 4)
+        val track = try {
+            AudioTrack.Builder()
+                .setAudioAttributes(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build())
+                .setAudioFormat(AudioFormat.Builder().setEncoding(AudioFormat.ENCODING_PCM_16BIT).setSampleRate(SR).setChannelMask(AudioFormat.CHANNEL_OUT_MONO).build())
+                .setBufferSizeInBytes(min)
+                .setTransferMode(AudioTrack.MODE_STREAM)
+                .setPerformanceMode(AudioTrack.PERFORMANCE_MODE_LOW_LATENCY)
+                .build()
+        } catch (_: Throwable) { synchronized(lock) { mixer = null }; return }
+        val mix = IntArray(CHUNK); val out = ShortArray(CHUNK)
+        try {
+            track.play()
+            while (true) {
+                if (voices.isEmpty() && System.currentTimeMillis() - lastUse > IDLE_MS) {
+                    val stop = synchronized(lock) { if (voices.isEmpty()) { mixer = null; true } else false }
+                    if (stop) break
                 }
-                playBuffer(samples)
-            } catch (_: Throwable) { }
+                java.util.Arrays.fill(mix, 0)
+                val it = voices.iterator()
+                while (it.hasNext()) {
+                    val v = it.next()
+                    val n = minOf(CHUNK, v.s.size - v.pos)
+                    for (i in 0 until n) mix[i] += v.s[v.pos + i].toInt()
+                    v.pos += n
+                    if (v.pos >= v.s.size) it.remove()
+                }
+                for (i in 0 until CHUNK) out[i] = mix[i].coerceIn(-32767, 32767).toShort()
+                track.write(out, 0, CHUNK)   // bloquant : cadence le mixeur sur la sortie audio
+            }
+        } catch (_: Throwable) {
+            synchronized(lock) { mixer = null }
+        } finally {
+            try { track.stop() } catch (_: Throwable) {}
+            try { track.release() } catch (_: Throwable) {}
         }
     }
 
@@ -257,36 +331,5 @@ object Synth {
         val mix = DoubleArray(n)
         for (part in parts) for (i in part.indices) mix[i] += part[i]
         return toShorts(mix, 0.6)
-    }
-
-    // ---- Lecture ----
-    private fun playBuffer(samples: ShortArray) {
-        val bytes = (samples.size * 2).coerceAtLeast(256)
-        val track = AudioTrack.Builder()
-            .setAudioAttributes(
-                AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .build()
-            )
-            .setAudioFormat(
-                AudioFormat.Builder()
-                    .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                    .setSampleRate(SR)
-                    .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
-                    .build()
-            )
-            .setBufferSizeInBytes(bytes)
-            .setTransferMode(AudioTrack.MODE_STATIC)
-            .setPerformanceMode(AudioTrack.PERFORMANCE_MODE_LOW_LATENCY)
-            .build()
-        track.write(samples, 0, samples.size)
-        track.play()
-        // Libération planifiée sur un thread séparé : ne bloque JAMAIS le rendu de la note suivante
-        val ms = (samples.size * 1000L / SR) + 150
-        releaser.schedule({
-            try { track.stop() } catch (_: Throwable) {}
-            try { track.release() } catch (_: Throwable) {}
-        }, ms, TimeUnit.MILLISECONDS)
     }
 }

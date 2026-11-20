@@ -41,7 +41,7 @@ class OngoingCallActivity : ComponentActivity() {
     private var wake: PowerManager.WakeLock? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        super.onCreate(savedInstanceState); CrashLog.install(this)
         setShowWhenLocked(true)
         setTurnScreenOn(true)
         handle(intent)

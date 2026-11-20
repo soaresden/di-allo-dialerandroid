@@ -25,11 +25,9 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        // -Plegacy : ancien identifiant, pour la mise à jour de transition (exporte les données vers le dossier de travail)
-        applicationId = if (project.hasProperty("legacy")) "com.hyperdial.remade" else "fr.soaresden.diallo"
+        applicationId = "fr.soaresden.diallo"
         minSdk = 29
         targetSdk = 34
-        manifestPlaceholders["appLabel"] = if (project.hasProperty("legacy")) "Di-Allô (ancien)" else "@string/app_name"
         versionCode = verCode
         versionName = verName
     }

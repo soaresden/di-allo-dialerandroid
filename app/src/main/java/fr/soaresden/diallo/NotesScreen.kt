@@ -60,11 +60,10 @@ internal fun NotesScreen(contacts: List<CallRepository.Contact>, onCall: (String
             if (q.isBlank()) "${all.size} note${if (all.size > 1) "s" else ""}" else "${shown.size} résultat${if (shown.size > 1) "s" else ""} sur ${all.size}",
             fontSize = 12.sp, color = muted(.55f), modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
         )
-        if (all.isEmpty()) { Empty("Aucune note pour l'instant.\nPrends des notes pendant tes appels 📝"); return@Column }
-        if (shown.isEmpty()) { Empty("Rien trouvé pour « $q »."); return@Column }
-
-        LazyColumn(Modifier.fillMaxSize()) {
-            if (mode == 0) items(shown, key = { it.id }) { n ->
+        if (all.isEmpty()) Empty("Aucune note pour l'instant.\nPrends des notes pendant tes appels 📝")
+        else if (shown.isEmpty()) Empty("Rien trouvé pour « $q ».")
+        else LazyColumn(Modifier.fillMaxSize()) {
+            if (mode == 0) items(shown, key = { "n${it.id}" }) { n ->
                 NoteCard(n, nameOf(n), byKey[n.key]?.photoUri, q, showWho = true, onCall = onCall, onDetail = onDetail)
             } else {
                 val groups = shown.groupBy { it.key }.entries.sortedByDescending { e -> e.value.maxOf { it.date } }
@@ -85,7 +84,7 @@ internal fun NotesScreen(contacts: List<CallRepository.Contact>, onCall: (String
                             }
                         }
                     }
-                    items(list, key = { it.id }) { n -> NoteCard(n, nameOf(n), null, q, showWho = false, onCall = onCall, onDetail = onDetail) }
+                    items(list, key = { "g${k}_${it.id}" }) { n -> NoteCard(n, nameOf(n), null, q, showWho = false, onCall = onCall, onDetail = onDetail) }
                 }
             }
             item { Spacer(Modifier.height(20.dp)) }
