@@ -107,7 +107,7 @@ internal fun DialScreen(
     }
     var showFav by remember { mutableStateOf(false) }
     var showMelodies by remember { mutableStateOf(false) }
-    var toSave by remember { mutableStateOf<List<Melodies.Note>?>(null) }
+    var toSave by remember { mutableStateOf<Pair<List<Melodies.Note>, String>?>(null) }
     val recording by Melodies.recording
     val playingName by Melodies.playingName
     fun press(k: String) {
@@ -115,11 +115,11 @@ internal fun DialScreen(
         Synth.play(k)
         view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
     }
-    fun stopRec() { val n = Melodies.stopRec(); if (n.isNotEmpty()) toSave = n }
+    fun stopRec() { val r = Melodies.stopRec(); if (r.first.isNotEmpty()) toSave = r }
     androidx.activity.compose.BackHandler(enabled = recording) { stopRec() }
 
     if (showMelodies) MelodySheet(onDismiss = { showMelodies = false; Melodies.stop() }, onRecord = { showMelodies = false; value = ""; Melodies.startRec() })
-    toSave?.let { n -> SaveRecordingDialog(n) { toSave = null } }
+    toSave?.let { (n, t) -> SaveRecordingDialog(n, t) { toSave = null } }
 
     if (showFav) {
         ModalBottomSheet(onDismissRequest = { showFav = false }, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true), containerColor = MaterialTheme.colorScheme.surface) {
@@ -171,7 +171,7 @@ internal fun DialScreen(
             }
 
             // ---------- Affichage du numéro ----------
-            if (recording) RecDisplay(displayH) { stopRec() }
+            if (recording) RecDisplay(displayH)
             else Box(Modifier.fillMaxWidth().height(displayH)) {
             Column(Modifier.fillMaxSize().padding(horizontal = 24.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
@@ -221,7 +221,23 @@ internal fun DialScreen(
                     }
                 }
                 // Rangée d'appel : [favoris] [appeler] [effacer]
-                Row(horizontalArrangement = Arrangement.spacedBy(gapH), verticalAlignment = Alignment.CenterVertically) {
+                if (recording) Row(horizontalArrangement = Arrangement.spacedBy(gapH), verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(key).clip(CircleShape).background(MaterialTheme.colorScheme.surface.copy(alpha = .9f))
+                        .clickable { Melodies.space(); view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP) }, contentAlignment = Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("␣", fontSize = (key.value * 0.36f).sp, color = MaterialTheme.colorScheme.onSurface)
+                            Text("PAUSE", fontSize = (key.value * 0.12f).sp, fontWeight = FontWeight.SemiBold, letterSpacing = 1.sp, color = muted(.5f))
+                        }
+                    }
+                    Box(Modifier.size(key).shadow(8.dp, CircleShape, ambientColor = RecRed, spotColor = RecRed).clip(CircleShape).background(RecRed)
+                        .clickable { stopRec() }, contentAlignment = Alignment.Center) {
+                        Icon(Icons.Filled.Stop, "Terminer", tint = Color.White, modifier = Modifier.size(key * 0.42f))
+                    }
+                    BackspaceKey(key, visible = Melodies.recTokens.isNotEmpty(), onClick = {
+                        Melodies.backspace(); view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                    }, onLong = { Melodies.clearRec(); view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS) })
+                }
+                else Row(horizontalArrangement = Arrangement.spacedBy(gapH), verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.size(key).clip(CircleShape).clickable { showFav = true; view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP) }, contentAlignment = Alignment.Center) {
                         Icon(Icons.Filled.Star, "Favoris", tint = Color(0xFFF5B301), modifier = Modifier.size(key * 0.38f))
                     }
@@ -384,22 +400,30 @@ private fun highlightDigits(shown: String, q: String, st: SpanStyle): AnnotatedS
 
 /** Bandeau d'enregistrement : point rouge qui pulse, chrono, nombre de notes, bouton stop. */
 @Composable
-private fun RecDisplay(h: Dp, onStop: () -> Unit) {
+private fun RecDisplay(h: Dp) {
     val n = Melodies.recNotes.size
-    var elapsed by remember { mutableStateOf(0L) }
-    LaunchedEffect(Unit) { while (true) { elapsed = if (Melodies.recNotes.isEmpty()) 0L else System.currentTimeMillis() - Melodies.recStart; delay(200) } }
+    val text = Melodies.recText
     val blink by androidx.compose.animation.core.rememberInfiniteTransition(label = "rec").animateFloat(
         1f, .25f, androidx.compose.animation.core.infiniteRepeatable(tween(650), androidx.compose.animation.core.RepeatMode.Reverse), label = "blink"
     )
-    Row(Modifier.fillMaxWidth().height(h).padding(horizontal = 22.dp), verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(14.dp).graphicsLayer { alpha = blink }.clip(CircleShape).background(RecRed))
-        Spacer(Modifier.width(12.dp))
-        Column(Modifier.weight(1f)) {
-            Text(if (n == 0) "Joue ta mélodie…" else "REC  " + fmtMelodyDur((elapsed.toInt() - 500).coerceAtLeast(0)), fontSize = 22.sp, fontWeight = FontWeight.SemiBold, color = RecRed)
-            Text(if (n == 0) "Le chrono part à la 1re note" else "$n note${if (n > 1) "s" else ""} · le numéro n'est pas tapé", fontSize = 12.5.sp, color = muted(.6f))
+    Column(Modifier.fillMaxWidth().height(h).padding(horizontal = 20.dp), verticalArrangement = Arrangement.Center) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(10.dp).graphicsLayer { alpha = blink }.clip(CircleShape).background(RecRed))
+            Spacer(Modifier.width(8.dp))
+            Text(
+                if (n == 0) "REC · joue ta mélodie" else "REC · $n note${if (n > 1) "s" else ""} · ${fmtMelodyDur(Melodies.recDurationMs)}",
+                fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold, color = RecRed
+            )
+            Spacer(Modifier.weight(1f))
+            Text("␣ pause · ⌫ corriger", fontSize = 11.sp, color = muted(.45f))
         }
-        Button(onClick = onStop, colors = ButtonDefaults.buttonColors(containerColor = RecRed, contentColor = Color.White), contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)) {
-            Icon(Icons.Filled.Stop, null, Modifier.size(18.dp)); Spacer(Modifier.width(4.dp)); Text("Stop")
-        }
+        // les derniers chiffres tapés, le curseur au bout
+        Text(
+            if (text.isEmpty()) "…" else text.takeLast(26) + "▏",
+            fontSize = if (text.length <= 14) 32.sp else 24.sp, fontWeight = FontWeight.Light, letterSpacing = 2.sp,
+            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+            color = if (text.isEmpty()) muted(.35f) else MaterialTheme.colorScheme.onBackground,
+            maxLines = 1, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(top = 2.dp)
+        )
     }
 }

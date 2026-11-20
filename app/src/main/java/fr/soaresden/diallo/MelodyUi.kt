@@ -32,6 +32,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 internal val RecRed = Color(0xFFE5484D)
 
@@ -149,27 +151,48 @@ internal fun MelodySheet(onDismiss: () -> Unit, onRecord: () -> Unit) {
 
 /** Fin d'enregistrement : nommer, réécouter, garder ou jeter. */
 @Composable
-internal fun SaveRecordingDialog(notes: List<Melodies.Note>, onDone: () -> Unit) {
+internal fun SaveRecordingDialog(played: List<Melodies.Note>, typed: String, onDone: () -> Unit) {
     val ctx = LocalContext.current
     var name by remember { mutableStateOf(Melodies.nextName(ctx)) }
+    var text by remember { mutableStateOf(typed) }
     val instr = remember { Synth.currentId }
     val playing by Melodies.playingId
+    // tempo de départ = écart habituel entre les notes jouées
+    val med = remember { played.zipWithNext { a, b -> b.t - a.t }.filter { it > 40 }.sorted().let { it.getOrNull(it.size / 2) ?: 300 }.coerceIn(120, 700) }
+    var step by remember { mutableFloatStateOf(med.toFloat()) }
+    val changed = text.trim() != typed.trim()
+    var asPlayed by remember { mutableStateOf(true) }
+    val useRhythm = asPlayed && !changed
+    val notes = if (useRhythm) played else remember(text, step) { Melodies.fromText(text, step.toInt()) }
     val dur = (notes.lastOrNull()?.t ?: 0) + 400
     AlertDialog(
         onDismissRequest = { },
         title = { Text("🎙️ Garder la mélodie ?") },
         text = {
-            Column {
-                Text("${notes.size} notes · ${fmtMelodyDur(dur)} · ${instrLabel(instr)}", fontSize = 13.sp, color = muted())
-                Text(Melodies.toText(notes), fontSize = 12.sp, fontFamily = FontFamily.Monospace, color = muted(.6f), maxLines = 3, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 4.dp, bottom = 10.dp))
+            Column(Modifier.verticalScroll(rememberScrollState())) {
                 OutlinedTextField(name, { name = it }, label = { Text("Nom") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                TextButton(onClick = { if (playing == -1L) Melodies.stop() else Melodies.play(-1L, name, instr, notes) }) {
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(
+                    text, { v -> text = v.replace("\r", "").filter { it.toString() in Melodies.VALID || it == ' ' || it == '\n' } },
+                    label = { Text("Touches (modifiables)") },
+                    textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Monospace, fontSize = 17.sp),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone), maxLines = 6, modifier = Modifier.fillMaxWidth()
+                )
+                Text("${notes.size} notes · ${fmtMelodyDur(dur)} · ${instrLabel(instr)}", fontSize = 12.sp, color = muted(), modifier = Modifier.padding(top = 4.dp))
+                Spacer(Modifier.height(8.dp))
+                Segmented(listOf("🎵 Rythme joué", "📏 Régulier"), if (useRhythm) 0 else 1, { asPlayed = it == 0 })
+                if (changed) Text("Touches modifiées : rythme régulier (espace = pause).", fontSize = 11.5.sp, color = muted(.55f), modifier = Modifier.padding(top = 4.dp))
+                if (!useRhythm) {
+                    Text("Tempo : ${(60000 / step).toInt()} notes / min", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.padding(top = 6.dp))
+                    Slider(step, { step = it }, valueRange = 120f..700f)
+                }
+                TextButton(enabled = notes.isNotEmpty(), onClick = { if (playing == -1L) Melodies.stop() else Melodies.play(-1L, name, instr, notes) }) {
                     Icon(if (playing == -1L) Icons.Filled.Stop else Icons.Filled.PlayArrow, null, Modifier.size(18.dp)); Spacer(Modifier.width(4.dp))
                     Text(if (playing == -1L) "Arrêter" else "Réécouter")
                 }
             }
         },
-        confirmButton = { Button(onClick = { Melodies.stop(); Melodies.add(ctx, name, instr, notes); Toast.makeText(ctx, "Mélodie enregistrée 🎼", Toast.LENGTH_SHORT).show(); onDone() }) { Text("Garder") } },
+        confirmButton = { Button(enabled = notes.isNotEmpty(), onClick = { Melodies.stop(); Melodies.add(ctx, name, instr, notes); Toast.makeText(ctx, "Mélodie enregistrée 🎼", Toast.LENGTH_SHORT).show(); onDone() }) { Text("Garder") } },
         dismissButton = { TextButton(onClick = { Melodies.stop(); onDone() }) { Text("Jeter", color = RecRed) } }
     )
 }
@@ -204,7 +227,7 @@ internal fun MelodyFromTextDialog(onDone: () -> Unit) {
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
-                        Text("Espace = pause · retour à la ligne = respiration", fontSize = 11.5.sp, color = muted(.55f))
+                        Text("Espace = pause · retour à la ligne = pause aussi", fontSize = 11.5.sp, color = muted(.55f))
                         Text(Melodies.LEGEND, fontSize = 10.5.sp, color = muted(.45f))
                     }
                     TextButton(onClick = {

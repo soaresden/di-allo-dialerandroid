@@ -61,15 +61,16 @@ object Melodies {
     fun nextName(ctx: Context) = "Mélodie ${load(ctx).size + 1}"
 
     // ---------- Chiffres <-> notes ----------
-    /** « 624 624 687 » → notes espacées de [stepMs] ; un espace = une pause, un retour à la ligne = une respiration (2 pas). */
+    /** « 624 624 687 » → notes espacées de [stepMs] ; un espace = une pause, un retour à la ligne aussi (une seule, même juste après un espace). */
     fun fromText(text: String, stepMs: Int): List<Note> {
-        val out = ArrayList<Note>(); var t = 0
+        val out = ArrayList<Note>(); var t = 0; var prev = ' '
         text.forEach { c ->
             when {
                 c.toString() in VALID -> { out.add(Note(c.toString(), t)); t += stepMs }
-                c == '\n' -> if (out.isNotEmpty()) t += stepMs * 2
+                c == '\n' -> if (out.isNotEmpty() && prev != ' ' && prev != '\n') t += stepMs
                 c == ' ' || c == '-' || c == '.' || c == ',' || c == '/' -> if (out.isNotEmpty()) t += stepMs
             }
+            prev = c
         }
         return out
     }
@@ -128,17 +129,60 @@ object Melodies {
     // ---------- Enregistrement ----------
     val recording = mutableStateOf(false)
     val recNotes = mutableStateListOf<Note>()
-    var recStart = 0L; private set
+    /** Ce qui s'affiche pendant l'enregistrement : une touche ou " " (pause), dans l'ordre. */
+    val recTokens = mutableStateListOf<String>()
+    private var tLast = 0                 // instant (ms) de la dernière note dans la mélodie
+    private var wallLast = 0L             // heure réelle de la dernière action
+    private var edited = false            // on vient d'effacer : le temps passé à corriger ne compte pas
 
-    fun startRec() { stop(); recNotes.clear(); recStart = 0L; recording.value = true }
+    val recText: String get() = recTokens.joinToString("")
+
+    /** Écart habituel entre deux notes (sert de durée à une pause « espace »). */
+    private fun typicalGap(): Int {
+        val g = recNotes.zipWithNext { a, b -> b.t - a.t }.filter { it > 40 }.sorted()
+        return (g.getOrNull(g.size / 2) ?: 320).coerceIn(120, 900)
+    }
+
+    fun startRec() { stop(); recNotes.clear(); recTokens.clear(); tLast = 0; edited = false; recording.value = true }
+
     /** Appelée à chaque appui sur une touche du clavier. */
     fun note(k: String) {
         if (!recording.value || k !in VALID) return
         val now = System.currentTimeMillis()
-        if (recNotes.isEmpty()) recStart = now                      // le silence avant la 1re note ne compte pas
-        recNotes.add(Note(k, (now - recStart).toInt()))
+        val t = if (recNotes.isEmpty()) 0 else {
+            val gap = (now - wallLast).toInt()
+            tLast + if (edited) minOf(gap, typicalGap()) else minOf(gap, 2500)   // long silence de réflexion → raccourci
+        }
+        recNotes.add(Note(k, t)); recTokens.add(k)
+        tLast = t; wallLast = now; edited = false
     }
-    fun stopRec(): List<Note> { recording.value = false; return recNotes.toList().also { recNotes.clear() } }
+
+    /** Touche espace : une pause d'une note. */
+    fun space() {
+        if (!recording.value || recTokens.isEmpty() || recTokens.last() == " ") return
+        recTokens.add(" ")
+        val now = System.currentTimeMillis()
+        tLast += typicalGap(); wallLast = now; edited = true
+    }
+
+    /** ⌫ : enlève la dernière note (ou la dernière pause). */
+    fun backspace() {
+        if (recTokens.isEmpty()) return
+        val last = recTokens.removeAt(recTokens.lastIndex)
+        if (last == " ") tLast = (tLast - typicalGap()).coerceAtLeast(recNotes.lastOrNull()?.t ?: 0)
+        else { recNotes.removeAt(recNotes.lastIndex); tLast = recNotes.lastOrNull()?.t ?: 0 }
+        wallLast = System.currentTimeMillis(); edited = true
+    }
+    fun clearRec() { recNotes.clear(); recTokens.clear(); tLast = 0; edited = false }
+
+    /** Fin : (notes avec le rythme joué, texte affiché). */
+    fun stopRec(): Pair<List<Note>, String> {
+        recording.value = false
+        val r = recNotes.toList() to recText.trim()
+        recNotes.clear(); recTokens.clear()
+        return r
+    }
+    val recDurationMs: Int get() = if (recNotes.isEmpty()) 0 else tLast + 400
 
     // ---------- Lecture ----------
     val playingId = mutableStateOf<Long?>(null)
