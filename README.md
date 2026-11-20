@@ -13,6 +13,7 @@
 
 ### ⌨️ Clavier
 - **Touches musicales** : piano, guitare, violon, violoncelle, batterie… (sons synthétisés, aucun fichier audio)
+- 🎼 **Enregistreur de mélodies** : ⏺ enregistre ce que tu joues avec le rythme, ou tape un air en chiffres (« 624 624 687… », espace = pause). La lecture anime les touches, et les mélodies se partagent en chiffres.
 - Recherche **T9** sur les noms *et* sur les chiffres du numéro (« 32 » trouve tous les numéros qui contiennent 32), avec surlignage
 - Candidats triés par nombre d'appels, contacts à plusieurs numéros gérés
 - Touche ⭐ **Favoris** directement sur le clavier

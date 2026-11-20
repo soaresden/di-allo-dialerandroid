@@ -96,9 +96,11 @@ object Synth {
         }
     }
 
-    /** Calcule à l'avance les 12 touches de l'instrument courant. */
-    fun prepare() {
-        val instr = current
+    private fun instr(id: String?): Instr = id?.let { i -> instruments.firstOrNull { it.id == i } } ?: current
+
+    /** Calcule à l'avance les 12 touches de l'instrument [id] (courant par défaut). */
+    fun prepare(id: String? = null) {
+        val instr = instr(id)
         exec.execute { KEYS.forEach { k -> try { render(instr, k) } catch (_: Throwable) { } } }
     }
 
@@ -106,8 +108,8 @@ object Synth {
     fun warmUp() { prepare(); ensureMixer() }
 
     /** Joue le son de la touche [key] ("0".."9","*","#") avec l'instrument courant — sans attendre. */
-    fun play(key: String) {
-        val instr = current
+    fun play(key: String, instrId: String? = null) {
+        val instr = instr(instrId)
         val ready = cache[instr.id + "|" + key]
         if (ready != null) start(ready)
         else exec.execute { try { start(render(instr, key)) } catch (_: Throwable) { } }

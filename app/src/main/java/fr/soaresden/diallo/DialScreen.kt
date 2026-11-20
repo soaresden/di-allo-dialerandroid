@@ -10,6 +10,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
@@ -31,6 +32,10 @@ import androidx.compose.material.icons.filled.Backspace
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Voicemail
+import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -101,11 +106,20 @@ internal fun DialScreen(
         frequent.map { s -> byKey[keyOf(s.number)] ?: CallRepository.Contact(s.number, s.name, s.photoUri, calls = s.count) }
     }
     var showFav by remember { mutableStateOf(false) }
+    var showMelodies by remember { mutableStateOf(false) }
+    var toSave by remember { mutableStateOf<List<Melodies.Note>?>(null) }
+    val recording by Melodies.recording
+    val playingName by Melodies.playingName
     fun press(k: String) {
-        if (value.length < 24) value += k
+        if (recording) Melodies.note(k) else if (value.length < 24) value += k
         Synth.play(k)
         view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
     }
+    fun stopRec() { val n = Melodies.stopRec(); if (n.isNotEmpty()) toSave = n }
+    androidx.activity.compose.BackHandler(enabled = recording) { stopRec() }
+
+    if (showMelodies) MelodySheet(onDismiss = { showMelodies = false; Melodies.stop() }, onRecord = { showMelodies = false; value = ""; Melodies.startRec() })
+    toSave?.let { n -> SaveRecordingDialog(n) { toSave = null } }
 
     if (showFav) {
         ModalBottomSheet(onDismissRequest = { showFav = false }, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true), containerColor = MaterialTheme.colorScheme.surface) {
@@ -157,7 +171,9 @@ internal fun DialScreen(
             }
 
             // ---------- Affichage du numéro ----------
-            Column(Modifier.fillMaxWidth().height(displayH).padding(horizontal = 24.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+            if (recording) RecDisplay(displayH) { stopRec() }
+            else Box(Modifier.fillMaxWidth().height(displayH)) {
+            Column(Modifier.fillMaxSize().padding(horizontal = 24.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     if (value.isEmpty()) "" else prettyNumber(value),
                     fontSize = when { value.length <= 10 -> 38.sp; value.length <= 14 -> 31.sp; else -> 25.sp },
@@ -166,6 +182,10 @@ internal fun DialScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
                 when {
+                    value.isEmpty() && playingName != null -> Row(Modifier.clip(RoundedCornerShape(50)).clickable { Melodies.stop() }.padding(horizontal = 10.dp, vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Text("🎶 ${playingName}", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.widthIn(max = 220.dp))
+                        Spacer(Modifier.width(6.dp)); Icon(Icons.Filled.Stop, "Arrêter", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
+                    }
                     value.isEmpty() -> Text("Saisis un numéro ou un nom (T9)", fontSize = 13.sp, color = muted(.45f))
                     exact != null -> Text(exact.display, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     typed.length >= 6 -> Row(Modifier.clip(RoundedCornerShape(50)).clickable {
@@ -177,6 +197,13 @@ internal fun DialScreen(
                     else -> Spacer(Modifier.height(18.dp))
                 }
             }
+                if (value.isEmpty()) Row(Modifier.align(Alignment.TopEnd).padding(end = 10.dp)) {
+                    IconButton(onClick = { showMelodies = true }, modifier = Modifier.size(36.dp)) { Text("🎼", fontSize = 18.sp) }
+                    IconButton(onClick = { Melodies.startRec() }, modifier = Modifier.size(36.dp)) {
+                        Box(Modifier.size(16.dp).clip(CircleShape).background(RecRed))
+                    }
+                }
+            }
 
             // ---------- Cadran ----------
             Column(Modifier.fillMaxWidth().padding(bottom = 12.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(gapV)) {
@@ -184,8 +211,8 @@ internal fun DialScreen(
                     Row(horizontalArrangement = Arrangement.spacedBy(gapH)) {
                         for (col in 0 until 3) {
                             val k = KEYS[r * 3 + col]
-                            DialKey(k, key, onDown = { press(k.d) }, onLong = {
-                                when (k.d) {
+                            DialKey(k, key, pulse = Melodies.pulse[k.d] ?: 0, onDown = { press(k.d) }, onLong = {
+                                if (!recording) when (k.d) {
                                     "1" -> { if (value.endsWith("1")) value = value.dropLast(1); onVoicemail() }
                                     "0" -> { if (value.endsWith("0")) value = value.dropLast(1); if (value.length < 24) value += "+"; view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS) }
                                 }
@@ -213,7 +240,7 @@ internal fun DialScreen(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun DialKey(k: K, size: Dp, onDown: () -> Unit, onLong: () -> Unit) {
+private fun DialKey(k: K, size: Dp, pulse: Int = 0, onDown: () -> Unit, onLong: () -> Unit) {
     val down by rememberUpdatedState(onDown); val long by rememberUpdatedState(onLong)
     val scope = rememberCoroutineScope()
     // Animations jouées jusqu'au bout, même pour une frappe très brève
@@ -224,6 +251,15 @@ private fun DialKey(k: K, size: Dp, onDown: () -> Unit, onLong: () -> Unit) {
     val cs = MaterialTheme.colorScheme
     val accent = cs.primary
     val base = cs.surface.copy(alpha = .9f)
+    // Une mélodie joue cette touche : même animation qu'un appui
+    LaunchedEffect(pulse) {
+        if (pulse == 0) return@LaunchedEffect
+        touch = Offset.Unspecified
+        launch { wave.snapTo(0f); wave.animateTo(1f, tween(480, easing = LinearOutSlowInEasing)) }
+        launch { glow.snapTo(1f); delay(110); glow.animateTo(0f, tween(300)) }
+        press.animateTo(.88f, tween(70, easing = FastOutSlowInEasing))
+        press.animateTo(1f, spring(dampingRatio = .38f, stiffness = 700f))
+    }
     Box(
         Modifier.size(size)
             .graphicsLayer { scaleX = press.value; scaleY = press.value }
@@ -344,4 +380,26 @@ private fun highlightDigits(shown: String, q: String, st: SpanStyle): AnnotatedS
     val i = sb.indexOf(q)
     if (i < 0) return AnnotatedString(shown)
     return buildAnnotatedString { append(shown); addStyle(st, pos[i], pos[i + q.length - 1] + 1) }
+}
+
+/** Bandeau d'enregistrement : point rouge qui pulse, chrono, nombre de notes, bouton stop. */
+@Composable
+private fun RecDisplay(h: Dp, onStop: () -> Unit) {
+    val n = Melodies.recNotes.size
+    var elapsed by remember { mutableStateOf(0L) }
+    LaunchedEffect(Unit) { while (true) { elapsed = if (Melodies.recNotes.isEmpty()) 0L else System.currentTimeMillis() - Melodies.recStart; delay(200) } }
+    val blink by androidx.compose.animation.core.rememberInfiniteTransition(label = "rec").animateFloat(
+        1f, .25f, androidx.compose.animation.core.infiniteRepeatable(tween(650), androidx.compose.animation.core.RepeatMode.Reverse), label = "blink"
+    )
+    Row(Modifier.fillMaxWidth().height(h).padding(horizontal = 22.dp), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(14.dp).graphicsLayer { alpha = blink }.clip(CircleShape).background(RecRed))
+        Spacer(Modifier.width(12.dp))
+        Column(Modifier.weight(1f)) {
+            Text(if (n == 0) "Joue ta mélodie…" else "REC  " + fmtMelodyDur((elapsed.toInt() - 500).coerceAtLeast(0)), fontSize = 22.sp, fontWeight = FontWeight.SemiBold, color = RecRed)
+            Text(if (n == 0) "Le chrono part à la 1re note" else "$n note${if (n > 1) "s" else ""} · le numéro n'est pas tapé", fontSize = 12.5.sp, color = muted(.6f))
+        }
+        Button(onClick = onStop, colors = ButtonDefaults.buttonColors(containerColor = RecRed, contentColor = Color.White), contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)) {
+            Icon(Icons.Filled.Stop, null, Modifier.size(18.dp)); Spacer(Modifier.width(4.dp)); Text("Stop")
+        }
+    }
 }
