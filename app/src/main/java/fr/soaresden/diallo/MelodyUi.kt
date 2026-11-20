@@ -58,6 +58,7 @@ internal fun MelodySheet(onDismiss: () -> Unit, onRecord: () -> Unit) {
         Column(Modifier.padding(horizontal = 18.dp)) {
             Text("🎼 Mes mélodies", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = cs.onBackground)
             Text("Joue un air sur le clavier et garde-le, ou tape-le en chiffres.", fontSize = 12.5.sp, color = muted())
+            Text(Melodies.LEGEND, fontSize = 11.sp, color = muted(.5f), modifier = Modifier.padding(top = 4.dp))
             Spacer(Modifier.height(12.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(onClick = onRecord, colors = ButtonDefaults.buttonColors(containerColor = RecRed, contentColor = Color.White), modifier = Modifier.weight(1f)) {
@@ -69,10 +70,10 @@ internal fun MelodySheet(onDismiss: () -> Unit, onRecord: () -> Unit) {
             }
             Spacer(Modifier.height(10.dp))
         }
-        if (list.isEmpty()) Box(Modifier.fillMaxWidth().padding(28.dp), contentAlignment = Alignment.Center) {
+        LazyColumn(Modifier.fillMaxWidth().heightIn(max = 560.dp)) {
+        if (list.isEmpty()) item { Box(Modifier.fillMaxWidth().padding(22.dp), contentAlignment = Alignment.Center) {
             Text("Aucune mélodie pour l'instant 🎹", color = muted(.5f), fontSize = 13.sp)
-        }
-        else LazyColumn(Modifier.fillMaxWidth().heightIn(max = 520.dp)) {
+        } }
             items(list, key = { "m${it.id}" }) { m ->
                 val on = playing == m.id
                 var menu by remember { mutableStateOf(false) }
@@ -93,15 +94,40 @@ internal fun MelodySheet(onDismiss: () -> Unit, onRecord: () -> Unit) {
                         IconButton(onClick = { menu = true }) { Icon(Icons.Filled.MoreVert, "Options", tint = muted(.6f)) }
                         DropdownMenu(menu, { menu = false }) {
                             DropdownMenuItem(text = { Text("Renommer") }, onClick = { menu = false; renaming = m })
-                            DropdownMenuItem(text = { Text("Copier les chiffres") }, onClick = { menu = false; copyText(ctx, Melodies.toText(m.notes)) })
+                            DropdownMenuItem(text = { Text("Copier") }, onClick = { menu = false; copyText(ctx, "${m.name} : ${Melodies.toText(m.notes, lines = true)}") })
                             DropdownMenuItem(text = { Text("Partager") }, onClick = {
                                 menu = false
-                                val t = "🎹 ${m.name} — à jouer sur Di-Allô :\n${Melodies.toText(m.notes)}"
+                                val t = "${m.name} : ${Melodies.toText(m.notes, lines = true)}\n\n🎹 à jouer sur Di-Allô"
                                 try { ctx.startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, t), "Partager la mélodie")) } catch (_: Throwable) { }
                             })
                             DropdownMenuItem(text = { Text("Supprimer", color = RecRed) }, onClick = { menu = false; Melodies.delete(ctx, m.id) })
                         }
                     }
+                }
+            }
+            // ---- Recueil ----
+            item {
+                Text("📖 Recueil · airs du domaine public", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = cs.primary, modifier = Modifier.padding(start = 18.dp, top = 14.dp, bottom = 2.dp))
+                Text("Touche ▶ pour écouter avec ton instrument, ＋ pour l'ajouter à tes mélodies.", fontSize = 11.5.sp, color = muted(.55f), modifier = Modifier.padding(start = 18.dp, bottom = 4.dp))
+            }
+            items(Melodies.SONGBOOK.size, key = { "p$it" }) { i ->
+                val p = Melodies.SONGBOOK[i]
+                val pid = -100L - i
+                val on = playing == pid
+                val notes = remember(i) { p.notes }
+                Row(
+                    Modifier.fillMaxWidth().clickable { if (on) Melodies.stop() else Melodies.play(pid, p.name, Synth.currentId, notes) }.padding(horizontal = 14.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(Modifier.size(36.dp).clip(CircleShape).background(if (on) cs.primary else cs.surfaceVariant), contentAlignment = Alignment.Center) {
+                        Icon(if (on) Icons.Filled.Stop else Icons.Filled.PlayArrow, if (on) "Arrêter" else "Écouter", tint = if (on) cs.onPrimary else cs.onSurface, modifier = Modifier.size(20.dp))
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(p.name, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = cs.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text("${notes.size} notes · ${fmtMelodyDur((notes.lastOrNull()?.t ?: 0) + 400)}", fontSize = 11.5.sp, color = muted())
+                    }
+                    TextButton(onClick = { Melodies.add(ctx, p.name, Synth.currentId, notes); Toast.makeText(ctx, "« ${p.name} » ajoutée 🎼", Toast.LENGTH_SHORT).show() }) { Text("＋", fontSize = 18.sp) }
                 }
             }
             item { Spacer(Modifier.height(24.dp)) }
@@ -166,12 +192,28 @@ internal fun MelodyFromTextDialog(onDone: () -> Unit) {
                 OutlinedTextField(name, { name = it }, label = { Text("Nom") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 Spacer(Modifier.height(8.dp))
                 OutlinedTextField(
-                    digits, { v -> digits = v.filter { it.toString() in Melodies.VALID || it == ' ' } },
+                    digits, { v ->
+                        // texte collé « Nom : chiffres » → le nom va dans son champ
+                        if (v.contains(':')) { val (n, d) = Melodies.parsePasted(v); n?.let { name = it }; digits = d }
+                        else digits = v.replace("\r", "").filter { it.toString() in Melodies.VALID || it == ' ' || it == '\n' }
+                    },
                     label = { Text("Touches") }, placeholder = { Text("ex. 624 624 687") },
-                    textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Monospace, fontSize = 18.sp),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone), modifier = Modifier.fillMaxWidth()
+                    textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Monospace, fontSize = 17.sp),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone), maxLines = 7,
+                    modifier = Modifier.fillMaxWidth()
                 )
-                Text("1 à 9, *, 0, # — un espace = une pause", fontSize = 11.5.sp, color = muted(.55f), modifier = Modifier.padding(top = 4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("Espace = pause · retour à la ligne = respiration", fontSize = 11.5.sp, color = muted(.55f))
+                        Text(Melodies.LEGEND, fontSize = 10.5.sp, color = muted(.45f))
+                    }
+                    TextButton(onClick = {
+                        val clip = (ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).primaryClip
+                        val t = clip?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.coerceToText(ctx)?.toString().orEmpty()
+                        if (t.isBlank()) Toast.makeText(ctx, "Presse-papiers vide", Toast.LENGTH_SHORT).show()
+                        else { val (n, d) = Melodies.parsePasted(t); n?.let { name = it }; digits = d }
+                    }) { Text("📋 Coller") }
+                }
                 Spacer(Modifier.height(10.dp))
                 Text("Tempo : ${(60000 / step).toInt()} notes / min", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
                 Slider(step, { step = it }, valueRange = 120f..700f)

@@ -61,27 +61,69 @@ object Melodies {
     fun nextName(ctx: Context) = "Mélodie ${load(ctx).size + 1}"
 
     // ---------- Chiffres <-> notes ----------
-    /** « 624 624 687 » → notes espacées de [stepMs] ; chaque espace ajoute une pause d'un pas. */
+    /** « 624 624 687 » → notes espacées de [stepMs] ; un espace = une pause, un retour à la ligne = une respiration (2 pas). */
     fun fromText(text: String, stepMs: Int): List<Note> {
         val out = ArrayList<Note>(); var t = 0
         text.forEach { c ->
             when {
                 c.toString() in VALID -> { out.add(Note(c.toString(), t)); t += stepMs }
-                c == ' ' || c == '-' || c == '.' || c == ',' -> if (out.isNotEmpty()) t += stepMs
+                c == '\n' -> if (out.isNotEmpty()) t += stepMs * 2
+                c == ' ' || c == '-' || c == '.' || c == ',' || c == '/' -> if (out.isNotEmpty()) t += stepMs
             }
         }
         return out
     }
 
-    /** Notes → chiffres, avec un espace là où le silence est nettement plus long que d'habitude. */
-    fun toText(notes: List<Note>): String {
+    /** Ne garde que ce qui sert : touches, espaces, retours à la ligne. */
+    fun cleanDigits(v: String): String =
+        v.replace("\r", "").filter { it.toString() in VALID || it == ' ' || it == '\n' }
+            .lines().joinToString("\n") { it.trim().replace(Regex(" {2,}"), " ") }.trim('\n')
+
+    /** Texte collé « Nom : 22223 444445 … » → (nom ou null, chiffres). */
+    fun parsePasted(v: String): Pair<String?, String> {
+        val t = v.replace("\r", "")
+        val i = t.indexOf(':')
+        if (i > 0) {
+            val name = t.substring(0, i).trim().trimStart { !it.isLetterOrDigit() }.trimEnd(' ', '-', '—')
+            if (name.any { it.isLetter() }) return name to cleanDigits(t.substring(i + 1))
+        }
+        return null to cleanDigits(t)
+    }
+
+    /** Notes → chiffres : espace là où le silence est nettement plus long, retour à la ligne pour les grandes respirations ([lines]). */
+    fun toText(notes: List<Note>, lines: Boolean = false): String {
         if (notes.isEmpty()) return ""
         val gaps = notes.zipWithNext { a, b -> b.t - a.t }
         val med = gaps.sorted().getOrNull(gaps.size / 2)?.coerceAtLeast(60) ?: 0
         val sb = StringBuilder(notes[0].k)
-        gaps.forEachIndexed { i, g -> if (med > 0 && g > med * 1.7) sb.append(' '); sb.append(notes[i + 1].k) }
+        gaps.forEachIndexed { i, g ->
+            if (med > 0 && lines && g > med * 2.6) sb.append('\n') else if (med > 0 && g > med * 1.7) sb.append(' ')
+            sb.append(notes[i + 1].k)
+        }
         return sb.toString()
     }
+
+    // ---------- Recueil : airs du domaine public ----------
+    /** Touches → notes : 1 Do · 2 Ré · 3 Mi · 4 Fa · 5 Sol · 6 La · 7 Si · 8 Do · 9 Ré · * Mi · 0 Fa · # Sol */
+    const val LEGEND = "1 Do · 2 Ré · 3 Mi · 4 Fa · 5 Sol · 6 La · 7 Si · 8 Do · 9 Ré · * Mi · 0 Fa · # Sol"
+
+    /** Chaque chiffre dure un pas, chaque « - » prolonge d'un pas ; « | » sépare les mesures (ignoré). */
+    data class Preset(val name: String, val stepMs: Int, val text: String) {
+        val notes: List<Note> get() = fromText(text.replace("|", ""), stepMs)
+    }
+
+    val SONGBOOK = listOf(
+        Preset("Au clair de la lune", 380, "4445|6-5-|4655|4---|4445|6-5-|4655|4---|5555|2-2-|5432|1---|4445|6-5-|4655|4---"),
+        Preset("Frère Jacques", 240, "5-6-7-5-|5-6-7-5-|7-8-9---|7-8-9---|9*987-5-|9*987-5-|5-2-5---|5-2-5---"),
+        Preset("Ah ! vous dirai-je, maman", 380, "1155|665-|4433|221-|5544|332-|5544|332-|1155|665-|4433|221-"),
+        Preset("Joyeux anniversaire", 230, "55|6-5-8-|7---55|6-5-9-|8---55|#-*-8-|7-6---00|*-8-9-|8-----"),
+        Preset("Ode à la joie (Beethoven)", 250, "7-7-8-9-|9-8-7-6-|5-5-6-7-|7--66---|7-7-8-9-|9-8-7-6-|5-5-6-7-|6--55---|6-6-7-5-|6-787-5-|6-787-6-|5-6-2---|7-7-8-9-|9-8-7-6-|5-5-6-7-|6--55---"),
+        Preset("Vive le vent (Jingle Bells)", 200, "3-3-3---|3-3-3---|3-5-1--2|3-------|4-4-4--4|4-3-3-33|3-2-2-3-|2---5---|3-3-3---|3-3-3---|3-5-1--2|3-------|4-4-4--4|4-3-3-33|5-5-4-2-|1-------"),
+        Preset("Douce nuit", 240, "5--65-3-----|5--65-3-----|9-97-----|8-85-----|6-68765653-----|6-68765653-----|9-90978-----*-----|8-535-421-----"),
+        Preset("Berceuse (Brahms)", 260, "335---|335---|358-7--66-5-|234-2-|234---|24765-7-8---|118---|645---|314565---|118---|645---|314321---"),
+        Preset("Mary avait un petit agneau", 300, "3212|333-|222-|355-|3212|3333|2232|1---"),
+        Preset("Korobeïniki (chanson russe)", 170, "6-345-43|2-246-54|3--45-6-|4-2-2---|6-345-43|2-246-54|3--45-6-|4-2-2---"),
+    )
 
     // ---------- Enregistrement ----------
     val recording = mutableStateOf(false)
