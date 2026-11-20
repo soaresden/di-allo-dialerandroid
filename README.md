@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <b>Le téléphone qui dit allô 🤙</b><br>
+  <b>Le téléphone qui dit allô 🤙</b> · <i>by Soaresden</i><br>
   Une appli Téléphone complète pour Android, gratuite et sans pub, faite pour remplacer le dialer de ton téléphone.
 </p>
 
@@ -101,3 +101,5 @@ Stack : Kotlin, Jetpack Compose (Material 3), Telecom `InCallService`, osmdroid,
 
 ## 📄 Licence
 [MIT](LICENSE). Libre, gratuit, fais-en ce que tu veux.
+
+<p align="center"><sub>Di-Allô · by <a href="https://github.com/soaresden">Soaresden</a></sub></p>

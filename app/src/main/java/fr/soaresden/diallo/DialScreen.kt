@@ -6,6 +6,16 @@ import android.view.HapticFeedbackConstants
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.spring
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.isSpecified
+import androidx.compose.ui.graphics.lerp
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -204,27 +214,50 @@ internal fun DialScreen(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun DialKey(k: K, size: Dp, onDown: () -> Unit, onLong: () -> Unit) {
-    var pressed by remember { mutableStateOf(false) }
     val down by rememberUpdatedState(onDown); val long by rememberUpdatedState(onLong)
-    val base = MaterialTheme.colorScheme.surface.copy(alpha = .9f)
-    val bg by animateColorAsState(if (pressed) MaterialTheme.colorScheme.primary.copy(alpha = .35f).let { it } else base, tween(70), label = "keybg")
-    val scale by animateFloatAsState(if (pressed) .9f else 1f, tween(90), label = "keyscale")
+    val scope = rememberCoroutineScope()
+    // Animations jouées jusqu'au bout, même pour une frappe très brève
+    val press = remember { Animatable(1f) }    // échelle de la touche
+    val glow = remember { Animatable(0f) }     // halo coloré
+    val wave = remember { Animatable(1f) }     // onde qui part du doigt
+    var touch by remember { mutableStateOf(Offset.Unspecified) }
+    val cs = MaterialTheme.colorScheme
+    val accent = cs.primary
+    val base = cs.surface.copy(alpha = .9f)
     Box(
-        Modifier.size(size).graphicsLayer { scaleX = scale; scaleY = scale }
-            .clip(CircleShape).background(bg)
+        Modifier.size(size)
+            .graphicsLayer { scaleX = press.value; scaleY = press.value }
+            .clip(CircleShape).background(base)
+            .drawBehind {
+                if (glow.value > 0f) drawCircle(accent.copy(alpha = .30f * glow.value))
+                if (wave.value < 1f) {
+                    val c = if (touch.isSpecified) touch else center
+                    drawCircle(accent.copy(alpha = .38f * (1f - wave.value)), radius = this.size.width * (.18f + 1.1f * wave.value), center = c)
+                }
+            }
             // son + vibration + chiffre dès le contact du doigt (pas au relâchement)
             .pointerInput(Unit) {
                 detectTapGestures(
-                    onPress = { pressed = true; down(); tryAwaitRelease(); pressed = false },
+                    onPress = { o ->
+                        touch = o
+                        down()
+                        val sink = scope.launch { press.animateTo(.86f, tween(70, easing = FastOutSlowInEasing)) }
+                        val lit = scope.launch { glow.snapTo(1f) }
+                        scope.launch { wave.snapTo(0f); wave.animateTo(1f, tween(480, easing = LinearOutSlowInEasing)) }
+                        tryAwaitRelease()
+                        scope.launch { sink.join(); press.animateTo(1f, spring(dampingRatio = .38f, stiffness = 700f)) }
+                        scope.launch { lit.join(); delay(40); glow.animateTo(0f, tween(300)) }
+                    },
                     onLongPress = { long() }
                 )
             },
         contentAlignment = Alignment.Center
     ) {
+        val digit = lerp(cs.onSurface, accent, glow.value)
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                k.d, fontSize = (size.value * if (k.d == "*") 0.5f else 0.4f).sp, fontWeight = FontWeight.Light,
-                color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.offset(y = if (k.d == "*") 4.dp else 0.dp)
+                k.d, fontSize = (size.value * if (k.d == "*") 0.5f else 0.4f).sp, fontWeight = if (glow.value > .5f) FontWeight.Normal else FontWeight.Light,
+                color = digit, modifier = Modifier.offset(y = if (k.d == "*") 4.dp else 0.dp)
             )
             when (k.l) {
                 "vm" -> Icon(Icons.Filled.Voicemail, "Messagerie", tint = muted(.5f), modifier = Modifier.size((size.value * 0.17f).dp))

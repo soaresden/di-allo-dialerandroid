@@ -332,7 +332,7 @@ private fun renderShareImage(ctx: Context, w: Wrap): File {
         var t = s; while (line.measureText(t) > W - 260 && t.length > 4) t = t.dropLast(2) + "…"
         c.drawText(t, 140f, y, line); y += 112f
     }
-    c.drawText("Di-Allô Wrapped 🤙", W / 2f, 1780f, sub)
+    c.drawText("Di-Allô Wrapped 🤙 · by Soaresden", W / 2f, 1780f, sub)
     val dir = File(ctx.cacheDir, "share").apply { mkdirs() }
     val f = File(dir, "Di-Allo-Wrapped-${w.year}.png")
     f.outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }

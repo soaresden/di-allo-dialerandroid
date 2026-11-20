@@ -164,6 +164,7 @@ private fun Header() {
     Row(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
         androidx.compose.foundation.Image(androidx.compose.ui.res.painterResource(R.drawable.logo_hand), null, Modifier.size(24.dp)); Spacer(Modifier.width(8.dp))
         Text("Di-Allô", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onBackground)
+        Text(" by Soaresden", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = muted(.45f), modifier = Modifier.padding(top = 4.dp))
     }
 }
 

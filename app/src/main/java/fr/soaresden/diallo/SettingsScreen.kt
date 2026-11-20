@@ -84,6 +84,19 @@ internal fun SettingsScreen(
         "autospk" -> SubScreen("Haut-parleur auto", onBack = { sub = null }) { AutoSpeakerSettings() }
         "gestures" -> SubScreen("Gestes", onBack = { sub = null }) { GestureSettings() }
         "qsms" -> SubScreen("Réponses rapides", onBack = { sub = null }) { QuickReplySettings() }
+        "backup" -> SubScreen("Sauvegardes", onBack = { sub = null }) {
+            SectionCard("Données", collapsible = false) {
+                val fv by DataFolder.folderVersion
+                val folder = remember(fv, sub) { DataFolder.name(ctx) }
+                val last = remember(fv, sub) { DataFolder.lastBackup(ctx) }
+                NavRow("Sauvegardes & restauration",
+                    if (folder == null) "⚠️ Aucun dossier de travail choisi" else "📁 $folder" + (if (last > 0) " · dernière ${fmtWhen(last)}" else ""),
+                    leading = {
+                        Box(Modifier.size(34.dp).clip(RoundedCornerShape(10.dp)).background(if (folder == null) Amber.copy(alpha = .25f) else MaterialTheme.colorScheme.primaryContainer), contentAlignment = Alignment.Center) { Text("💾", fontSize = 18.sp) }
+                    }) { sub = "backup" }
+            }
+            Spacer(Modifier.height(16.dp))
+        }
         else -> Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 14.dp)) {
             SectionCard("Apparence & son", collapsible = false) {
                 val t = THEMES.firstOrNull { it.id == themeId }
@@ -123,7 +136,8 @@ internal fun SettingsScreen(
             FolderCard()
             BackupSection(ctx, isDefault, onRefresh) { smsDefault = isDefaultSms(ctx) }
             SectionCard("À propos", defaultCollapsed = true) {
-                Text("Di-Allô — version ${appVersion(ctx)}", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onBackground); Spacer(Modifier.height(6.dp))
+                Text("Di-Allô — version ${appVersion(ctx)}", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onBackground)
+                Text("by Soaresden · github.com/soaresden/di-allo-dialerandroid", fontSize = 12.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium); Spacer(Modifier.height(6.dp))
                 Text("Dialer avec clavier musical.", fontSize = 12.5.sp, color = muted()); Spacer(Modifier.height(6.dp))
                 Text("⚠️ L'enregistrement d'appel n'est pas possible : réservé aux apps système (constructeur).", fontSize = 12.sp, color = muted())
             }
@@ -250,26 +264,14 @@ private fun BackupSection(ctx: Context, isDefault: Boolean, onRefresh: () -> Uni
     val bk by DataFolder.busy
     val saved by produceState(emptyList<DataFolder.Backup>(), fv, bk) { value = withContext(Dispatchers.IO) { DataFolder.backups(ctx) } }
     var showAll by remember { mutableStateOf(false) }
+    val rows = remember(saved) { pairBackups(saved) }
 
-    SectionCard("♻️ Restaurer appels & SMS", id = "restore") {
+    SectionCard("♻️ Restaurer appels & SMS", collapsible = false) {
         Text("Choisis une sauvegarde : Di-Allô la compare avec le téléphone et ne rajoute que ce qui manque.", fontSize = 12.5.sp, color = muted(.7f))
         Spacer(Modifier.height(10.dp))
-        if (saved.isEmpty()) Text(if (DataFolder.uri(ctx) == null) "Choisis un dossier de travail (au-dessus) pour avoir des sauvegardes automatiques." else "Pas encore de sauvegarde dans le dossier : touche « Sauvegarder » au-dessus.", fontSize = 12.5.sp, color = muted(.6f))
-        (if (showAll) saved else saved.take(4)).forEach { b ->
-            Row(
-                Modifier.fillMaxWidth().padding(bottom = 6.dp).clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.surfaceVariant)
-                    .clickable(enabled = busy == null) { openBackup(b.uri) }.padding(horizontal = 12.dp, vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(if (b.calls) "📞" else "💬", fontSize = 20.sp); Spacer(Modifier.width(10.dp))
-                Column(Modifier.weight(1f)) {
-                    Text(if (b.calls) "Journal d'appels" else "SMS & MMS", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
-                    Text(fmtWhen(b.date), fontSize = 12.sp, color = muted())
-                }
-                Text("Restaurer ›", fontSize = 13.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
-            }
-        }
-        if (saved.size > 4) TextButton(onClick = { showAll = !showAll }) { Text(if (showAll) "Moins" else "Voir les ${saved.size} sauvegardes") }
+        if (rows.isEmpty()) Text(if (DataFolder.uri(ctx) == null) "Choisis un dossier de travail (au-dessus) pour avoir des sauvegardes automatiques." else "Pas encore de sauvegarde dans le dossier : touche « Sauvegarder » au-dessus.", fontSize = 12.5.sp, color = muted(.6f))
+        else BackupTable(if (showAll) rows else rows.take(6), enabled = busy == null) { openBackup(it.uri) }
+        if (rows.size > 6) TextButton(onClick = { showAll = !showAll }) { Text(if (showAll) "Moins" else "Voir les ${rows.size} sauvegardes") }
         Spacer(Modifier.height(4.dp))
         OutlinedButton(onClick = { picker.launch(arrayOf("text/xml", "application/xml", "text/*", "*/*")) }, enabled = busy == null) { Text("Autre fichier .xml…") }
         Text("Accepte aussi les anciens fichiers de SMS Backup & Restore (même format).", fontSize = 11.5.sp, color = muted(.5f), modifier = Modifier.padding(top = 4.dp))
@@ -338,6 +340,62 @@ private fun BackupSection(ctx: Context, isDefault: Boolean, onRefresh: () -> Uni
             },
             dismissButton = { TextButton(onClick = { confirmSms = false }) { Text("Annuler") } }
         )
+    }
+}
+
+/** Une ligne = un moment de sauvegarde ; appels et SMS du même moment côte à côte. */
+private data class BackupRow(val date: Long, val calls: DataFolder.Backup?, val sms: DataFolder.Backup?)
+
+private fun pairBackups(list: List<DataFolder.Backup>): List<BackupRow> {
+    val rows = ArrayList<BackupRow>()
+    list.sortedByDescending { it.date }.forEach { b ->
+        val i = rows.indexOfFirst { kotlin.math.abs(it.date - b.date) <= 10 * 60_000L && (if (b.calls) it.calls == null else it.sms == null) }
+        if (i >= 0) rows[i] = if (b.calls) rows[i].copy(calls = b) else rows[i].copy(sms = b)
+        else rows.add(BackupRow(b.date, b.takeIf { it.calls }, b.takeIf { !it.calls }))
+    }
+    return rows
+}
+
+private fun fmtSize(b: Long): String = when {
+    b <= 0 -> ""
+    b < 1024 * 1024 -> "${(b / 1024).coerceAtLeast(1)} Ko"
+    else -> String.format(java.util.Locale.FRANCE, "%.1f Mo", b / (1024.0 * 1024.0))
+}
+
+@Composable
+private fun BackupTable(rows: List<BackupRow>, enabled: Boolean, onPick: (DataFolder.Backup) -> Unit) {
+    val cs = MaterialTheme.colorScheme
+    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).border(1.dp, cs.outlineVariant, RoundedCornerShape(14.dp))) {
+        Row(Modifier.fillMaxWidth().background(cs.surfaceVariant).padding(horizontal = 10.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text("Date", Modifier.weight(1.25f), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = muted(.8f))
+            Text("📞 Appels", Modifier.weight(1f), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = muted(.8f), textAlign = TextAlign.Center)
+            Text("💬 SMS / MMS", Modifier.weight(1f), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = muted(.8f), textAlign = TextAlign.Center)
+        }
+        rows.forEachIndexed { i, r ->
+            if (i > 0) HorizontalDivider(color = cs.outlineVariant.copy(alpha = .5f))
+            Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min).padding(horizontal = 6.dp, vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1.25f).padding(start = 4.dp)) {
+                    Text(java.text.SimpleDateFormat("d MMM yyyy", java.util.Locale.FRANCE).format(java.util.Date(r.date)), fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold, color = cs.onSurface, maxLines = 1)
+                    Text(java.text.SimpleDateFormat("HH:mm", java.util.Locale.FRANCE).format(java.util.Date(r.date)), fontSize = 11.5.sp, color = muted())
+                }
+                BackupCell(r.calls, enabled, Modifier.weight(1f).fillMaxHeight(), onPick)
+                BackupCell(r.sms, enabled, Modifier.weight(1f).fillMaxHeight(), onPick)
+            }
+        }
+    }
+}
+
+@Composable
+private fun BackupCell(b: DataFolder.Backup?, enabled: Boolean, m: Modifier, onPick: (DataFolder.Backup) -> Unit) {
+    val cs = MaterialTheme.colorScheme
+    if (b == null) { Box(m, contentAlignment = Alignment.Center) { Text("—", color = muted(.35f), fontSize = 14.sp) }; return }
+    Column(
+        m.padding(horizontal = 3.dp).clip(RoundedCornerShape(10.dp)).background(cs.primary.copy(alpha = .10f))
+            .clickable(enabled = enabled) { onPick(b) }.padding(vertical = 6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center
+    ) {
+        Text("Restaurer", fontSize = 12.5.sp, fontWeight = FontWeight.Bold, color = cs.primary)
+        fmtSize(b.size).takeIf { it.isNotEmpty() }?.let { Text(it, fontSize = 10.5.sp, color = muted(.6f)) }
     }
 }
 

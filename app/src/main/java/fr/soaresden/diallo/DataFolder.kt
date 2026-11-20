@@ -161,7 +161,7 @@ object DataFolder {
         return added to n
     }
 
-    data class Backup(val name: String, val uri: Uri, val date: Long, val calls: Boolean)
+    data class Backup(val name: String, val uri: Uri, val date: Long, val calls: Boolean, val size: Long = 0L)
 
     /** Sauvegardes présentes dans Sauvegardes/, de la plus récente à la plus ancienne. */
     fun backups(ctx: Context): List<Backup> {
@@ -172,7 +172,7 @@ object DataFolder {
             if (!n.endsWith(".xml")) return@mapNotNull null
             val calls = n.startsWith("calls-"); if (!calls && !n.startsWith("sms-")) return@mapNotNull null
             val d = try { fmt.parse(n.substringAfter('-').substringBefore('.'))?.time } catch (_: Throwable) { null } ?: f.lastModified()
-            Backup(n, f.uri, d, calls)
+            Backup(n, f.uri, d, calls, try { f.length() } catch (_: Throwable) { 0L })
         }.sortedByDescending { it.date }
     }
 

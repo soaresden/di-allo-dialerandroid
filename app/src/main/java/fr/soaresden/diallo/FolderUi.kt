@@ -127,7 +127,7 @@ internal fun FolderCard() {
             status?.let { Text(it, fontSize = 12.5.sp, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(top = 8.dp)) }
             val last = DataFolder.lastBackup(ctx)
             if (last > 0) Text("Dernière sauvegarde complète : ${fmtWhen(last)}", fontSize = 12.sp, color = muted(.6f), modifier = Modifier.padding(top = 4.dp))
-            Text("« Restaurer » remet les notes et les réglages. Le journal d'appels et les SMS se restaurent juste en dessous.", fontSize = 11.5.sp, color = muted(.55f), modifier = Modifier.padding(top = 8.dp))
+            Text("« Restaurer » remet les notes et les réglages. Le journal d'appels et les SMS se restaurent dans le tableau ci-dessous.", fontSize = 11.5.sp, color = muted(.55f), modifier = Modifier.padding(top = 8.dp))
         }
     }
 }
