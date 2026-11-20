@@ -161,6 +161,21 @@ object DataFolder {
         return added to n
     }
 
+    data class Backup(val name: String, val uri: Uri, val date: Long, val calls: Boolean)
+
+    /** Sauvegardes présentes dans Sauvegardes/, de la plus récente à la plus ancienne. */
+    fun backups(ctx: Context): List<Backup> {
+        val dir = tree(ctx)?.findFile("Sauvegardes") ?: return emptyList()
+        val fmt = SimpleDateFormat("yyyyMMddHHmmss", Locale.US)
+        return dir.listFiles().mapNotNull { f ->
+            val n = f.name ?: return@mapNotNull null
+            if (!n.endsWith(".xml")) return@mapNotNull null
+            val calls = n.startsWith("calls-"); if (!calls && !n.startsWith("sms-")) return@mapNotNull null
+            val d = try { fmt.parse(n.substringAfter('-').substringBefore('.'))?.time } catch (_: Throwable) { null } ?: f.lastModified()
+            Backup(n, f.uri, d, calls)
+        }.sortedByDescending { it.date }
+    }
+
     /** Range un fichier dans un sous-dossier du dossier de travail (ex. Wrapped). */
     fun saveBytes(ctx: Context, sub: String, name: String, bytes: ByteArray): Boolean {
         val dir = tree(ctx) ?: return false

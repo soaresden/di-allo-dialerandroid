@@ -227,8 +227,7 @@ private fun BackupSection(ctx: Context, isDefault: Boolean, onRefresh: () -> Uni
         onSmsRoleChanged()
         if (isDefaultSms(ctx)) runSmsImport() else msg = "Di-Allô n'a pas été choisi comme app SMS : import annulé."
     }
-    val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri == null) return@rememberLauncherForActivityResult
+    fun openBackup(uri: Uri) {
         calls = null; sms = null; msg = null; smsImported = false
         busy = "Analyse du fichier…"
         scope.launch {
@@ -242,15 +241,38 @@ private fun BackupSection(ctx: Context, isDefault: Boolean, onRefresh: () -> Uni
                     if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED) analyzeSms(uri)
                     else { pendingSmsUri = uri; smsPerm.launch(Manifest.permission.READ_SMS) }
                 }
-                else -> { busy = null; msg = "Fichier non reconnu : il faut un calls-*.xml ou sms-*.xml de SMS Backup & Restore." }
+                else -> { busy = null; msg = "Fichier non reconnu : il faut une sauvegarde d'appels (calls-….xml) ou de SMS (sms-….xml)." }
             }
         }
     }
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> if (uri != null) openBackup(uri) }
+    val fv by DataFolder.folderVersion
+    val bk by DataFolder.busy
+    val saved by produceState(emptyList<DataFolder.Backup>(), fv, bk) { value = withContext(Dispatchers.IO) { DataFolder.backups(ctx) } }
+    var showAll by remember { mutableStateOf(false) }
 
-    SectionCard("Historique & sauvegarde") {
-        Text("Choisis un backup « SMS Backup & Restore » : appels (calls-*.xml) ou SMS (sms-*.xml). Di-Allô compare avec le téléphone et ne rajoute que ce qui manque.", fontSize = 12.5.sp, color = muted(.7f))
+    SectionCard("♻️ Restaurer appels & SMS", id = "restore") {
+        Text("Choisis une sauvegarde : Di-Allô la compare avec le téléphone et ne rajoute que ce qui manque.", fontSize = 12.5.sp, color = muted(.7f))
         Spacer(Modifier.height(10.dp))
-        Button(onClick = { picker.launch(arrayOf("text/xml", "application/xml", "text/*", "*/*")) }, enabled = busy == null) { Text("Choisir un backup .xml") }
+        if (saved.isEmpty()) Text(if (DataFolder.uri(ctx) == null) "Choisis un dossier de travail (au-dessus) pour avoir des sauvegardes automatiques." else "Pas encore de sauvegarde dans le dossier : touche « Sauvegarder » au-dessus.", fontSize = 12.5.sp, color = muted(.6f))
+        (if (showAll) saved else saved.take(4)).forEach { b ->
+            Row(
+                Modifier.fillMaxWidth().padding(bottom = 6.dp).clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.surfaceVariant)
+                    .clickable(enabled = busy == null) { openBackup(b.uri) }.padding(horizontal = 12.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(if (b.calls) "📞" else "💬", fontSize = 20.sp); Spacer(Modifier.width(10.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(if (b.calls) "Journal d'appels" else "SMS & MMS", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
+                    Text(fmtWhen(b.date), fontSize = 12.sp, color = muted())
+                }
+                Text("Restaurer ›", fontSize = 13.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
+            }
+        }
+        if (saved.size > 4) TextButton(onClick = { showAll = !showAll }) { Text(if (showAll) "Moins" else "Voir les ${saved.size} sauvegardes") }
+        Spacer(Modifier.height(4.dp))
+        OutlinedButton(onClick = { picker.launch(arrayOf("text/xml", "application/xml", "text/*", "*/*")) }, enabled = busy == null) { Text("Autre fichier .xml…") }
+        Text("Accepte aussi les anciens fichiers de SMS Backup & Restore (même format).", fontSize = 11.5.sp, color = muted(.5f), modifier = Modifier.padding(top = 4.dp))
         busy?.let { Spacer(Modifier.height(8.dp)); Row(verticalAlignment = Alignment.CenterVertically) { CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp); Spacer(Modifier.width(8.dp)); Text(it, fontSize = 13.sp, color = muted(.75f)) } }
         calls?.let { a ->
             Spacer(Modifier.height(10.dp))
