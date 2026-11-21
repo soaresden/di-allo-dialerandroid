@@ -82,7 +82,7 @@
             android:theme="@style/Theme.Diallo" />
 
         <!-- Widget « Favoris » -->
-        <receiver android:name=".FavoritesWidget" android:exported="false" android:label="Di-Allô · Favoris">
+        <receiver android:name=".FavoritesWidget" android:exported="false" android:label="@string/widget_fav_label">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -99,6 +99,19 @@
         </provider>
 
         <!-- Boutons de la notification d'appel (raccrocher, haut-parleur) -->
+        <!-- Widget 1x1 « un contact » -->
+        <receiver android:name=".ContactWidget" android:exported="false" android:label="@string/widget_contact_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_contact_info" />
+        </receiver>
+        <activity android:name=".ContactWidgetConfig" android:exported="true" android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" android:excludeFromRecents="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
         <receiver android:name=".CallActionReceiver" android:exported="false" />
         <receiver android:name=".rec.AdbLauncher$PairReceiver" android:exported="false" />
         <receiver android:name=".rec.BootReceiver" android:exported="true">

@@ -54,11 +54,12 @@ class SmsDeliverReceiver : BroadcastReceiver() {
 
     private fun notify(ctx: Context, from: String, body: String) {
         try {
+            I18n.ensure(ctx)
             val nm = ctx.getSystemService(NotificationManager::class.java)
-            nm.createNotificationChannel(NotificationChannel("sms", "SMS reçus", NotificationManager.IMPORTANCE_HIGH))
+            nm.createNotificationChannel(NotificationChannel("sms", tr("SMS reçus"), NotificationManager.IMPORTANCE_HIGH))
             nm.notify(from.hashCode(), NotificationCompat.Builder(ctx, "sms")
                 .setSmallIcon(android.R.drawable.sym_action_chat)
-                .setContentTitle("SMS de $from")
+                .setContentTitle(tr("SMS de {0}", from))
                 .setContentText(body).setStyle(NotificationCompat.BigTextStyle().bigText(body))
                 .setAutoCancel(true).build())
         } catch (_: Throwable) { }
@@ -91,15 +92,16 @@ class RespondViaMessageService : Service() {
 class ComposeSmsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        I18n.ensure(this)
         setContent {
             HyperTheme(loadTheme(this)) {
                 Column(Modifier.fillMaxSize().padding(28.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Di-Allô n'est pas une messagerie", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = MaterialTheme.colorScheme.onBackground, textAlign = TextAlign.Center)
+                    Text(tr("Di-Allô n'est pas une messagerie"), fontWeight = FontWeight.Bold, fontSize = 20.sp, color = MaterialTheme.colorScheme.onBackground, textAlign = TextAlign.Center)
                     Spacer(Modifier.height(10.dp))
-                    Text("Il est devenu l'app SMS par défaut seulement pour restaurer ton backup. Remets Google Messages par défaut pour écrire tes SMS.", color = MaterialTheme.colorScheme.onBackground.copy(alpha = .7f), textAlign = TextAlign.Center)
+                    Text(tr("Il est devenu l'app SMS par défaut seulement pour restaurer ton backup. Remets Google Messages par défaut pour écrire tes SMS."), color = MaterialTheme.colorScheme.onBackground.copy(alpha = .7f), textAlign = TextAlign.Center)
                     Spacer(Modifier.height(20.dp))
-                    Button(onClick = { openDefaultApps(this@ComposeSmsActivity); finish() }) { Text("Changer l'app SMS par défaut") }
-                    TextButton(onClick = { finish() }) { Text("Fermer") }
+                    Button(onClick = { openDefaultApps(this@ComposeSmsActivity); finish() }) { Text(tr("Changer l'app SMS par défaut")) }
+                    TextButton(onClick = { finish() }) { Text(tr("Fermer")) }
                 }
             }
         }

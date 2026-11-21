@@ -95,10 +95,10 @@ private fun computeWrap(all: List<CallRepository.CallEntry>, contacts: List<Call
 }
 
 private fun persona(h: Int) = when (h) {
-    in 0..5 -> "oiseau de nuit 🦉"; in 6..8 -> "lève-tôt 🐓"; in 9..11 -> "du matin ☕"; in 12..13 -> "pause déj 🥪"
-    in 14..17 -> "de l'aprèm 🌤️"; in 18..20 -> "du soir 🌆"; else -> "oiseau de nuit 🦉"
+    in 0..5 -> tr("oiseau de nuit 🦉"); in 6..8 -> tr("lève-tôt 🐓"); in 9..11 -> tr("du matin ☕"); in 12..13 -> tr("pause déj 🥪")
+    in 14..17 -> tr("de l'aprèm 🌤️"); in 18..20 -> tr("du soir 🌆"); else -> tr("oiseau de nuit 🦉")
 }
-private fun hm(s: Long) = "${s / 3600} h ${((s % 3600) / 60).toString().padStart(2, '0')}"
+private fun hm(s: Long) = tr("{0} h {1}", s / 3600, ((s % 3600) / 60).toString().padStart(2, '0'))
 
 /* ======================= Écran ======================= */
 
@@ -141,7 +141,7 @@ internal fun WrappedScreen(calls: List<CallRepository.CallEntry>, contacts: List
                     }
                 }
                 Spacer(Modifier.width(6.dp))
-                IconButton(onClick = onClose, modifier = Modifier.size(32.dp)) { Icon(Icons.Filled.Close, "Fermer", tint = Color.White) }
+                IconButton(onClick = onClose, modifier = Modifier.size(32.dp)) { Icon(Icons.Filled.Close, tr("Fermer"), tint = Color.White) }
             }
             val wr = w
             if (wr == null) Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = Color.White) }
@@ -166,17 +166,17 @@ private fun Emoji(e: String) = Text(e, fontSize = 64.sp, modifier = Modifier.pad
 private fun CountUp(target: Long, suffix: String = "", size: TextUnit = 84.sp) {
     val a = remember(target) { Animatable(0f) }
     LaunchedEffect(target) { a.animateTo(target.toFloat(), tween(1400, easing = FastOutSlowInEasing)) }
-    Big("%,d".format(a.value.roundToInt()).replace(',', ' ') + suffix, size)
+    Big(String.format(I18n.locale, "%,d", a.value.roundToInt()) + suffix, size)
 }
 
 @Composable
 private fun Slide(s: Int, w: Wrap, years: List<Int>, year: Int, onYear: (Int) -> Unit, onStart: () -> Unit, ctx: Context) {
     val gap = Modifier.height(14.dp)
-    if (w.total == 0 && s != 0) { Emoji("🤷"); Line("Pas d'appels en ${w.year}."); return }
+    if (w.total == 0 && s != 0) { Emoji("🤷"); Line(tr("Pas d'appels en {0}.", w.year)); return }
     when (s) {
         0 -> {
             Emoji("🎁"); Line("Di-Allô Wrapped", 22.sp, .85f, true); Spacer(gap)
-            Big("Ton année ${w.year}\nau téléphone", 44.sp); Spacer(Modifier.height(28.dp))
+            Big(tr("Ton année {0}\nau téléphone", w.year), 44.sp); Spacer(Modifier.height(28.dp))
             // toutes les années du journal, sur plusieurs lignes au besoin
             @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
             if (years.size > 1) androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
@@ -189,34 +189,34 @@ private fun Slide(s: Int, w: Wrap, years: List<Int>, year: Int, onYear: (Int) ->
                 }
             }
             Spacer(Modifier.height(36.dp))
-            Text("C'est parti ›", color = Color(0xFF7C3AED), fontWeight = FontWeight.Bold, fontSize = 18.sp,
+            Text(tr("C'est parti ›"), color = Color(0xFF7C3AED), fontWeight = FontWeight.Bold, fontSize = 18.sp,
                 modifier = Modifier.clip(RoundedCornerShape(50)).background(Color.White).clickable { onStart() }.padding(horizontal = 26.dp, vertical = 12.dp))
-            Spacer(gap); Line("Touche à droite pour avancer, à gauche pour revenir", 13.sp, .7f)
+            Spacer(gap); Line(tr("Touche à droite pour avancer, à gauche pour revenir"), 13.sp, .7f)
         }
         1 -> {
-            Emoji("📞"); Line("Cette année, tu as passé ou reçu"); Spacer(gap)
-            CountUp(w.total.toLong()); Line("appels", 28.sp, bold = true); Spacer(Modifier.height(20.dp))
-            Line("📤 ${w.out} passés   📥 ${w.inc} reçus   👻 ${w.missed} manqués", 15.sp, .9f)
+            Emoji("📞"); Line(tr("Cette année, tu as passé ou reçu")); Spacer(gap)
+            CountUp(w.total.toLong()); Line(trn(w.total, "appel", "appels"), 28.sp, bold = true); Spacer(Modifier.height(20.dp))
+            Line(tr("📤 {0} passés   📥 {1} reçus   👻 {2} manqués", w.out, w.inc, w.missed), 15.sp, .9f)
             if (w.prevTotal > 0) {
                 val d = (w.total - w.prevTotal) * 100 / w.prevTotal
-                Spacer(gap); Line(if (d >= 0) "📈 +$d % par rapport à ${w.year - 1}" else "📉 $d % par rapport à ${w.year - 1}", 17.sp, .9f, true)
+                Spacer(gap); Line(if (d >= 0) tr("📈 +{0} % par rapport à {1}", d, w.year - 1) else tr("📉 {0} % par rapport à {1}", d, w.year - 1), 17.sp, .9f, true)
             }
         }
         2 -> {
-            Emoji("⏱️"); Line("Temps passé au téléphone"); Spacer(gap)
+            Emoji("⏱️"); Line(tr("Temps passé au téléphone")); Spacer(gap)
             Big(hm(w.dur), 72.sp); Spacer(Modifier.height(20.dp))
             val films = w.dur / 7200
-            Line(if (films >= 1) "Soit $films film${if (films > 1) "s" else ""} 🎬 en entier" else "Soit ${w.dur / 60} minutes de blabla", 19.sp, .95f, true)
-            if (w.answered > 0) { Spacer(gap); Line("En moyenne ${fmtDur((w.dur / w.answered).toInt())} par appel", 16.sp, .8f) }
+            Line(if (films >= 1) trn(films, "Soit {0} film 🎬 en entier", "Soit {0} films 🎬 en entier") else trn(w.dur / 60, "Soit {0} minute de blabla", "Soit {0} minutes de blabla"), 19.sp, .95f, true)
+            if (w.answered > 0) { Spacer(gap); Line(tr("En moyenne {0} par appel", fmtDur((w.dur / w.answered).toInt())), 16.sp, .8f) }
         }
         3 -> w.top.firstOrNull()?.let { p ->
-            Line("Ta personne n°1 👑", 22.sp, bold = true); Spacer(Modifier.height(20.dp))
+            Line(tr("Ta personne n°1 👑"), 22.sp, bold = true); Spacer(Modifier.height(20.dp))
             Box(Modifier.size(150.dp).clip(CircleShape).background(Color.White.copy(alpha = .25f)).padding(6.dp)) { Avatar(p.name, p.photo, 138.dp) }
             Spacer(Modifier.height(18.dp)); Big(p.name, 36.sp); Spacer(gap)
-            Line("${p.n} appels · ${fmtClock(p.dur)} ensemble", 18.sp, .9f)
-        } ?: run { Emoji("🫥"); Line("Personne n'a vraiment sorti du lot.") }
+            Line(trn(p.n, "{0} appel · {1} ensemble", "{0} appels · {1} ensemble", fmtClock(p.dur)), 18.sp, .9f)
+        } ?: run { Emoji("🫥"); Line(tr("Personne n'a vraiment sorti du lot.")) }
         4 -> {
-            Line("Ton top 5 🏆", 26.sp, bold = true); Spacer(Modifier.height(22.dp))
+            Line(tr("Ton top 5 🏆"), 26.sp, bold = true); Spacer(Modifier.height(22.dp))
             val medals = listOf("🥇", "🥈", "🥉", "4", "5")
             w.top.forEachIndexed { k, p ->
                 Row(Modifier.fillMaxWidth().padding(vertical = 6.dp).clip(RoundedCornerShape(18.dp)).background(Color.White.copy(alpha = .14f)).padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -229,38 +229,39 @@ private fun Slide(s: Int, w: Wrap, years: List<Int>, year: Int, onYear: (Int) ->
         }
         5 -> {
             val m = w.months.indices.maxByOrNull { w.months[it] } ?: 0
-            Emoji("📅"); Line("Ton mois le plus bavard"); Spacer(gap)
-            Big(monthName(m).replaceFirstChar { it.uppercase() }.trimEnd('.'), 60.sp); Line("${w.months[m]} appels", 20.sp, .9f, true)
-            Spacer(Modifier.height(26.dp)); Bars(w.months.toList(), listOf("J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"), m)
+            Emoji("📅"); Line(tr("Ton mois le plus bavard")); Spacer(gap)
+            Big(monthName(m).replaceFirstChar { it.uppercase() }.trimEnd('.'), 60.sp); Line(trn(w.months[m], "{0} appel", "{0} appels"), 20.sp, .9f, true)
+            val initials = java.text.DateFormatSymbols.getInstance(I18n.locale).months.take(12).map { it.take(1).uppercase(I18n.locale) }
+            Spacer(Modifier.height(26.dp)); Bars(w.months.toList(), initials, m)
         }
         6 -> {
-            Emoji("🔥"); Line("Ton jour record"); Spacer(gap)
+            Emoji("🔥"); Line(tr("Ton jour record")); Spacer(gap)
             Big(if (w.recordDay > 0) fmtDate(w.recordDay) else "—", 40.sp); Spacer(gap)
-            Line("${w.recordN} appels dans la journée !", 20.sp, bold = true)
-            if (w.streak > 1) { Spacer(Modifier.height(26.dp)); Line("📆 Plus longue série : ${w.streak} jours d'affilée au téléphone", 17.sp, .9f) }
+            Line(trn(w.recordN, "{0} appel dans la journée !", "{0} appels dans la journée !"), 20.sp, bold = true)
+            if (w.streak > 1) { Spacer(Modifier.height(26.dp)); Line(tr("📆 Plus longue série : {0} jours d'affilée au téléphone", w.streak), 17.sp, .9f) }
         }
         7 -> {
             val h = w.hours.indices.maxByOrNull { w.hours[it] } ?: 12
-            Emoji("🕰️"); Line("Ton heure préférée"); Spacer(gap)
-            Big("${h}h", 90.sp); Line("Tu es plutôt ${persona(h)}", 22.sp, bold = true)
+            Emoji("🕰️"); Line(tr("Ton heure préférée")); Spacer(gap)
+            Big(tr("{0}h", h), 90.sp); Line(tr("Tu es plutôt {0}", persona(h)), 22.sp, bold = true)
             Spacer(Modifier.height(26.dp)); Bars(w.hours.toList(), (0..23).map { if (it % 6 == 0) "$it" else "" }, h)
         }
         8 -> w.longest?.let { l ->
-            Emoji("🏆"); Line("Ton plus long appel"); Spacer(gap)
+            Emoji("🏆"); Line(tr("Ton plus long appel")); Spacer(gap)
             Big(fmtDur(l.duration), 72.sp); Spacer(gap)
-            Line("avec ${w.longestName}", 24.sp, bold = true); Line("le ${fmtDate(l.date)}", 17.sp, .85f)
-        } ?: run { Emoji("⚡"); Line("Que des appels express cette année !") }
+            Line(tr("avec {0}", w.longestName), 24.sp, bold = true); Line(tr("le {0}", fmtDate(l.date)), 17.sp, .85f)
+        } ?: run { Emoji("⚡"); Line(tr("Que des appels express cette année !")) }
         9 -> {
-            Emoji("👻"); Line("Appels manqués"); Spacer(gap)
+            Emoji("👻"); Line(tr("Appels manqués")); Spacer(gap)
             CountUp(w.missed.toLong(), size = 80.sp); Spacer(gap)
-            w.ghost?.let { g -> Line("C'est ${g.name} qui t'a le plus attendu", 20.sp, bold = true); Line("${g.missed} appel${if (g.missed > 1) "s" else ""} sans réponse 😬", 17.sp, .85f) }
-                ?: Line("Tu réponds toujours. Respect. 🫡", 20.sp, bold = true)
+            w.ghost?.let { g -> Line(tr("C'est {0} qui t'a le plus attendu", g.name), 20.sp, bold = true); Line(trn(g.missed, "{0} appel sans réponse 😬", "{0} appels sans réponse 😬"), 17.sp, .85f) }
+                ?: Line(tr("Tu réponds toujours. Respect. 🫡"), 20.sp, bold = true)
         }
         10 -> {
-            Emoji("🫂"); Line("Tu as parlé avec"); Spacer(gap)
-            CountUp(w.people.toLong()); Line("personnes différentes", 24.sp, bold = true); Spacer(Modifier.height(20.dp))
-            if (w.newPeople > 0) Line("🆕 dont ${w.newPeople} nouvelle${if (w.newPeople > 1) "s" else ""} cette année", 18.sp, .9f)
-            if (w.countries > 1) { Spacer(gap); Line("🌍 ${w.countries} pays au compteur", 18.sp, .9f) }
+            Emoji("🫂"); Line(tr("Tu as parlé avec")); Spacer(gap)
+            CountUp(w.people.toLong()); Line(trn(w.people, "personne différente", "personnes différentes"), 24.sp, bold = true); Spacer(Modifier.height(20.dp))
+            if (w.newPeople > 0) Line(trn(w.newPeople, "🆕 dont {0} nouvelle cette année", "🆕 dont {0} nouvelles cette année"), 18.sp, .9f)
+            if (w.countries > 1) { Spacer(gap); Line(tr("🌍 {0} pays au compteur", w.countries), 18.sp, .9f) }
         }
         else -> Outro(w, ctx)
     }
@@ -283,7 +284,7 @@ private fun Bars(values: List<Int>, labels: List<String>, hi: Int) {
 private fun Outro(w: Wrap, ctx: Context) {
     val scope = rememberCoroutineScope()
     var saved by remember { mutableStateOf<String?>(null) }
-    Emoji("🤙"); Big("Ton ${w.year}\nen résumé", 40.sp); Spacer(Modifier.height(22.dp))
+    Emoji("🤙"); Big(tr("Ton {0}\nen résumé", w.year), 40.sp); Spacer(Modifier.height(22.dp))
     Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(Color.White.copy(alpha = .16f)).padding(18.dp)) {
         summaryLines(w).forEach { Text(it, color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(vertical = 4.dp)) }
     }
@@ -291,27 +292,27 @@ private fun Outro(w: Wrap, ctx: Context) {
     Row(Modifier.clip(RoundedCornerShape(50)).background(Color.White).clickable {
         scope.launch {
             val f = withContext(Dispatchers.IO) { renderShareImage(ctx, w) }
-            saved = withContext(Dispatchers.IO) { if (DataFolder.saveBytes(ctx, "Wrapped", "Di-Allo-Wrapped-${w.year}.png", f.readBytes())) "Image rangée dans le dossier Di-Allô › Wrapped" else null }
+            saved = withContext(Dispatchers.IO) { if (DataFolder.saveBytes(ctx, "Wrapped", "Di-Allo-Wrapped-${w.year}.png", f.readBytes())) tr("Image rangée dans le dossier Di-Allô › Wrapped") else null }
             val uri = FileProvider.getUriForFile(ctx, ctx.packageName + ".files", f)
-            ctx.startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("image/png").putExtra(Intent.EXTRA_STREAM, uri).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION), "Partager mon Wrapped"))
+            ctx.startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("image/png").putExtra(Intent.EXTRA_STREAM, uri).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION), tr("Partager mon Wrapped")))
         }
     }.padding(horizontal = 24.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
         Icon(Icons.Filled.Share, null, tint = Color(0xFF16B871)); Spacer(Modifier.width(8.dp))
-        Text("Partager", color = Color(0xFF0A7F6B), fontWeight = FontWeight.Bold, fontSize = 17.sp)
+        Text(tr("Partager"), color = Color(0xFF0A7F6B), fontWeight = FontWeight.Bold, fontSize = 17.sp)
     }
     saved?.let { Spacer(Modifier.height(10.dp)); Line(it, 13.sp, .8f) }
 }
 
 private fun summaryLines(w: Wrap): List<String> = buildList {
-    add("📞 ${w.total} appels")
-    add("⏱️ ${hm(w.dur)} au téléphone")
-    w.top.firstOrNull()?.let { add("👑 N°1 : ${it.name}") }
+    add(trn(w.total, "📞 {0} appel", "📞 {0} appels"))
+    add(tr("⏱️ {0} au téléphone", hm(w.dur)))
+    w.top.firstOrNull()?.let { add(tr("👑 N°1 : {0}", it.name)) }
     val m = w.months.indices.maxByOrNull { w.months[it] } ?: 0
-    add("📅 Mois record : ${monthName(m).trimEnd('.')}")
+    add(tr("📅 Mois record : {0}", monthName(m).trimEnd('.')))
     val h = w.hours.indices.maxByOrNull { w.hours[it] } ?: 12
-    add("🕰️ Plutôt ${persona(h)}")
-    w.longest?.let { add("🏆 Record : ${fmtDur(it.duration)}") }
-    add("🫂 ${w.people} personnes")
+    add(tr("🕰️ Plutôt {0}", persona(h)))
+    w.longest?.let { add(tr("🏆 Record : {0}", fmtDur(it.duration))) }
+    add(trn(w.people, "🫂 {0} personne", "🫂 {0} personnes"))
 }
 
 /** Image 1080×1920 du résumé, pour partager en story. */
@@ -326,8 +327,8 @@ private fun renderShareImage(ctx: Context, w: Wrap): File {
     val title = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = android.graphics.Color.WHITE; textSize = 96f; typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD); textAlign = Paint.Align.CENTER }
     val sub = Paint(title).apply { textSize = 46f; typeface = Typeface.DEFAULT; alpha = 220 }
     val line = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = android.graphics.Color.WHITE; textSize = 54f; typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD) }
-    c.drawText("Mon ${w.year}", W / 2f, 520f, title)
-    c.drawText("au téléphone", W / 2f, 630f, title)
+    c.drawText(tr("Mon {0}", w.year), W / 2f, 520f, title)
+    c.drawText(tr("au téléphone"), W / 2f, 630f, title)
     val card = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0x2EFFFFFF }
     c.drawRoundRect(80f, 720f, W - 80f, 1640f, 60f, 60f, card)
     var y = 830f

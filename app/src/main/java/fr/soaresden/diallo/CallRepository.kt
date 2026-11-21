@@ -14,12 +14,12 @@ object CallRepository {
     ) {
         val display: String get() = name ?: number
         val dirLabel: String get() = when (type) {
-            CallLog.Calls.OUTGOING_TYPE -> "Sortant"
-            CallLog.Calls.INCOMING_TYPE -> "Entrant"
-            CallLog.Calls.MISSED_TYPE -> "Manqué"
-            CallLog.Calls.REJECTED_TYPE -> "Rejeté"
-            CallLog.Calls.VOICEMAIL_TYPE -> "Messagerie"
-            else -> "Appel"
+            CallLog.Calls.OUTGOING_TYPE -> tr("Sortant")
+            CallLog.Calls.INCOMING_TYPE -> tr("Entrant")
+            CallLog.Calls.MISSED_TYPE -> tr("Manqué")
+            CallLog.Calls.REJECTED_TYPE -> tr("Rejeté")
+            CallLog.Calls.VOICEMAIL_TYPE -> tr("Messagerie")
+            else -> tr("Appel")
         }
     }
 
@@ -92,7 +92,7 @@ object CallRepository {
                 val iDur = c.getColumnIndex(CallLog.Calls.DURATION); val iT = c.getColumnIndex(CallLog.Calls.TYPE)
                 val iId = c.getColumnIndex(CallLog.Calls._ID)
                 while (c.moveToNext()) {
-                    val num = c.getString(iN) ?: "Inconnu"
+                    val num = c.getString(iN) ?: tr("Inconnu")
                     val nm = if (iNm >= 0) c.getString(iNm)?.ifBlank { null } else null
                     val ph = if (iPh >= 0) c.getString(iPh)?.ifBlank { null } else null
                     list.add(CallEntry(num, nm, ph, c.getLong(iD), c.getInt(iDur), c.getInt(iT), if (iId >= 0) c.getLong(iId) else -1))

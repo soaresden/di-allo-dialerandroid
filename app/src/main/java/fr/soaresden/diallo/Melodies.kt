@@ -34,7 +34,7 @@ object Melodies {
         val a = JSONArray(prefs(ctx).getString(KEY, "[]"))
         (0 until a.length()).map { i ->
             val o = a.getJSONObject(i); val n = o.getJSONArray("n")
-            Melody(o.getLong("id"), o.optString("name", "Mélodie"), o.optString("instr", "piano"),
+            Melody(o.getLong("id"), o.optString("name", tr("Mélodie")), o.optString("instr", "piano"),
                 (0 until n.length()).map { j -> val x = n.getJSONArray(j); Note(x.getString(0), x.getInt(1)) })
         }
     } catch (_: Throwable) { emptyList() }
@@ -52,14 +52,14 @@ object Melodies {
     fun add(ctx: Context, name: String, instr: String, notes: List<Note>): Melody {
         val list = load(ctx)
         val id = maxOf(System.currentTimeMillis(), (list.maxOfOrNull { it.id } ?: 0L) + 1)
-        val m = Melody(id, name.trim().ifBlank { "Mélodie ${list.size + 1}" }, instr, notes)
+        val m = Melody(id, name.trim().ifBlank { tr("Mélodie {0}", list.size + 1) }, instr, notes)
         save(ctx, listOf(m) + list)
         return m
     }
     fun update(ctx: Context, m: Melody) = save(ctx, load(ctx).map { if (it.id == m.id) m else it })
     fun rename(ctx: Context, id: Long, name: String) = save(ctx, load(ctx).map { if (it.id == id) it.copy(name = name.trim().ifBlank { it.name }) else it })
     fun delete(ctx: Context, id: Long) { if (playingId.value == id) stop(); save(ctx, load(ctx).filter { it.id != id }) }
-    fun nextName(ctx: Context) = "Mélodie ${load(ctx).size + 1}"
+    fun nextName(ctx: Context) = tr("Mélodie {0}", load(ctx).size + 1)
 
     // ---------- Chiffres <-> notes ----------
     /** « 624 624 687 » → notes espacées de [stepMs] ; un espace = une pause, un retour à la ligne aussi (une seule, même juste après un espace). */
@@ -120,13 +120,16 @@ object Melodies {
     }
 
     // ---------- Recueil : airs du domaine public ----------
-    /** Touches → notes : 1 Do · 2 Ré · 3 Mi · 4 Fa · 5 Sol · 6 La · 7 Si · 8 Do · 9 Ré · * Mi · 0 Fa · # Sol */
-    const val LEGEND = "1 Do · 2 Ré · 3 Mi · 4 Fa · 5 Sol · 6 La · 7 Si · 8 Do · 9 Ré · * Mi · 0 Fa · # Sol"
+    /** Touches → notes : 1 Do · 2 Ré · 3 Mi · 4 Fa · 5 Sol · 6 La · 7 Si · 8 Do · 9 Ré · * Mi · 0 Fa · # Sol (noms dans la langue affichée). */
+    val LEGEND: String get() = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "0", "#").joinToString(" · ") { "$it ${noteName(it)}" }
 
     /** Chaque chiffre dure un pas, chaque « - » prolonge d'un pas ; « | » sépare les mesures (ignoré). */
     data class Preset(val name: String, val stepMs: Int, val text: String) {
         val notes: List<Note> get() = fromText(text.replace("|", ""), stepMs)
     }
+
+    /** Titre affiché d'un air du recueil ([Preset.name] français = clé de traduction). */
+    fun title(p: Preset): String = tr(p.name)
 
     val SONGBOOK = listOf(
         Preset("Au clair de la lune", 380, "4445|6-5-|4655|4---|4445|6-5-|4655|4---|5555|2-2-|5432|1---|4445|6-5-|4655|4---"),

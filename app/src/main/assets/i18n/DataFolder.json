@@ -1,0 +1,16 @@
+{
+  "✅ Notes et réglages enregistrés · {0}": { "en": "✅ Notes and settings saved · {0}", "es": "✅ Notas y ajustes guardados · {0}", "de": "✅ Notizen und Einstellungen gespeichert · {0}", "it": "✅ Note e impostazioni salvate · {0}", "pt": "✅ Notas e configurações salvas · {0}" },
+  "❌ Impossible d'écrire dans le dossier": { "en": "❌ Can't write to the folder", "es": "❌ No se puede escribir en la carpeta", "de": "❌ Schreiben in den Ordner nicht möglich", "it": "❌ Impossibile scrivere nella cartella", "pt": "❌ Não foi possível gravar na pasta" },
+  "♻️ Restauré : {0} note, {1} réglages · {2}": { "en": "♻️ Restored: {0} note, {1} settings · {2}", "es": "♻️ Restaurado: {0} nota, {1} ajustes · {2}", "de": "♻️ Wiederhergestellt: {0} Notiz, {1} Einstellungen · {2}", "it": "♻️ Ripristinato: {0} nota, {1} impostazioni · {2}", "pt": "♻️ Restaurado: {0} nota, {1} configurações · {2}" },
+  "♻️ Restauré : {0} notes, {1} réglages · {2}": { "en": "♻️ Restored: {0} notes, {1} settings · {2}", "es": "♻️ Restaurado: {0} notas, {1} ajustes · {2}", "de": "♻️ Wiederhergestellt: {0} Notizen, {1} Einstellungen · {2}", "it": "♻️ Ripristinato: {0} note, {1} impostazioni · {2}", "pt": "♻️ Restaurado: {0} notas, {1} configurações · {2}" },
+  "Sauvegarde du journal d'appels…": { "en": "Backing up the call log…", "es": "Copiando el registro de llamadas…", "de": "Anrufliste wird gesichert…", "it": "Backup del registro chiamate…", "pt": "Fazendo backup do registro de chamadas…" },
+  "{0} appel": { "en": "{0} call", "es": "{0} llamada", "de": "{0} Anruf", "it": "{0} chiamata", "pt": "{0} chamada" },
+  "{0} appels": { "en": "{0} calls", "es": "{0} llamadas", "de": "{0} Anrufe", "it": "{0} chiamate", "pt": "{0} chamadas" },
+  "Sauvegarde des SMS / MMS…": { "en": "Backing up SMS / MMS…", "es": "Copiando SMS / MMS…", "de": "SMS / MMS werden gesichert…", "it": "Backup di SMS / MMS…", "pt": "Fazendo backup de SMS / MMS…" },
+  "{0} SMS, {1} MMS": { "en": "{0} SMS, {1} MMS", "es": "{0} SMS, {1} MMS", "de": "{0} SMS, {1} MMS", "it": "{0} SMS, {1} MMS", "pt": "{0} SMS, {1} MMS" },
+  "SMS non autorisés": { "en": "SMS not allowed", "es": "SMS no autorizados", "de": "SMS nicht erlaubt", "it": "SMS non autorizzati", "pt": "SMS não autorizados" },
+  "✅ Sauvegarde · {0} · {1}": { "en": "✅ Backup · {0} · {1}", "es": "✅ Copia de seguridad · {0} · {1}", "de": "✅ Sicherung · {0} · {1}", "it": "✅ Backup · {0} · {1}", "pt": "✅ Backup · {0} · {1}" },
+  "❌ Sauvegarde échouée : {0}": { "en": "❌ Backup failed: {0}", "es": "❌ Error en la copia de seguridad: {0}", "de": "❌ Sicherung fehlgeschlagen: {0}", "it": "❌ Backup non riuscito: {0}", "pt": "❌ Falha no backup: {0}" },
+  "Sauvegarde des SMS… {0}": { "en": "Backing up SMS… {0}", "es": "Copiando SMS… {0}", "de": "SMS werden gesichert… {0}", "it": "Backup degli SMS… {0}", "pt": "Fazendo backup dos SMS… {0}" },
+  "Sauvegarde des MMS… {0}": { "en": "Backing up MMS… {0}", "es": "Copiando MMS… {0}", "de": "MMS werden gesichert… {0}", "it": "Backup degli MMS… {0}", "pt": "Fazendo backup dos MMS… {0}" }
+}

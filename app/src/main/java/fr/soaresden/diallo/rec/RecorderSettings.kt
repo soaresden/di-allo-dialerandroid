@@ -28,8 +28,10 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import fr.soaresden.diallo.Amber
 import fr.soaresden.diallo.CallGreen
+import fr.soaresden.diallo.I18n
 import fr.soaresden.diallo.SectionCard
 import fr.soaresden.diallo.muted
+import fr.soaresden.diallo.tr
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -50,10 +52,10 @@ object RecHealth {
     /** Vérifie (et relance le service si besoin). Hors fil principal. */
     fun check(ctx: Context) {
         if (!CallRecorder.enabled(ctx)) { problem.value = null; return }
-        if (!AdbLauncher.paired(ctx)) { problem.value = "🎙️ Enregistrement des appels : configuration à terminer"; return }
+        if (!AdbLauncher.paired(ctx)) { problem.value = tr("🎙️ Enregistrement des appels : configuration à terminer"); return }
         if (CallRecorder.serverVersion(ctx) == RecServer.VERSION) { problem.value = null; return }
         problem.value = if (CallRecorder.ensureServer(ctx)) null
-        else "🎙️ Enregistrement indisponible : " + (AdbLauncher.lastError ?: "service arrêté")
+        else tr("🎙️ Enregistrement indisponible : {0}", AdbLauncher.lastError ?: tr("service arrêté"))
     }
 
     // ---------- Liens vers les bons écrans ----------
@@ -81,34 +83,34 @@ internal fun RecorderCard() {
     var mode by remember { mutableStateOf(CallRecorder.mode(ctx)) }
     val problem by RecHealth.problem
     val wiz by RecHealth.wizard
-    LaunchedEffect(enabled, wiz) { withContext(Dispatchers.IO) { RecHealth.check(ctx.applicationContext) } }
+    LaunchedEffect(enabled, wiz, I18n.lang.value) { withContext(Dispatchers.IO) { RecHealth.check(ctx.applicationContext) } }
 
-    SectionCard("🎙️ Enregistreur Di-Allô") {
+    SectionCard(tr("🎙️ Enregistreur Di-Allô"), id = "🎙️ Enregistreur Di-Allô") {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("Enregistrer les appels", fontWeight = FontWeight.SemiBold, color = cs.onSurface)
-                Text("MP3 dans Rec/ · les deux voix · sans autre appli", fontSize = 12.sp, color = muted())
+                Text(tr("Enregistrer les appels"), fontWeight = FontWeight.SemiBold, color = cs.onSurface)
+                Text(tr("MP3 dans Rec/ · les deux voix · sans autre appli"), fontSize = 12.sp, color = muted())
             }
             Switch(enabled, { enabled = it; CallRecorder.setEnabled(ctx, it); if (it && !AdbLauncher.paired(ctx)) RecHealth.wizard.value = true })
         }
         if (!enabled) return@SectionCard
         Spacer(Modifier.height(10.dp))
-        Text("Quand ?", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = cs.onSurface)
+        Text(tr("Quand ?"), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = cs.onSurface)
         listOf(
-            CallRecorder.MANUAL to "Quand je veux : bouton 🔴 pendant l'appel",
-            CallRecorder.CONTACTS to "Tout seul pour mes contacts (🔴 pour les autres)",
-            CallRecorder.ALL to "Tout seul pour tous les appels"
+            CallRecorder.MANUAL to tr("Quand je veux : bouton 🔴 pendant l'appel"),
+            CallRecorder.CONTACTS to tr("Tout seul pour mes contacts (🔴 pour les autres)"),
+            CallRecorder.ALL to tr("Tout seul pour tous les appels")
         ).forEach { (id, label) ->
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 RadioButton(mode == id, { mode = id; CallRecorder.setMode(ctx, id) })
                 Text(label, fontSize = 13.sp, color = cs.onSurface)
             }
         }
-        Text("Le bouton 🔴 reste toujours disponible pendant l'appel pour démarrer ou arrêter.", fontSize = 11.5.sp, color = muted(.55f))
+        Text(tr("Le bouton 🔴 reste toujours disponible pendant l'appel pour démarrer ou arrêter."), fontSize = 11.5.sp, color = muted(.55f))
         HorizontalDivider(Modifier.padding(vertical = 10.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(problem?.removePrefix("🎙️ ") ?: "✅ Prêt à enregistrer", fontSize = 13.sp, color = if (problem == null) cs.primary else Amber, modifier = Modifier.weight(1f))
-            TextButton(onClick = { RecHealth.wizard.value = true }) { Text(if (problem == null) "Vérifier" else "Configurer") }
+            Text(problem?.removePrefix("🎙️ ") ?: tr("✅ Prêt à enregistrer"), fontSize = 13.sp, color = if (problem == null) cs.primary else Amber, modifier = Modifier.weight(1f))
+            TextButton(onClick = { RecHealth.wizard.value = true }) { Text(if (problem == null) tr("Vérifier") else tr("Configurer")) }
         }
     }
 }
@@ -138,55 +140,54 @@ fun RecSetupWizard(onClose: () -> Unit) {
     Dialog(onDismissRequest = onClose, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(Modifier.fillMaxWidth().padding(14.dp), shape = RoundedCornerShape(24.dp), color = cs.surface) {
             Column(Modifier.verticalScroll(rememberScrollState()).padding(18.dp)) {
-                Text("🎙️ Activer l'enregistrement", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = cs.onSurface)
+                Text(tr("🎙️ Activer l'enregistrement"), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = cs.onSurface)
                 Text(
-                    "Android réserve le son des appels aux outils de développement. Di-Allô passe par le « Débogage sans fil » de ton téléphone : " +
-                        "une association une seule fois, puis il l'allume et l'éteint tout seul quand il en a besoin.",
+                    tr("Android réserve le son des appels aux outils de développement. Di-Allô passe par le « Débogage sans fil » de ton téléphone : une association une seule fois, puis il l'allume et l'éteint tout seul quand il en a besoin."),
                     fontSize = 12.5.sp, color = muted(.75f), modifier = Modifier.padding(top = 4.dp, bottom = 12.dp)
                 )
                 if (server && paired) {
-                    Step(1, true, "Tout est prêt", "Le service d'enregistrement tourne. Bouton 🔴 dans l'écran d'appel.") { }
+                    Step(1, true, tr("Tout est prêt"), tr("Le service d'enregistrement tourne. Bouton 🔴 dans l'écran d'appel.")) { }
                 } else {
-                    Step(1, dev, "Options pour les développeurs", if (dev) "Activées" else "Réglages › À propos du téléphone › touche 7 fois « Version de l'OS ».") {
-                        OutlinedButton(onClick = { RecHealth.openAbout(ctx) }) { Text("Ouvrir « À propos »") }
+                    Step(1, dev, tr("Options pour les développeurs"), if (dev) tr("Activées") else tr("Réglages › À propos du téléphone › touche 7 fois « Version de l'OS ».")) {
+                        OutlinedButton(onClick = { RecHealth.openAbout(ctx) }) { Text(tr("Ouvrir « À propos »")) }
                     }
-                    Step(2, wifi, "Wi-Fi connecté", if (wifi) "OK" else "Le débogage sans fil ne marche qu'en Wi-Fi.") {
-                        OutlinedButton(onClick = { RecHealth.openWifi(ctx) }) { Text("Ouvrir le Wi-Fi") }
+                    Step(2, wifi, tr("Wi-Fi connecté"), if (wifi) "OK" else tr("Le débogage sans fil ne marche qu'en Wi-Fi.")) {
+                        OutlinedButton(onClick = { RecHealth.openWifi(ctx) }) { Text(tr("Ouvrir le Wi-Fi")) }
                     }
-                    Step(3, paired || adbOn, "Débogage sans fil", if (paired || adbOn) "Activé" else "Options pour les développeurs › « Débogage sans fil » › Activer (coche « Toujours autoriser sur ce réseau »).") {
-                        OutlinedButton(onClick = { RecHealth.openWirelessDebug(ctx) }, enabled = dev) { Text("Ouvrir le débogage sans fil") }
+                    Step(3, paired || adbOn, tr("Débogage sans fil"), if (paired || adbOn) tr("Activé") else tr("Options pour les développeurs › « Débogage sans fil » › Activer (coche « Toujours autoriser sur ce réseau »).")) {
+                        OutlinedButton(onClick = { RecHealth.openWirelessDebug(ctx) }, enabled = dev) { Text(tr("Ouvrir le débogage sans fil")) }
                     }
-                    Step(4, paired, "Associer Di-Allô", if (paired) "Associé" else "Dans « Débogage sans fil », touche « Associer l'appareil avec un code ». Une notification Di-Allô apparaît : tapes-y le code à 6 chiffres sans fermer l'écran du code.") {
-                        Button(onClick = { AdbLauncher.askCode(ctx); RecHealth.openWirelessDebug(ctx) }, enabled = dev && wifi) { Text("Associer") }
+                    Step(4, paired, tr("Associer Di-Allô"), if (paired) tr("Associé") else tr("Dans « Débogage sans fil », touche « Associer l'appareil avec un code ». Une notification Di-Allô apparaît : tapes-y le code à 6 chiffres sans fermer l'écran du code.")) {
+                        Button(onClick = { AdbLauncher.askCode(ctx); RecHealth.openWirelessDebug(ctx) }, enabled = dev && wifi) { Text(tr("Associer")) }
                         var manual by remember { mutableStateOf(false) }
-                        TextButton(onClick = { manual = !manual }) { Text(if (manual) "Masquer" else "Écran partagé : saisir ici", fontSize = 12.sp) }
+                        TextButton(onClick = { manual = !manual }) { Text(if (manual) tr("Masquer") else tr("Écran partagé : saisir ici"), fontSize = 12.sp) }
                         if (manual) {
                             var port by remember { mutableStateOf("") }; var code by remember { mutableStateOf("") }
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                OutlinedTextField(port, { port = it.filter(Char::isDigit).take(5) }, Modifier.weight(1f), label = { Text("Port") }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
-                                OutlinedTextField(code, { code = it.filter(Char::isDigit).take(6) }, Modifier.weight(1f), label = { Text("Code") }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+                                OutlinedTextField(port, { port = it.filter(Char::isDigit).take(5) }, Modifier.weight(1f), label = { Text(tr("Port")) }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+                                OutlinedTextField(code, { code = it.filter(Char::isDigit).take(6) }, Modifier.weight(1f), label = { Text(tr("Code")) }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
                             }
-                            Button(onClick = { scope.launch(Dispatchers.IO) { AdbLauncher.pair(ctx, code, port.toIntOrNull()) } }, enabled = code.length == 6, modifier = Modifier.padding(top = 6.dp)) { Text("Associer avec ce code") }
+                            Button(onClick = { scope.launch(Dispatchers.IO) { AdbLauncher.pair(ctx, code, port.toIntOrNull()) } }, enabled = code.length == 6, modifier = Modifier.padding(top = 6.dp)) { Text(tr("Associer avec ce code")) }
                         }
                     }
-                    Step(5, server, "Service d'enregistrement", if (server) "En marche" else "Lancé automatiquement après l'association.") {
+                    Step(5, server, tr("Service d'enregistrement"), if (server) tr("En marche") else tr("Lancé automatiquement après l'association.")) {
                         if (paired) Row(verticalAlignment = Alignment.CenterVertically) {
                             Button(onClick = {
                                 busy = true
                                 scope.launch(Dispatchers.IO) {
                                     val ok = CallRecorder.ensureServer(ctx)
-                                    AdbLauncher.pairing.value = if (ok) "✅ Service lancé" else "⚠️ ${AdbLauncher.lastError ?: "Lancement impossible"}"
+                                    AdbLauncher.pairing.value = if (ok) tr("✅ Service lancé") else "⚠️ " + (AdbLauncher.lastError ?: tr("Lancement impossible"))
                                     RecHealth.check(ctx); busy = false
                                 }
-                            }, enabled = !busy) { Text(if (busy) "Lancement…" else "Lancer maintenant") }
+                            }, enabled = !busy) { Text(if (busy) tr("Lancement…") else tr("Lancer maintenant")) }
                             if (busy) { Spacer(Modifier.width(8.dp)); CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp) }
                         }
                     }
                 }
                 pairing?.let { Text(it, fontSize = 12.5.sp, color = if (it.startsWith("⚠️")) Amber else cs.primary, modifier = Modifier.padding(top = 8.dp)) }
-                if (paired) TextButton(onClick = { CallRecorder.prefs(ctx).edit().putBoolean("paired", false).apply(); AdbLauncher.pairing.value = null }) { Text("Refaire l'association", color = muted(.55f), fontSize = 12.sp) }
+                if (paired) TextButton(onClick = { CallRecorder.prefs(ctx).edit().putBoolean("paired", false).apply(); AdbLauncher.pairing.value = null }) { Text(tr("Refaire l'association"), color = muted(.55f), fontSize = 12.sp) }
                 Row(Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.End) {
-                    Button(onClick = onClose) { Text(if (server && paired) "Terminé" else "Fermer") }
+                    Button(onClick = onClose) { Text(if (server && paired) tr("Terminé") else tr("Fermer")) }
                 }
             }
         }

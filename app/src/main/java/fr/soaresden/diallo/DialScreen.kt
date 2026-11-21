@@ -90,6 +90,13 @@ internal fun DialScreen(
     val view = LocalView.current
     LaunchedEffect(Unit) { Synth.warmUp() }   // flux audio ouvert + sons calculés avant le 1er appui
     var value by rememberSaveable { mutableStateOf("") }
+    var speedAssign by remember { mutableStateOf<String?>(null) }
+    speedAssign?.let { d ->
+        ContactPickerDialog(tr("Numérotation rapide · touche {0}", d), onDismiss = { speedAssign = null }) { p ->
+            SpeedDial.set(ctx, d, p); speedAssign = null; value = ""
+            android.widget.Toast.makeText(ctx, tr("Appui long sur {0} : appelle {1}", d, p.name), android.widget.Toast.LENGTH_SHORT).show()
+        }
+    }
     val typed = value.filter { it.isDigit() }
     // Candidats T9 / numéro, triés par nombre d'appels décroissant (une ligne par numéro)
     // Recherche à la fois en T9 (nom) ET dans le numéro (format national 06…, pour que "33" ne matche pas tout le +33)
@@ -127,8 +134,8 @@ internal fun DialScreen(
 
     if (showFav) {
         ModalBottomSheet(onDismissRequest = { showFav = false }, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true), containerColor = MaterialTheme.colorScheme.surface) {
-            Text("⭐ Favoris", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp))
-            if (favorites.isEmpty()) Hint("Aucun favori. Mets une étoile à un contact dans l'app Contacts.")
+            Text(tr("⭐ Favoris"), fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp))
+            if (favorites.isEmpty()) Hint(tr("Aucun favori. Mets une étoile à un contact dans l'app Contacts."))
             else LazyColumn(Modifier.fillMaxWidth().heightIn(max = 560.dp)) {
                 items(favorites.size) { i -> CompactRow(favorites[i], { showFav = false; onConfirm(it) }) }
                 item { Spacer(Modifier.height(20.dp)) }
@@ -161,17 +168,17 @@ internal fun DialScreen(
                     when {
                         value.isEmpty() -> {
                             if (freqRows.isNotEmpty()) {
-                                item { SmallTitle("Fréquents") }
+                                item { SmallTitle(tr("Fréquents")) }
                                 items(freqRows.size) { i -> CompactRow(freqRows[i], onConfirm) }
-                            } else item { Hint("Tes contacts fréquents apparaîtront ici.") }
+                            } else item { Hint(tr("Tes contacts fréquents apparaîtront ici.")) }
                         }
                         exact != null -> {
-                            item { SmallTitle("Contact trouvé") }
+                            item { SmallTitle(tr("Contact trouvé")) }
                             item { CompactRow(exact, onConfirm) }
                         }
-                        suggestions.isEmpty() -> item { Hint("Aucun contact ne correspond") }
+                        suggestions.isEmpty() -> item { Hint(tr("Aucun contact ne correspond")) }
                         else -> {
-                            item { SmallTitle(if (suggestions.size >= 60) "60+ résultats" else "${suggestions.size} résultat${if (suggestions.size > 1) "s" else ""}") }
+                            item { SmallTitle(if (suggestions.size >= 60) tr("60+ résultats") else trn(suggestions.size, "{0} résultat", "{0} résultats")) }
                             items(suggestions.size) { i -> CompactRow(suggestions[i], onConfirm, typed) }
                         }
                     }
@@ -194,13 +201,13 @@ internal fun DialScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
                 when {
-                    value.isEmpty() -> Text("Saisis un numéro ou un nom (T9)", fontSize = 13.sp, color = muted(.45f))
+                    value.isEmpty() -> Text(tr("Saisis un numéro ou un nom (T9)"), fontSize = 13.sp, color = muted(.45f))
                     exact != null -> Text(exact.display, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     typed.length >= 6 -> Row(Modifier.clip(RoundedCornerShape(50)).clickable {
                         try { ctx.startActivity(Intent(ContactsContract.Intents.Insert.ACTION).setType(ContactsContract.RawContacts.CONTENT_TYPE).putExtra(ContactsContract.Intents.Insert.PHONE, value)) } catch (_: Throwable) {}
                     }.padding(horizontal = 10.dp, vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Filled.PersonAdd, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp)); Spacer(Modifier.width(6.dp))
-                        Text("Créer un contact", fontSize = 13.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium)
+                        Text(tr("Créer un contact"), fontSize = 13.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium)
                     }
                     else -> Spacer(Modifier.height(18.dp))
                 }
@@ -216,6 +223,12 @@ internal fun DialScreen(
                             DialKey(k, key, pulse = Melodies.pulse[k.d] ?: 0, onDown = { press(k.d) }, onLong = {
                                 if (!recording) when (k.d) {
                                     "1" -> { if (value.endsWith("1")) value = value.dropLast(1); onVoicemail() }
+                                    in SpeedDial.DIGITS -> if (value == k.d) {
+                                        // numérotation rapide : appui long sur 2…9, clavier vide
+                                        view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                                        val sd = SpeedDial.get(ctx, k.d)
+                                        if (sd != null) { value = ""; placeCall(ctx, sd.number) } else speedAssign = k.d
+                                    }
                                     "0" -> { if (value.endsWith("0")) value = value.dropLast(1); if (value.length < 24) value += "+"; view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS) }
                                 }
                             })
@@ -228,14 +241,14 @@ internal fun DialScreen(
                         .clickable { Melodies.space(); view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP) }, contentAlignment = Alignment.Center) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text("␣", fontSize = (key.value * 0.36f).sp, color = MaterialTheme.colorScheme.onSurface)
-                            Text("PAUSE", fontSize = (key.value * 0.12f).sp, fontWeight = FontWeight.SemiBold, letterSpacing = 1.sp, color = muted(.5f))
+                            Text(tr("PAUSE"), fontSize = (key.value * 0.12f).sp, fontWeight = FontWeight.SemiBold, letterSpacing = 1.sp, color = muted(.5f))
                         }
                     }
                     val hasDraft = Melodies.recTokens.isNotEmpty()
                     Box(Modifier.size(key).shadow(if (hasDraft) 8.dp else 0.dp, LocalHTheme.current.keyShapeOf(), ambientColor = MaterialTheme.colorScheme.primary, spotColor = MaterialTheme.colorScheme.primary)
                         .clip(LocalHTheme.current.keyShapeOf()).background(if (hasDraft) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant)
                         .clickable(enabled = hasDraft) { saveDraft() }, contentAlignment = Alignment.Center) {
-                        Icon(Icons.Filled.Save, "Garder la composition", tint = if (hasDraft) MaterialTheme.colorScheme.onPrimary else muted(.3f), modifier = Modifier.size(key * 0.4f))
+                        Icon(Icons.Filled.Save, tr("Garder la composition"), tint = if (hasDraft) MaterialTheme.colorScheme.onPrimary else muted(.3f), modifier = Modifier.size(key * 0.4f))
                     }
                     if (hasDraft) BackspaceKey(key, visible = true, onClick = {
                         Melodies.backspace(); view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
@@ -244,11 +257,11 @@ internal fun DialScreen(
                 }
                 else Row(horizontalArrangement = Arrangement.spacedBy(gapH), verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.size(key).clip(CircleShape).clickable { showFav = true; view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP) }, contentAlignment = Alignment.Center) {
-                        Icon(Icons.Filled.Star, "Favoris", tint = Color(0xFFF5B301), modifier = Modifier.size(key * 0.38f))
+                        Icon(Icons.Filled.Star, tr("Favoris"), tint = Color(0xFFF5B301), modifier = Modifier.size(key * 0.38f))
                     }
                     Box(Modifier.size(key).shadow(8.dp, LocalHTheme.current.keyShapeOf(), ambientColor = CallGreen, spotColor = CallGreen).clip(LocalHTheme.current.keyShapeOf()).background(CallGreen)
                         .clickable { if (value.isNotEmpty()) onConfirm(value) }, contentAlignment = Alignment.Center) {
-                        Icon(Icons.Filled.Call, "Appeler", tint = Color.White, modifier = Modifier.size(key * 0.4f))
+                        Icon(Icons.Filled.Call, tr("Appeler"), tint = Color.White, modifier = Modifier.size(key * 0.4f))
                     }
                     if (value.isNotEmpty()) BackspaceKey(key, visible = true, onClick = {
                         value = value.dropLast(1); view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
@@ -324,7 +337,7 @@ private fun DialKey(k: K, size: Dp, pulse: Int = 0, onDown: () -> Unit, onLong: 
                 color = digit, modifier = Modifier.offset(y = if (k.d == "*") 4.dp else 0.dp)
             )
             when (k.l) {
-                "vm" -> Icon(Icons.Filled.Voicemail, "Messagerie", tint = muted(.5f), modifier = Modifier.size((size.value * 0.17f).dp))
+                "vm" -> Icon(Icons.Filled.Voicemail, tr("Messagerie"), tint = muted(.5f), modifier = Modifier.size((size.value * 0.17f).dp))
                 "" -> {}
                 else -> Text(k.l, fontSize = (size.value * 0.125f).sp, fontWeight = FontWeight.SemiBold, letterSpacing = 1.5.sp, color = muted(.5f))
             }
@@ -352,7 +365,7 @@ private fun BackspaceKey(size: Dp, visible: Boolean, onClick: () -> Unit, onLong
         Modifier.size(size).clip(CircleShape).then(if (visible) Modifier.combinedClickable(onClick = onClick, onLongClick = onLong) else Modifier),
         contentAlignment = Alignment.Center
     ) {
-        if (visible) Icon(Icons.Filled.Backspace, "Effacer", tint = muted(.6f), modifier = Modifier.size(size * 0.34f))
+        if (visible) Icon(Icons.Filled.Backspace, tr("Effacer"), tint = muted(.6f), modifier = Modifier.size(size * 0.34f))
     }
 }
 
@@ -434,11 +447,11 @@ private fun RecDisplay(h: Dp) {
             Box(Modifier.size(10.dp).graphicsLayer { alpha = blink }.clip(CircleShape).background(RecRed))
             Spacer(Modifier.width(8.dp))
             Text(
-                if (n == 0) "MODE COMPOSEUR · joue !" else "COMPOSEUR · $n note${if (n > 1) "s" else ""} · ${fmtMelodyDur(Melodies.recDurationMs)}",
+                if (n == 0) tr("MODE COMPOSEUR · joue !") else trn(n, "COMPOSEUR · {0} note · {1}", "COMPOSEUR · {0} notes · {1}", fmtMelodyDur(Melodies.recDurationMs)),
                 fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold, color = RecRed
             )
             Spacer(Modifier.weight(1f))
-            Text("␣ pause · ⌫ corriger", fontSize = 11.sp, color = muted(.45f))
+            Text(tr("␣ pause · ⌫ corriger"), fontSize = 11.sp, color = muted(.45f))
         }
         // les derniers chiffres tapés, le curseur au bout
         Text(

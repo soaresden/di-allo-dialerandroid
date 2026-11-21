@@ -230,6 +230,7 @@ fun HyperTheme(themeId: String, content: @Composable () -> Unit) {
     val t = resolveTheme(themeId, isSystemInDarkTheme())
     val view = LocalView.current
     val ctx = LocalContext.current
+    androidx.compose.runtime.remember { I18n.ensure(ctx) }
     SideEffect {
         (ctx as? Activity)?.window?.let { w ->
             w.statusBarColor = t.top.toArgb()

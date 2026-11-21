@@ -4,7 +4,8 @@
 
 <p align="center">
   <b>Le téléphone qui dit allô 🤙</b> · <i>by Soaresden</i><br>
-  Une appli Téléphone complète pour Android, gratuite et sans pub, faite pour remplacer le dialer de ton téléphone.
+  Une appli Téléphone complète pour Android, gratuite et sans pub, faite pour remplacer le dialer de ton téléphone.<br>
+  👉 <a href="docs/index.html">Toutes les fonctionnalités</a>
 </p>
 
 ---
@@ -17,7 +18,9 @@
 - Recherche **T9** sur les noms *et* sur les chiffres du numéro (« 32 » trouve tous les numéros qui contiennent 32), avec surlignage
 - Candidats triés par nombre d'appels, contacts à plusieurs numéros gérés
 - Touche ⭐ **Favoris** directement sur le clavier
-- Appui long sur un appel récent : fiche du contact ou **supprimer cet appel** du journal
+- ⚡ **Numérotation rapide** : appui long sur 2…9 pour appeler un contact (attribution depuis le clavier ou les réglages)
+- Appui long sur un appel récent : fiche du contact, **sélection multiple** pour supprimer des appels, ou 📌 envoyer le contact sur l'écran d'accueil
+- Numéros au **format international** (+33 6 12 34 56 78) avec le type de ligne (📱 mobile / ☎️ fixe)
 
 ### 📞 Écran d'appel
 - Haut-parleur, muet, clavier DTMF, attente, Bluetooth
@@ -49,7 +52,9 @@
 
 ### 🎨 Et aussi
 - 21 thèmes à forte personnalité : polices, décors animés (Plongée avec requin-baleine, mantas et tortues ; Ocean Drive au coucher du soleil ; Synthwave, Cabaret, Arcade, Terminal…), forme et style des touches
-- Widget d'écran d'accueil **Favoris** : un appui, un appel
+- Widgets d'écran d'accueil : **Favoris** (4 ou 8, favoris ou plus appelés, 4 styles) et **contact 1×1**, un appui, un appel
+- 🌍 **6 langues** : français, anglais, espagnol, allemand, italien, portugais (automatique ou au choix)
+- Touche le logo 😎 pour une petite surprise
 - 📁 **Dossier de travail** : notes et réglages synchronisés automatiquement, et **sauvegarde quotidienne complète** du journal d'appels et des SMS/MMS (photos comprises) au format *SMS Backup & Restore*. Restauration intégrée.
 
 ---

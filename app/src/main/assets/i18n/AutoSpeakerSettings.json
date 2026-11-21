@@ -1,0 +1,219 @@
+{
+ "Désactivé": {
+  "en": "Off",
+  "es": "Desactivado",
+  "de": "Aus",
+  "it": "Disattivato",
+  "pt": "Desativado"
+ },
+ "Activé": {
+  "en": "On",
+  "es": "Activado",
+  "de": "An",
+  "it": "Attivo",
+  "pt": "Ativado"
+ },
+ "posé à plat": {
+  "en": "lying flat",
+  "es": "en plano",
+  "de": "flach liegend",
+  "it": "appoggiato in piano",
+  "pt": "deitado na mesa"
+ },
+ "loin de l'oreille": {
+  "en": "away from ear",
+  "es": "lejos del oído",
+  "de": "weg vom Ohr",
+  "it": "lontano dall'orecchio",
+  "pt": "longe do ouvido"
+ },
+ "👂 À l'oreille → écouteur.  🖐️ Éloigné → haut-parleur, tout seul.\nC'est intégré à Di-Allô : plus besoin de l'appli Auto Haut-Parleur (désactive son service d'accessibilité pour qu'elles ne se battent pas).": {
+  "en": "👂 At your ear → earpiece.  🖐️ Away → speaker, automatically.\nIt's built into Di-Allô: no need for the Auto Speaker app anymore (turn off its accessibility service so they don't fight each other).",
+  "es": "👂 En el oído → auricular.  🖐️ Lejos → altavoz, automáticamente.\nViene integrado en Di-Allô: ya no hace falta la app Auto Speaker (desactiva su servicio de accesibilidad para que no se peleen).",
+  "de": "👂 Am Ohr → Hörmuschel.  🖐️ Entfernt → Lautsprecher, ganz von selbst.\nDas ist in Di-Allô eingebaut: die App „Auto Speaker“ wird nicht mehr gebraucht (deaktiviere ihren Bedienungshilfen-Dienst, damit sie sich nicht in die Quere kommen).",
+  "it": "👂 All'orecchio → auricolare.  🖐️ Lontano → vivavoce, da solo.\nÈ integrato in Di-Allô: non serve più l'app Auto Speaker (disattiva il suo servizio di accessibilità così non si ostacolano).",
+  "pt": "👂 No ouvido → fone.  🖐️ Afastado → alto-falante, sozinho.\nIsso já vem no Di-Allô: não precisa mais do app Auto Speaker (desative o serviço de acessibilidade dele para que não briguem)."
+ },
+ "Haut-parleur automatique": {
+  "en": "Automatic speaker",
+  "es": "Altavoz automático",
+  "de": "Automatischer Lautsprecher",
+  "it": "Vivavoce automatico",
+  "pt": "Alto-falante automático"
+ },
+ "Actif à chaque appel décroché": {
+  "en": "Active on every answered call",
+  "es": "Activo en cada llamada contestada",
+  "de": "Bei jedem angenommenen Anruf aktiv",
+  "it": "Attivo a ogni chiamata risposta",
+  "pt": "Ativo em cada chamada atendida"
+ },
+ "Tu peux aussi l'activer pendant un appel (bouton « Auto HP »)": {
+  "en": "You can also turn it on during a call (“Auto speaker” button)",
+  "es": "También puedes activarlo durante una llamada (botón «Altavoz auto»)",
+  "de": "Du kannst ihn auch während eines Anrufs aktivieren (Taste „Auto-Lautspr.“)",
+  "it": "Puoi attivarlo anche durante una chiamata (pulsante «Vivavoce auto»)",
+  "pt": "Você também pode ativá-lo durante uma chamada (botão “Alta-voz auto”)"
+ },
+ "Quand passer en haut-parleur ?": {
+  "en": "When to switch to speaker?",
+  "es": "¿Cuándo pasar al altavoz?",
+  "de": "Wann auf Lautsprecher umschalten?",
+  "it": "Quando passare al vivavoce?",
+  "pt": "Quando mudar para o alto-falante?"
+ },
+ "🖐️ Dès que je l'éloigne de l'oreille": {
+  "en": "🖐️ As soon as I move it away from my ear",
+  "es": "🖐️ En cuanto lo aparto del oído",
+  "de": "🖐️ Sobald ich es vom Ohr nehme",
+  "it": "🖐️ Appena lo allontano dall'orecchio",
+  "pt": "🖐️ Assim que eu afastar do ouvido"
+ },
+ "Même tenu en main ou incliné": {
+  "en": "Even when held in hand or tilted",
+  "es": "Aunque esté en la mano o inclinado",
+  "de": "Auch in der Hand oder geneigt",
+  "it": "Anche se tenuto in mano o inclinato",
+  "pt": "Mesmo segurando na mão ou inclinado"
+ },
+ "📱 Seulement posé à plat et immobile": {
+  "en": "📱 Only when lying flat and still",
+  "es": "📱 Solo en plano y quieto",
+  "de": "📱 Nur flach liegend und still",
+  "it": "📱 Solo appoggiato in piano e fermo",
+  "pt": "📱 Só deitado e parado"
+ },
+ "Sur une table, écran vers le haut": {
+  "en": "On a table, screen up",
+  "es": "Sobre una mesa, pantalla hacia arriba",
+  "de": "Auf einem Tisch, Bildschirm nach oben",
+  "it": "Su un tavolo, schermo verso l'alto",
+  "pt": "Sobre uma mesa, tela para cima"
+ },
+ "Délai avant haut-parleur": {
+  "en": "Delay before speaker",
+  "es": "Retraso antes del altavoz",
+  "de": "Verzögerung bis Lautsprecher",
+  "it": "Ritardo prima del vivavoce",
+  "pt": "Atraso antes do alto-falante"
+ },
+ "Plus court = plus réactif ; plus long = évite les bascules quand tu bouges un peu.": {
+  "en": "Shorter = more responsive; longer = avoids switching when you move a little.",
+  "es": "Más corto = más rápido; más largo = evita cambios cuando te mueves un poco.",
+  "de": "Kürzer = reagiert schneller; länger = vermeidet Umschalten bei kleinen Bewegungen.",
+  "it": "Più breve = più reattivo; più lungo = evita i cambi quando ti muovi un po'.",
+  "pt": "Mais curto = mais rápido; mais longo = evita trocas quando você se mexe um pouco."
+ },
+ "Retour à l'écouteur": {
+  "en": "Back to earpiece",
+  "es": "Volver al auricular",
+  "de": "Zurück zur Hörmuschel",
+  "it": "Ritorno all'auricolare",
+  "pt": "Voltar ao fone"
+ },
+ "Dès que je le porte à l'oreille": {
+  "en": "As soon as I raise it to my ear",
+  "es": "En cuanto me lo acerco al oído",
+  "de": "Sobald ich es ans Ohr halte",
+  "it": "Appena lo porto all'orecchio",
+  "pt": "Assim que eu levar ao ouvido"
+ },
+ "Sinon le haut-parleur reste jusqu'à ce que tu le coupes": {
+  "en": "Otherwise the speaker stays on until you turn it off",
+  "es": "Si no, el altavoz sigue hasta que lo desactives",
+  "de": "Sonst bleibt der Lautsprecher an, bis du ihn ausschaltest",
+  "it": "Altrimenti il vivavoce resta attivo finché non lo disattivi",
+  "pt": "Senão o alto-falante fica ligado até você desligar"
+ },
+ "🧪 Test en direct": {
+  "en": "🧪 Live test",
+  "es": "🧪 Prueba en directo",
+  "de": "🧪 Live-Test",
+  "it": "🧪 Test dal vivo",
+  "pt": "🧪 Teste ao vivo"
+ },
+ "Couvre le haut de l'écran avec ta main, pose le téléphone, reprends-le…": {
+  "en": "Cover the top of the screen with your hand, put the phone down, pick it up again…",
+  "es": "Tapa la parte superior de la pantalla con la mano, deja el teléfono, vuelve a cogerlo…",
+  "de": "Deck den oberen Bildschirmrand mit der Hand ab, leg das Telefon hin, nimm es wieder…",
+  "it": "Copri la parte alta dello schermo con la mano, appoggia il telefono, riprendilo…",
+  "pt": "Cubra a parte de cima da tela com a mão, coloque o telefone na mesa, pegue de novo…"
+ },
+ "Proximité": {
+  "en": "Proximity",
+  "es": "Proximidad",
+  "de": "Nähe",
+  "it": "Prossimità",
+  "pt": "Proximidade"
+ },
+ "👂 À l'oreille / couvert": {
+  "en": "👂 At ear / covered",
+  "es": "👂 En el oído / tapado",
+  "de": "👂 Am Ohr / abgedeckt",
+  "it": "👂 All'orecchio / coperto",
+  "pt": "👂 No ouvido / coberto"
+ },
+ "🖐️ Loin de l'oreille": {
+  "en": "🖐️ Away from ear",
+  "es": "🖐️ Lejos del oído",
+  "de": "🖐️ Weg vom Ohr",
+  "it": "🖐️ Lontano dall'orecchio",
+  "pt": "🖐️ Longe do ouvido"
+ },
+ "⏳ Capteur…": {
+  "en": "⏳ Sensor…",
+  "es": "⏳ Sensor…",
+  "de": "⏳ Sensor…",
+  "it": "⏳ Sensore…",
+  "pt": "⏳ Sensor…"
+ },
+ "Position": {
+  "en": "Position",
+  "es": "Posición",
+  "de": "Lage",
+  "it": "Posizione",
+  "pt": "Posição"
+ },
+ "📱 À plat et immobile": {
+  "en": "📱 Flat and still",
+  "es": "📱 En plano y quieto",
+  "de": "📱 Flach und still",
+  "it": "📱 In piano e fermo",
+  "pt": "📱 Deitado e parado"
+ },
+ "🤚 En main / en mouvement": {
+  "en": "🤚 In hand / moving",
+  "es": "🤚 En la mano / en movimiento",
+  "de": "🤚 In der Hand / in Bewegung",
+  "it": "🤚 In mano / in movimento",
+  "pt": "🤚 Na mão / em movimento"
+ },
+ "Écouteur": {
+  "en": "Earpiece",
+  "es": "Auricular",
+  "de": "Hörmuschel",
+  "it": "Auricolare",
+  "pt": "Fone"
+ },
+ "Haut-parleur (après {0} s)": {
+  "en": "Speaker (after {0} s)",
+  "es": "Altavoz (tras {0} s)",
+  "de": "Lautsprecher (nach {0} s)",
+  "it": "Vivavoce (dopo {0} s)",
+  "pt": "Alto-falante (após {0} s)"
+ },
+ "Écouteur (pas posé à plat)": {
+  "en": "Earpiece (not lying flat)",
+  "es": "Auricular (no está en plano)",
+  "de": "Hörmuschel (liegt nicht flach)",
+  "it": "Auricolare (non in piano)",
+  "pt": "Fone (não está deitado)"
+ },
+ "En appel → {0}": {
+  "en": "During a call → {0}",
+  "es": "En llamada → {0}",
+  "de": "Im Anruf → {0}",
+  "it": "In chiamata → {0}",
+  "pt": "Em chamada → {0}"
+ }
+}

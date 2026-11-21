@@ -16,7 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-/** Réponses SMS rapides proposées sur un appel entrant. */
+/** Réponses SMS rapides proposées sur un appel entrant (DEFAULT en français : traduites à l'affichage / à l'envoi via tr). */
 object QuickReplies {
     val DEFAULT = listOf(
         "Je ne peux pas répondre, je te rappelle.",
@@ -30,8 +30,8 @@ object QuickReplies {
 }
 
 internal fun gesturesSummary(c: RingGestures.Cfg): String {
-    val on = listOfNotNull(if (c.raise) "décrocher à l'oreille" else null, if (c.flip) "retourner = silence" else null)
-    return if (on.isEmpty()) "Désactivés" else on.joinToString(" · ").replaceFirstChar { it.uppercase() }
+    val on = listOfNotNull(if (c.raise) tr("décrocher à l'oreille") else null, if (c.flip) tr("retourner = silence") else null)
+    return if (on.isEmpty()) tr("Désactivés") else on.joinToString(" · ").replaceFirstChar { it.uppercase() }
 }
 
 /** Sous-écran : gestes pendant la sonnerie. */
@@ -40,18 +40,18 @@ internal fun GestureSettings() {
     val ctx = LocalContext.current
     var c by remember { mutableStateOf(RingGestures.cfg(ctx)) }
     fun set(n: RingGestures.Cfg) { c = n; RingGestures.save(ctx, n) }
-    Text("Ça marche pendant que le téléphone sonne, sans toucher l'écran.", fontSize = 12.5.sp, color = muted(.75f), modifier = Modifier.padding(bottom = 10.dp))
-    SectionCard("📞 Décrocher", collapsible = false) {
-        SwitchLine("Porter à l'oreille pour décrocher", "Sors-le de la poche ou prends-le, porte-le à l'oreille : c'est décroché. Ne se déclenche pas s'il reste dans la poche.", c.raise) { set(c.copy(raise = it)) }
+    Text(tr("Ça marche pendant que le téléphone sonne, sans toucher l'écran."), fontSize = 12.5.sp, color = muted(.75f), modifier = Modifier.padding(bottom = 10.dp))
+    SectionCard(tr("📞 Décrocher"), id = "📞 Décrocher", collapsible = false) {
+        SwitchLine(tr("Porter à l'oreille pour décrocher"), tr("Sors-le de la poche ou prends-le, porte-le à l'oreille : c'est décroché. Ne se déclenche pas s'il reste dans la poche."), c.raise) { set(c.copy(raise = it)) }
     }
-    SectionCard("🔕 Couper la sonnerie", collapsible = false) {
-        SwitchLine("Retourner le téléphone", "Écran contre la table : sonnerie et vibration coupées. L'appel continue en silence.", c.flip) { set(c.copy(flip = it)) }
+    SectionCard(tr("🔕 Couper la sonnerie"), id = "🔕 Couper la sonnerie", collapsible = false) {
+        SwitchLine(tr("Retourner le téléphone"), tr("Écran contre la table : sonnerie et vibration coupées. L'appel continue en silence."), c.flip) { set(c.copy(flip = it)) }
         Spacer(Modifier.height(8.dp))
-        SwitchLine("Double vibration quand c'est fini", "Quand l'appel coupé est terminé, 2 petites vibrations : tu peux le reprendre.", c.flipEndVib) { set(c.copy(flipEndVib = it)) }
+        SwitchLine(tr("Double vibration quand c'est fini"), tr("Quand l'appel coupé est terminé, 2 petites vibrations : tu peux le reprendre."), c.flipEndVib) { set(c.copy(flipEndVib = it)) }
     }
-    SectionCard("📳 Fin d'appel", collapsible = false) {
-        SwitchLine("Double vibration à la fin de chaque appel", "Pratique quand l'autre raccroche alors que le téléphone est à l'oreille.", c.endVib) { set(c.copy(endVib = it)) }
-        TextButton(onClick = { RingGestures.doubleVibrate(ctx) }) { Text("Tester la vibration") }
+    SectionCard(tr("📳 Fin d'appel"), id = "📳 Fin d'appel", collapsible = false) {
+        SwitchLine(tr("Double vibration à la fin de chaque appel"), tr("Pratique quand l'autre raccroche alors que le téléphone est à l'oreille."), c.endVib) { set(c.copy(endVib = it)) }
+        TextButton(onClick = { RingGestures.doubleVibrate(ctx) }) { Text(tr("Tester la vibration")) }
     }
     Spacer(Modifier.height(16.dp))
 }
@@ -63,19 +63,19 @@ internal fun QuickReplySettings() {
     var list by remember { mutableStateOf(QuickReplies.load(ctx)) }
     var add by remember { mutableStateOf("") }
     fun set(l: List<String>) { list = l; QuickReplies.save(ctx, l) }
-    Text("Proposées sur un appel entrant (bouton 💬). L'appel est refusé et le SMS part via ton appli Messages.", fontSize = 12.5.sp, color = muted(.75f), modifier = Modifier.padding(bottom = 10.dp))
-    SectionCard("💬 Mes réponses", collapsible = false) {
+    Text(tr("Proposées sur un appel entrant (bouton 💬). L'appel est refusé et le SMS part via ton appli Messages."), fontSize = 12.5.sp, color = muted(.75f), modifier = Modifier.padding(bottom = 10.dp))
+    SectionCard(tr("💬 Mes réponses"), id = "💬 Mes réponses", collapsible = false) {
         list.forEachIndexed { i, s ->
             Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text(s, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
-                IconButton(onClick = { set(list.filterIndexed { j, _ -> j != i }) }, modifier = Modifier.size(32.dp)) { Icon(Icons.Filled.Close, "Supprimer", tint = muted(.45f), modifier = Modifier.size(18.dp)) }
+                Text(tr(s), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
+                IconButton(onClick = { set(list.filterIndexed { j, _ -> j != i }) }, modifier = Modifier.size(32.dp)) { Icon(Icons.Filled.Close, tr("Supprimer"), tint = muted(.45f), modifier = Modifier.size(18.dp)) }
             }
         }
         OutlinedTextField(
-            add, { add = it }, Modifier.fillMaxWidth().padding(top = 6.dp), placeholder = { Text("Nouvelle réponse…") }, singleLine = true, shape = RoundedCornerShape(14.dp),
-            trailingIcon = { if (add.isNotBlank()) IconButton(onClick = { set(list + add.trim()); add = "" }) { Icon(Icons.Filled.Add, "Ajouter", tint = MaterialTheme.colorScheme.primary) } }
+            add, { add = it }, Modifier.fillMaxWidth().padding(top = 6.dp), placeholder = { Text(tr("Nouvelle réponse…")) }, singleLine = true, shape = RoundedCornerShape(14.dp),
+            trailingIcon = { if (add.isNotBlank()) IconButton(onClick = { set(list + add.trim()); add = "" }) { Icon(Icons.Filled.Add, tr("Ajouter"), tint = MaterialTheme.colorScheme.primary) } }
         )
-        TextButton(onClick = { set(QuickReplies.DEFAULT) }) { Text("Remettre les réponses par défaut") }
+        TextButton(onClick = { set(QuickReplies.DEFAULT) }) { Text(tr("Remettre les réponses par défaut")) }
     }
     Spacer(Modifier.height(16.dp))
 }

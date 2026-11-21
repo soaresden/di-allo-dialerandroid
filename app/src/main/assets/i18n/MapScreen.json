@@ -1,0 +1,14 @@
+{
+  "Retour": { "en": "Back", "es": "Atrás", "de": "Zurück", "it": "Indietro", "pt": "Voltar" },
+  "🗺️ Carte des contacts": { "en": "🗺️ Contacts map", "es": "🗺️ Mapa de contactos", "de": "🗺️ Kontaktkarte", "it": "🗺️ Mappa dei contatti", "pt": "🗺️ Mapa de contatos" },
+  "Aucune adresse dans tes contacts": { "en": "No addresses in your contacts", "es": "No hay direcciones en tus contactos", "de": "Keine Adressen in deinen Kontakten", "it": "Nessun indirizzo nei tuoi contatti", "pt": "Nenhum endereço nos seus contatos" },
+  "Localisation des adresses… {0} / {1}": { "en": "Locating addresses… {0} / {1}", "es": "Localizando direcciones… {0} / {1}", "de": "Adressen werden gesucht… {0} / {1}", "it": "Localizzazione indirizzi… {0} / {1}", "pt": "Localizando endereços… {0} / {1}" },
+  "{0} adresse sur la carte": { "en": "{0} address on the map", "es": "{0} dirección en el mapa", "de": "{0} Adresse auf der Karte", "it": "{0} indirizzo sulla mappa", "pt": "{0} endereço no mapa" },
+  "{0} adresses sur la carte": { "en": "{0} addresses on the map", "es": "{0} direcciones en el mapa", "de": "{0} Adressen auf der Karte", "it": "{0} indirizzi sulla mappa", "pt": "{0} endereços no mapa" },
+  " · {0} introuvable": { "en": " · {0} not found", "es": " · {0} no encontrada", "de": " · {0} nicht gefunden", "it": " · {0} non trovato", "pt": " · {0} não encontrado" },
+  " · {0} introuvables": { "en": " · {0} not found", "es": " · {0} no encontradas", "de": " · {0} nicht gefunden", "it": " · {0} non trovati", "pt": " · {0} não encontrados" },
+  "Tout voir": { "en": "Show all", "es": "Ver todo", "de": "Alle anzeigen", "it": "Mostra tutto", "pt": "Ver tudo" },
+  "Fermer": { "en": "Close", "es": "Cerrar", "de": "Schließen", "it": "Chiudi", "pt": "Fechar" },
+  "Adresse": { "en": "Address", "es": "Dirección", "de": "Adresse", "it": "Indirizzo", "pt": "Endereço" },
+  "Fiche ›": { "en": "Details ›", "es": "Ficha ›", "de": "Details ›", "it": "Scheda ›", "pt": "Ficha ›" }
+}

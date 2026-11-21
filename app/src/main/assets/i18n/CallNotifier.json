@@ -1,0 +1,13 @@
+{
+  "Appels entrants": { "en": "Incoming calls", "es": "Llamadas entrantes", "de": "Eingehende Anrufe", "it": "Chiamate in arrivo", "pt": "Chamadas recebidas" },
+  "Appel en cours": { "en": "Ongoing call", "es": "Llamada en curso", "de": "Laufender Anruf", "it": "Chiamata in corso", "pt": "Chamada em andamento" },
+  "Appel entrant": { "en": "Incoming call", "es": "Llamada entrante", "de": "Eingehender Anruf", "it": "Chiamata in arrivo", "pt": "Chamada recebida" },
+  "En cours · haut-parleur": { "en": "Ongoing · speaker", "es": "En curso · altavoz", "de": "Läuft · Lautsprecher", "it": "In corso · vivavoce", "pt": "Em andamento · alto-falante" },
+  "En attente": { "en": "On hold", "es": "En espera", "de": "Gehalten", "it": "In attesa", "pt": "Em espera" },
+  "Appel…": { "en": "Calling…", "es": "Llamando…", "de": "Anruf…", "it": "Chiamata…", "pt": "Chamando…" },
+  "Écouteur": { "en": "Earpiece", "es": "Auricular", "de": "Hörer", "it": "Auricolare", "pt": "Fone" },
+  "Haut-parleur": { "en": "Speaker", "es": "Altavoz", "de": "Lautsprecher", "it": "Vivavoce", "pt": "Alto-falante" },
+  "Refuser": { "en": "Decline", "es": "Rechazar", "de": "Ablehnen", "it": "Rifiuta", "pt": "Recusar" },
+  "Répondre": { "en": "Answer", "es": "Contestar", "de": "Annehmen", "it": "Rispondi", "pt": "Atender" },
+  "Raccrocher": { "en": "Hang up", "es": "Colgar", "de": "Auflegen", "it": "Riaggancia", "pt": "Desligar" }
+}

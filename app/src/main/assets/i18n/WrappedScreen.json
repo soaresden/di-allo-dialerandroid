@@ -1,0 +1,485 @@
+{
+ "oiseau de nuit 🦉": {
+  "en": "night owl 🦉",
+  "es": "ave nocturna 🦉",
+  "de": "eine Nachteule 🦉",
+  "it": "nottambulo 🦉",
+  "pt": "coruja 🦉"
+ },
+ "lève-tôt 🐓": {
+  "en": "early bird 🐓",
+  "es": "madrugador 🐓",
+  "de": "ein Frühaufsteher 🐓",
+  "it": "mattiniero 🐓",
+  "pt": "madrugador 🐓"
+ },
+ "du matin ☕": {
+  "en": "morning person ☕",
+  "es": "de mañanas ☕",
+  "de": "ein Morgenmensch ☕",
+  "it": "da mattina ☕",
+  "pt": "da manhã ☕"
+ },
+ "pause déj 🥪": {
+  "en": "lunch-break caller 🥪",
+  "es": "de la hora de comer 🥪",
+  "de": "ein Mittagspausen-Typ 🥪",
+  "it": "da pausa pranzo 🥪",
+  "pt": "da hora do almoço 🥪"
+ },
+ "de l'aprèm 🌤️": {
+  "en": "afternoon person 🌤️",
+  "es": "de tardes 🌤️",
+  "de": "ein Nachmittagsmensch 🌤️",
+  "it": "da pomeriggio 🌤️",
+  "pt": "da tarde 🌤️"
+ },
+ "du soir 🌆": {
+  "en": "evening person 🌆",
+  "es": "de atardecer 🌆",
+  "de": "ein Abendmensch 🌆",
+  "it": "da sera 🌆",
+  "pt": "do fim do dia 🌆"
+ },
+ "{0} h {1}": {
+  "en": "{0}h {1}m",
+  "es": "{0} h {1} min",
+  "de": "{0}:{1} Std.",
+  "it": "{0} h {1} min",
+  "pt": "{0} h {1} min"
+ },
+ "Fermer": {
+  "en": "Close",
+  "es": "Cerrar",
+  "de": "Schließen",
+  "it": "Chiudi",
+  "pt": "Fechar"
+ },
+ "Pas d'appels en {0}.": {
+  "en": "No calls in {0}.",
+  "es": "Ninguna llamada en {0}.",
+  "de": "Keine Anrufe in {0}.",
+  "it": "Nessuna chiamata nel {0}.",
+  "pt": "Nenhuma chamada em {0}."
+ },
+ "Ton année {0}\nau téléphone": {
+  "en": "Your {0}\non the phone",
+  "es": "Tu {0}\nal teléfono",
+  "de": "Dein Jahr {0}\nam Telefon",
+  "it": "Il tuo {0}\nal telefono",
+  "pt": "Seu {0}\nao telefone"
+ },
+ "C'est parti ›": {
+  "en": "Let's go ›",
+  "es": "¡Vamos! ›",
+  "de": "Los geht's ›",
+  "it": "Si parte ›",
+  "pt": "Vamos lá ›"
+ },
+ "Touche à droite pour avancer, à gauche pour revenir": {
+  "en": "Tap right to go forward, left to go back",
+  "es": "Toca a la derecha para avanzar, a la izquierda para volver",
+  "de": "Rechts tippen für weiter, links für zurück",
+  "it": "Tocca a destra per avanzare, a sinistra per tornare indietro",
+  "pt": "Toque à direita para avançar, à esquerda para voltar"
+ },
+ "Cette année, tu as passé ou reçu": {
+  "en": "This year, you made or received",
+  "es": "Este año has hecho o recibido",
+  "de": "Dieses Jahr hattest du",
+  "it": "Quest'anno hai fatto o ricevuto",
+  "pt": "Este ano você fez ou recebeu"
+ },
+ "appel": {
+  "en": "call",
+  "es": "llamada",
+  "de": "Anruf",
+  "it": "chiamata",
+  "pt": "chamada"
+ },
+ "appels": {
+  "en": "calls",
+  "es": "llamadas",
+  "de": "Anrufe",
+  "it": "chiamate",
+  "pt": "chamadas"
+ },
+ "📤 {0} passés   📥 {1} reçus   👻 {2} manqués": {
+  "en": "📤 {0} made   📥 {1} received   👻 {2} missed",
+  "es": "📤 {0} hechas   📥 {1} recibidas   👻 {2} perdidas",
+  "de": "📤 {0} ausgehend   📥 {1} eingehend   👻 {2} verpasst",
+  "it": "📤 {0} fatte   📥 {1} ricevute   👻 {2} perse",
+  "pt": "📤 {0} feitas   📥 {1} recebidas   👻 {2} perdidas"
+ },
+ "📈 +{0} % par rapport à {1}": {
+  "en": "📈 +{0}% compared to {1}",
+  "es": "📈 +{0} % respecto a {1}",
+  "de": "📈 +{0} % im Vergleich zu {1}",
+  "it": "📈 +{0}% rispetto al {1}",
+  "pt": "📈 +{0}% em relação a {1}"
+ },
+ "📉 {0} % par rapport à {1}": {
+  "en": "📉 {0}% compared to {1}",
+  "es": "📉 {0} % respecto a {1}",
+  "de": "📉 {0} % im Vergleich zu {1}",
+  "it": "📉 {0}% rispetto al {1}",
+  "pt": "📉 {0}% em relação a {1}"
+ },
+ "Temps passé au téléphone": {
+  "en": "Time spent on the phone",
+  "es": "Tiempo al teléfono",
+  "de": "Zeit am Telefon",
+  "it": "Tempo passato al telefono",
+  "pt": "Tempo passado ao telefone"
+ },
+ "Soit {0} film 🎬 en entier": {
+  "en": "That's {0} whole movie 🎬",
+  "es": "O sea, {0} película 🎬 entera",
+  "de": "Das ist {0} ganzer Film 🎬",
+  "it": "Pari a {0} film 🎬 intero",
+  "pt": "Ou seja, {0} filme 🎬 inteiro"
+ },
+ "Soit {0} films 🎬 en entier": {
+  "en": "That's {0} whole movies 🎬",
+  "es": "O sea, {0} películas 🎬 enteras",
+  "de": "Das sind {0} ganze Filme 🎬",
+  "it": "Pari a {0} film 🎬 interi",
+  "pt": "Ou seja, {0} filmes 🎬 inteiros"
+ },
+ "Soit {0} minute de blabla": {
+  "en": "That's {0} minute of chatter",
+  "es": "O sea, {0} minuto de charla",
+  "de": "Das ist {0} Minute Geplauder",
+  "it": "Pari a {0} minuto di chiacchiere",
+  "pt": "Ou seja, {0} minuto de papo"
+ },
+ "Soit {0} minutes de blabla": {
+  "en": "That's {0} minutes of chatter",
+  "es": "O sea, {0} minutos de charla",
+  "de": "Das sind {0} Minuten Geplauder",
+  "it": "Pari a {0} minuti di chiacchiere",
+  "pt": "Ou seja, {0} minutos de papo"
+ },
+ "En moyenne {0} par appel": {
+  "en": "On average {0} per call",
+  "es": "De media, {0} por llamada",
+  "de": "Im Schnitt {0} pro Anruf",
+  "it": "In media {0} a chiamata",
+  "pt": "Em média {0} por chamada"
+ },
+ "Ta personne n°1 👑": {
+  "en": "Your #1 person 👑",
+  "es": "Tu persona n.º 1 👑",
+  "de": "Deine Nr. 1 👑",
+  "it": "La tua persona n°1 👑",
+  "pt": "Sua pessoa nº 1 👑"
+ },
+ "{0} appel · {1} ensemble": {
+  "en": "{0} call · {1} together",
+  "es": "{0} llamada · {1} juntos",
+  "de": "{0} Anruf · {1} zusammen",
+  "it": "{0} chiamata · {1} insieme",
+  "pt": "{0} chamada · {1} juntos"
+ },
+ "{0} appels · {1} ensemble": {
+  "en": "{0} calls · {1} together",
+  "es": "{0} llamadas · {1} juntos",
+  "de": "{0} Anrufe · {1} zusammen",
+  "it": "{0} chiamate · {1} insieme",
+  "pt": "{0} chamadas · {1} juntos"
+ },
+ "Personne n'a vraiment sorti du lot.": {
+  "en": "Nobody really stood out.",
+  "es": "Nadie destacó de verdad.",
+  "de": "Niemand stach wirklich heraus.",
+  "it": "Nessuno è davvero emerso.",
+  "pt": "Ninguém se destacou de verdade."
+ },
+ "Ton top 5 🏆": {
+  "en": "Your top 5 🏆",
+  "es": "Tu top 5 🏆",
+  "de": "Deine Top 5 🏆",
+  "it": "La tua top 5 🏆",
+  "pt": "Seu top 5 🏆"
+ },
+ "Ton mois le plus bavard": {
+  "en": "Your chattiest month",
+  "es": "Tu mes más hablador",
+  "de": "Dein gesprächigster Monat",
+  "it": "Il tuo mese più chiacchierone",
+  "pt": "Seu mês mais falador"
+ },
+ "{0} appel": {
+  "en": "{0} call",
+  "es": "{0} llamada",
+  "de": "{0} Anruf",
+  "it": "{0} chiamata",
+  "pt": "{0} chamada"
+ },
+ "{0} appels": {
+  "en": "{0} calls",
+  "es": "{0} llamadas",
+  "de": "{0} Anrufe",
+  "it": "{0} chiamate",
+  "pt": "{0} chamadas"
+ },
+ "Ton jour record": {
+  "en": "Your record day",
+  "es": "Tu día récord",
+  "de": "Dein Rekordtag",
+  "it": "Il tuo giorno record",
+  "pt": "Seu dia recorde"
+ },
+ "{0} appel dans la journée !": {
+  "en": "{0} call in one day!",
+  "es": "¡{0} llamada en un día!",
+  "de": "{0} Anruf an einem Tag!",
+  "it": "{0} chiamata in un giorno!",
+  "pt": "{0} chamada em um dia!"
+ },
+ "{0} appels dans la journée !": {
+  "en": "{0} calls in one day!",
+  "es": "¡{0} llamadas en un día!",
+  "de": "{0} Anrufe an einem Tag!",
+  "it": "{0} chiamate in un giorno!",
+  "pt": "{0} chamadas em um dia!"
+ },
+ "📆 Plus longue série : {0} jours d'affilée au téléphone": {
+  "en": "📆 Longest streak: {0} days in a row on the phone",
+  "es": "📆 Racha más larga: {0} días seguidos al teléfono",
+  "de": "📆 Längste Serie: {0} Tage am Stück am Telefon",
+  "it": "📆 Serie più lunga: {0} giorni di fila al telefono",
+  "pt": "📆 Maior sequência: {0} dias seguidos ao telefone"
+ },
+ "Ton heure préférée": {
+  "en": "Your favorite hour",
+  "es": "Tu hora favorita",
+  "de": "Deine Lieblingsstunde",
+  "it": "La tua ora preferita",
+  "pt": "Sua hora favorita"
+ },
+ "{0}h": {
+  "en": "{0}:00",
+  "es": "{0}:00",
+  "de": "{0} Uhr",
+  "it": "{0}:00",
+  "pt": "{0}h"
+ },
+ "Tu es plutôt {0}": {
+  "en": "You're more of a {0}",
+  "es": "Eres más bien {0}",
+  "de": "Du bist eher {0}",
+  "it": "Sei un tipo {0}",
+  "pt": "Você é mais {0}"
+ },
+ "Ton plus long appel": {
+  "en": "Your longest call",
+  "es": "Tu llamada más larga",
+  "de": "Dein längster Anruf",
+  "it": "La tua chiamata più lunga",
+  "pt": "Sua chamada mais longa"
+ },
+ "avec {0}": {
+  "en": "with {0}",
+  "es": "con {0}",
+  "de": "mit {0}",
+  "it": "con {0}",
+  "pt": "com {0}"
+ },
+ "le {0}": {
+  "en": "on {0}",
+  "es": "el {0}",
+  "de": "am {0}",
+  "it": "il {0}",
+  "pt": "em {0}"
+ },
+ "Que des appels express cette année !": {
+  "en": "Only quick calls this year!",
+  "es": "¡Solo llamadas exprés este año!",
+  "de": "Dieses Jahr nur Express-Anrufe!",
+  "it": "Solo chiamate lampo quest'anno!",
+  "pt": "Só chamadas rápidas este ano!"
+ },
+ "Appels manqués": {
+  "en": "Missed calls",
+  "es": "Llamadas perdidas",
+  "de": "Verpasste Anrufe",
+  "it": "Chiamate perse",
+  "pt": "Chamadas perdidas"
+ },
+ "C'est {0} qui t'a le plus attendu": {
+  "en": "{0} waited for you the most",
+  "es": "{0} es quien más te esperó",
+  "de": "{0} hat am meisten auf dich gewartet",
+  "it": "È {0} che ti ha aspettato di più",
+  "pt": "Foi {0} quem mais esperou por você"
+ },
+ "{0} appel sans réponse 😬": {
+  "en": "{0} unanswered call 😬",
+  "es": "{0} llamada sin respuesta 😬",
+  "de": "{0} unbeantworteter Anruf 😬",
+  "it": "{0} chiamata senza risposta 😬",
+  "pt": "{0} chamada sem resposta 😬"
+ },
+ "{0} appels sans réponse 😬": {
+  "en": "{0} unanswered calls 😬",
+  "es": "{0} llamadas sin respuesta 😬",
+  "de": "{0} unbeantwortete Anrufe 😬",
+  "it": "{0} chiamate senza risposta 😬",
+  "pt": "{0} chamadas sem resposta 😬"
+ },
+ "Tu réponds toujours. Respect. 🫡": {
+  "en": "You always pick up. Respect. 🫡",
+  "es": "Siempre contestas. Respeto. 🫡",
+  "de": "Du gehst immer ran. Respekt. 🫡",
+  "it": "Rispondi sempre. Rispetto. 🫡",
+  "pt": "Você sempre atende. Respeito. 🫡"
+ },
+ "Tu as parlé avec": {
+  "en": "You talked with",
+  "es": "Hablaste con",
+  "de": "Du hast mit",
+  "it": "Hai parlato con",
+  "pt": "Você falou com"
+ },
+ "personne différente": {
+  "en": "different person",
+  "es": "persona distinta",
+  "de": "verschiedenen Person gesprochen",
+  "it": "persona diversa",
+  "pt": "pessoa diferente"
+ },
+ "personnes différentes": {
+  "en": "different people",
+  "es": "personas distintas",
+  "de": "verschiedenen Personen gesprochen",
+  "it": "persone diverse",
+  "pt": "pessoas diferentes"
+ },
+ "🆕 dont {0} nouvelle cette année": {
+  "en": "🆕 including {0} new this year",
+  "es": "🆕 {0} de ellas nueva este año",
+  "de": "🆕 davon {0} neu in diesem Jahr",
+  "it": "🆕 di cui {0} nuova quest'anno",
+  "pt": "🆕 sendo {0} nova este ano"
+ },
+ "🆕 dont {0} nouvelles cette année": {
+  "en": "🆕 including {0} new this year",
+  "es": "🆕 {0} de ellas nuevas este año",
+  "de": "🆕 davon {0} neu in diesem Jahr",
+  "it": "🆕 di cui {0} nuove quest'anno",
+  "pt": "🆕 sendo {0} novas este ano"
+ },
+ "🌍 {0} pays au compteur": {
+  "en": "🌍 {0} countries on the counter",
+  "es": "🌍 {0} países en el contador",
+  "de": "🌍 {0} Länder auf dem Zähler",
+  "it": "🌍 {0} paesi nel contatore",
+  "pt": "🌍 {0} países no contador"
+ },
+ "Ton {0}\nen résumé": {
+  "en": "Your {0}\nin a nutshell",
+  "es": "Tu {0}\nen resumen",
+  "de": "Dein {0}\nim Überblick",
+  "it": "Il tuo {0}\nin sintesi",
+  "pt": "Seu {0}\nem resumo"
+ },
+ "Image rangée dans le dossier Di-Allô › Wrapped": {
+  "en": "Image saved to the Di-Allô › Wrapped folder",
+  "es": "Imagen guardada en la carpeta Di-Allô › Wrapped",
+  "de": "Bild im Ordner Di-Allô › Wrapped gespeichert",
+  "it": "Immagine salvata nella cartella Di-Allô › Wrapped",
+  "pt": "Imagem salva na pasta Di-Allô › Wrapped"
+ },
+ "Partager mon Wrapped": {
+  "en": "Share my Wrapped",
+  "es": "Compartir mi Wrapped",
+  "de": "Mein Wrapped teilen",
+  "it": "Condividi il mio Wrapped",
+  "pt": "Compartilhar meu Wrapped"
+ },
+ "Partager": {
+  "en": "Share",
+  "es": "Compartir",
+  "de": "Teilen",
+  "it": "Condividi",
+  "pt": "Compartilhar"
+ },
+ "📞 {0} appel": {
+  "en": "📞 {0} call",
+  "es": "📞 {0} llamada",
+  "de": "📞 {0} Anruf",
+  "it": "📞 {0} chiamata",
+  "pt": "📞 {0} chamada"
+ },
+ "📞 {0} appels": {
+  "en": "📞 {0} calls",
+  "es": "📞 {0} llamadas",
+  "de": "📞 {0} Anrufe",
+  "it": "📞 {0} chiamate",
+  "pt": "📞 {0} chamadas"
+ },
+ "⏱️ {0} au téléphone": {
+  "en": "⏱️ {0} on the phone",
+  "es": "⏱️ {0} al teléfono",
+  "de": "⏱️ {0} am Telefon",
+  "it": "⏱️ {0} al telefono",
+  "pt": "⏱️ {0} ao telefone"
+ },
+ "👑 N°1 : {0}": {
+  "en": "👑 #1: {0}",
+  "es": "👑 N.º 1: {0}",
+  "de": "👑 Nr. 1: {0}",
+  "it": "👑 N°1: {0}",
+  "pt": "👑 Nº 1: {0}"
+ },
+ "📅 Mois record : {0}": {
+  "en": "📅 Record month: {0}",
+  "es": "📅 Mes récord: {0}",
+  "de": "📅 Rekordmonat: {0}",
+  "it": "📅 Mese record: {0}",
+  "pt": "📅 Mês recorde: {0}"
+ },
+ "🕰️ Plutôt {0}": {
+  "en": "🕰️ More of a {0}",
+  "es": "🕰️ Más bien {0}",
+  "de": "🕰️ Eher {0}",
+  "it": "🕰️ Tipo {0}",
+  "pt": "🕰️ Mais {0}"
+ },
+ "🏆 Record : {0}": {
+  "en": "🏆 Record: {0}",
+  "es": "🏆 Récord: {0}",
+  "de": "🏆 Rekord: {0}",
+  "it": "🏆 Record: {0}",
+  "pt": "🏆 Recorde: {0}"
+ },
+ "🫂 {0} personne": {
+  "en": "🫂 {0} person",
+  "es": "🫂 {0} persona",
+  "de": "🫂 {0} Person",
+  "it": "🫂 {0} persona",
+  "pt": "🫂 {0} pessoa"
+ },
+ "🫂 {0} personnes": {
+  "en": "🫂 {0} people",
+  "es": "🫂 {0} personas",
+  "de": "🫂 {0} Personen",
+  "it": "🫂 {0} persone",
+  "pt": "🫂 {0} pessoas"
+ },
+ "Mon {0}": {
+  "en": "My {0}",
+  "es": "Mi {0}",
+  "de": "Mein {0}",
+  "it": "Il mio {0}",
+  "pt": "Meu {0}"
+ },
+ "au téléphone": {
+  "en": "on the phone",
+  "es": "al teléfono",
+  "de": "am Telefon",
+  "it": "al telefono",
+  "pt": "ao telefone"
+ }
+}

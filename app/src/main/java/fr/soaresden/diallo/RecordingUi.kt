@@ -69,7 +69,7 @@ private fun RecRow(r: Recordings.Rec, showWho: Boolean) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(Modifier.size(32.dp).clip(CircleShape).background(cs.primaryContainer), contentAlignment = Alignment.Center) {
-            Icon(Icons.Filled.PlayArrow, "Écouter", tint = cs.primary, modifier = Modifier.size(18.dp))
+            Icon(Icons.Filled.PlayArrow, tr("Écouter"), tint = cs.primary, modifier = Modifier.size(18.dp))
         }
         Spacer(Modifier.width(10.dp))
         Column(Modifier.weight(1f)) {
@@ -80,7 +80,7 @@ private fun RecRow(r: Recordings.Rec, showWho: Boolean) {
             )
         }
         IconButton(onClick = { Recordings.askDelete.value = r }, modifier = Modifier.size(36.dp)) {
-            Icon(Icons.Filled.DeleteOutline, "Supprimer", tint = muted(.5f), modifier = Modifier.size(19.dp))
+            Icon(Icons.Filled.DeleteOutline, tr("Supprimer"), tint = muted(.5f), modifier = Modifier.size(19.dp))
         }
     }
 }
@@ -92,9 +92,9 @@ internal fun ContactRecordings(key: String) {
     val list = remember(all, key) { all.filter { it.key == key } }
     if (list.isEmpty()) return
     var showAll by remember { mutableStateOf(false) }
-    SectionCard("🎙️ Enregistrements (${list.size})", id = "contact_rec") {
+    SectionCard(tr("🎙️ Enregistrements ({0})", list.size), id = "contact_rec") {
         (if (showAll) list else list.take(5)).forEach { RecRow(it, showWho = false) }
-        if (list.size > 5) TextButton(onClick = { showAll = !showAll }) { Text(if (showAll) "Moins" else "Voir les ${list.size}") }
+        if (list.size > 5) TextButton(onClick = { showAll = !showAll }) { Text(if (showAll) tr("Moins") else tr("Voir les {0}", list.size)) }
     }
 }
 
@@ -120,19 +120,19 @@ internal fun RecScreen(contacts: List<CallRepository.Contact>, onCall: (String) 
     val cs = MaterialTheme.colorScheme
     Column(Modifier.fillMaxSize().padding(horizontal = 14.dp)) {
         OutlinedTextField(
-            q, { q = it }, Modifier.fillMaxWidth(), placeholder = { Text("Chercher un contact, un numéro…") }, singleLine = true,
+            q, { q = it }, Modifier.fillMaxWidth(), placeholder = { Text(tr("Chercher un contact, un numéro…")) }, singleLine = true,
             shape = RoundedCornerShape(16.dp), leadingIcon = { Icon(Icons.Filled.Search, null) },
-            trailingIcon = { if (q.isNotEmpty()) IconButton(onClick = { q = "" }) { Icon(Icons.Filled.Close, "Effacer") } }
+            trailingIcon = { if (q.isNotEmpty()) IconButton(onClick = { q = "" }) { Icon(Icons.Filled.Close, tr("Effacer")) } }
         )
-        Segmented(listOf("Par contact", "Par date"), if (byDate) 1 else 0, { byDate = it == 1; prefs(ctx).edit().putBoolean("rec_by_date", byDate).apply() }, Modifier.fillMaxWidth().padding(top = 8.dp))
+        Segmented(listOf(tr("Par contact"), tr("Par date")), if (byDate) 1 else 0, { byDate = it == 1; prefs(ctx).edit().putBoolean("rec_by_date", byDate).apply() }, Modifier.fillMaxWidth().padding(top = 8.dp))
         Row(Modifier.fillMaxWidth().padding(vertical = 6.dp, horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text("${all.size} enregistrement${if (all.size > 1) "s" else ""} · ${groups.size} correspondant${if (groups.size > 1) "s" else ""}", fontSize = 12.sp, color = muted(.55f), modifier = Modifier.weight(1f))
+            Text(trn(all.size, "{0} enregistrement", "{0} enregistrements") + " · " + trn(groups.size, "{0} correspondant", "{0} correspondants"), fontSize = 12.sp, color = muted(.55f), modifier = Modifier.weight(1f))
             if (busy) CircularProgressIndicator(Modifier.size(14.dp), strokeWidth = 2.dp)
-            TextButton(onClick = onSettings) { Text("Réglages", fontSize = 12.sp) }
+            TextButton(onClick = onSettings) { Text(tr("Réglages"), fontSize = 12.sp) }
         }
         status?.let { Text(it, fontSize = 12.sp, color = cs.primary, modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)) }
         if (all.isEmpty()) {
-            Empty(if (busy) "Lecture des enregistrements…" else "Aucun enregistrement.\nPendant un appel, touche 🔴 Enregistrer (à activer dans Réglages › Pendant l'appel › Enregistrement).")
+            Empty(if (busy) tr("Lecture des enregistrements…") else tr("Aucun enregistrement.\nPendant un appel, touche 🔴 Enregistrer (à activer dans Réglages › Pendant l'appel › Enregistrement)."))
         } else if (byDate) LazyColumn(Modifier.fillMaxSize()) {
             items(shown, key = { "d_${it.name}" }) { r -> RecRow(r, showWho = true) }
             item { Spacer(Modifier.height(20.dp)) }
@@ -150,11 +150,11 @@ internal fun RecScreen(contacts: List<CallRepository.Contact>, onCall: (String) 
                         Avatar(name, c?.photoUri, 38.dp); Spacer(Modifier.width(10.dp))
                         Column(Modifier.weight(1f)) {
                             Text(name, fontWeight = FontWeight.SemiBold, fontSize = 14.5.sp, color = cs.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Text("${list.size} enregistrement${if (list.size > 1) "s" else ""} · dernier ${Recordings.fmtDate(r0.time)}", fontSize = 11.5.sp, color = muted())
+                            Text(trn(list.size, "{0} enregistrement · dernier {1}", "{0} enregistrements · dernier {1}", Recordings.fmtDate(r0.time)), fontSize = 11.5.sp, color = muted())
                         }
                         r0.number?.let { n ->
                             Box(Modifier.size(34.dp).clip(CircleShape).background(CallGreen).clickable { onCall(n) }, contentAlignment = Alignment.Center) {
-                                Icon(Icons.Filled.Call, "Appeler", tint = Color.White, modifier = Modifier.size(17.dp))
+                                Icon(Icons.Filled.Call, tr("Appeler"), tint = Color.White, modifier = Modifier.size(17.dp))
                             }
                             Spacer(Modifier.width(6.dp))
                         }
@@ -176,15 +176,15 @@ internal fun RecordingPlayer() {
     Recordings.askDelete.value?.let { r ->
         AlertDialog(
             onDismissRequest = { Recordings.askDelete.value = null },
-            title = { Text("Supprimer l'enregistrement ?") },
-            text = { Text("${r.who} · ${Recordings.fmtDate(r.time)}\nLe fichier sera effacé du dossier Rec.") },
+            title = { Text(tr("Supprimer l'enregistrement ?")) },
+            text = { Text("${r.who} · ${Recordings.fmtDate(r.time)}\n" + tr("Le fichier sera effacé du dossier Rec.")) },
             confirmButton = {
                 Button(onClick = {
                     Recordings.askDelete.value = null
-                    if (!Recordings.delete(ctx, r)) android.widget.Toast.makeText(ctx, "Suppression impossible", android.widget.Toast.LENGTH_SHORT).show()
-                }, colors = ButtonDefaults.buttonColors(containerColor = Red, contentColor = Color.White)) { Text("Supprimer") }
+                    if (!Recordings.delete(ctx, r)) android.widget.Toast.makeText(ctx, tr("Suppression impossible"), android.widget.Toast.LENGTH_SHORT).show()
+                }, colors = ButtonDefaults.buttonColors(containerColor = Red, contentColor = Color.White)) { Text(tr("Supprimer")) }
             },
-            dismissButton = { TextButton(onClick = { Recordings.askDelete.value = null }) { Text("Annuler") } }
+            dismissButton = { TextButton(onClick = { Recordings.askDelete.value = null }) { Text(tr("Annuler")) } }
         )
     }
     val open by Recordings.open
@@ -203,10 +203,10 @@ internal fun RecordingPlayer() {
             mp.setDataSource(ctx, rec.uri)
             mp.setOnPreparedListener { dur = it.duration; it.start(); playing = true }
             mp.setOnCompletionListener { playing = false; pos = dur }
-            mp.setOnErrorListener { _, _, _ -> error = "Lecture impossible de ce fichier."; true }
+            mp.setOnErrorListener { _, _, _ -> error = tr("Lecture impossible de ce fichier."); true }
             mp.prepareAsync()
             player = mp
-        } catch (_: Throwable) { error = "Fichier illisible ou plus accessible." }
+        } catch (_: Throwable) { error = tr("Fichier illisible ou plus accessible.") }
         onDispose { try { mp.release() } catch (_: Throwable) { } }
     }
     LaunchedEffect(rec.uri, playing) { while (playing) { player?.let { pos = try { it.currentPosition } catch (_: Throwable) { pos } }; delay(200) } }
@@ -230,22 +230,22 @@ internal fun RecordingPlayer() {
                 Text(clock(dur), fontSize = 12.sp, color = muted())
             }
             Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = { player?.let { val p = (it.currentPosition - 10_000).coerceAtLeast(0); it.seekTo(p); pos = p } }) { Icon(Icons.Filled.Replay10, "Reculer de 10 s") }
+                IconButton(onClick = { player?.let { val p = (it.currentPosition - 10_000).coerceAtLeast(0); it.seekTo(p); pos = p } }) { Icon(Icons.Filled.Replay10, tr("Reculer de 10 s")) }
                 Spacer(Modifier.width(18.dp))
                 Box(
                     Modifier.size(64.dp).clip(CircleShape).background(cs.primary).clickable(enabled = player != null && dur > 0) {
                         player?.let { if (it.isPlaying) { it.pause(); playing = false } else { if (pos >= dur) it.seekTo(0); it.start(); playing = true } }
                     },
                     contentAlignment = Alignment.Center
-                ) { Icon(if (playing) Icons.Filled.Pause else Icons.Filled.PlayArrow, if (playing) "Pause" else "Lecture", tint = cs.onPrimary, modifier = Modifier.size(34.dp)) }
+                ) { Icon(if (playing) Icons.Filled.Pause else Icons.Filled.PlayArrow, if (playing) tr("Pause") else tr("Lecture"), tint = cs.onPrimary, modifier = Modifier.size(34.dp)) }
                 Spacer(Modifier.width(18.dp))
-                IconButton(onClick = { player?.let { val p = (it.currentPosition + 10_000).coerceAtMost(dur); it.seekTo(p); pos = p } }) { Icon(Icons.Filled.Forward10, "Avancer de 10 s") }
+                IconButton(onClick = { player?.let { val p = (it.currentPosition + 10_000).coerceAtMost(dur); it.seekTo(p); pos = p } }) { Icon(Icons.Filled.Forward10, tr("Avancer de 10 s")) }
             }
             OutlinedButton(onClick = {
                 val s = Intent(Intent.ACTION_SEND).setType(ctx.contentResolver.getType(rec.uri) ?: "audio/*").putExtra(Intent.EXTRA_STREAM, rec.uri).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                try { ctx.startActivity(Intent.createChooser(s, "Partager l'enregistrement")) } catch (_: Throwable) { }
-            }, modifier = Modifier.fillMaxWidth()) { Text("📤 Partager") }
-            TextButton(onClick = { Recordings.askDelete.value = rec }, modifier = Modifier.fillMaxWidth()) { Text("🗑️ Supprimer", color = Red) }
+                try { ctx.startActivity(Intent.createChooser(s, tr("Partager l'enregistrement"))) } catch (_: Throwable) { }
+            }, modifier = Modifier.fillMaxWidth()) { Text(tr("📤 Partager")) }
+            TextButton(onClick = { Recordings.askDelete.value = rec }, modifier = Modifier.fillMaxWidth()) { Text(tr("🗑️ Supprimer"), color = Red) }
         }
     }
 }
@@ -268,18 +268,18 @@ internal fun RecordingSettings() {
     }
 
     Text(
-        "Les enregistrements sont rangés dans ton dossier, sous Rec/ (aaaa-mm-jj-hhmmss-NOM.mp3), et s'affichent avec les appels (🎙️), sur la fiche du contact et dans l'onglet REC.",
+        tr("Les enregistrements sont rangés dans ton dossier, sous Rec/ (aaaa-mm-jj-hhmmss-NOM.mp3), et s'affichent avec les appels (🎙️), sur la fiche du contact et dans l'onglet REC."),
         fontSize = 12.5.sp, color = muted(.75f), modifier = Modifier.padding(bottom = 12.dp)
     )
-    if (workdir == null) Text("⚠️ Choisis d'abord un dossier de travail (Réglages › Sauvegardes) : Rec/ y sera créé.", fontSize = 12.5.sp, color = Amber, modifier = Modifier.padding(bottom = 10.dp))
+    if (workdir == null) Text(tr("⚠️ Choisis d'abord un dossier de travail (Réglages › Sauvegardes) : Rec/ y sera créé."), fontSize = 12.5.sp, color = Amber, modifier = Modifier.padding(bottom = 10.dp))
     fr.soaresden.diallo.rec.RecorderCard()
-    SectionCard("Dossier Rec") {
+    SectionCard(tr("Dossier Rec"), id = "Dossier Rec") {
         Text("📁 ${workdir ?: "?"}/Rec", fontWeight = FontWeight.SemiBold, color = cs.onSurface)
-        Text("${all.size} enregistrement${if (all.size > 1) "s" else ""} · ${linked.size} relié${if (linked.size > 1) "s" else ""} à un appel", fontSize = 13.sp, color = cs.primary, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 2.dp))
+        Text(trn(all.size, "{0} enregistrement", "{0} enregistrements") + " · " + trn(linked.size, "{0} relié à un appel", "{0} reliés à un appel"), fontSize = 13.sp, color = cs.primary, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 2.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            TextButton(onClick = { go++ }, enabled = !busy) { Text(if (busy) "Lecture…" else "🔄 Relire le dossier") }
+            TextButton(onClick = { go++ }, enabled = !busy) { Text(if (busy) tr("Lecture…") else tr("🔄 Relire le dossier")) }
             if (busy) CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
         }
     }
-    Text("⚖️ Enregistrer un appel pour soi est toléré ; le diffuser sans l'accord de l'autre personne est interdit. Préviens ton correspondant.", fontSize = 11.5.sp, color = muted(.5f), textAlign = TextAlign.Start, modifier = Modifier.padding(top = 4.dp, bottom = 16.dp))
+    Text(tr("⚖️ Enregistrer un appel pour soi est toléré ; le diffuser sans l'accord de l'autre personne est interdit. Préviens ton correspondant."), fontSize = 11.5.sp, color = muted(.5f), textAlign = TextAlign.Start, modifier = Modifier.padding(top = 4.dp, bottom = 16.dp))
 }

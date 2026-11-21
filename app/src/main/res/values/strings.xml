@@ -2,4 +2,7 @@
 <resources>
     <string name="app_name">Di-Allô</string>
     <string name="widget_desc">Tes favoris : un appui pour appeler</string>
+    <string name="widget_fav_label">Di-Allô · Favoris</string>
+    <string name="widget_contact_label">Di-Allô · Contact</string>
+    <string name="widget_contact_desc">Un contact sur l\'écran d\'accueil : un appui pour l\'appeler</string>
 </resources>

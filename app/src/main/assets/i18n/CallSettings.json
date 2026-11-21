@@ -1,0 +1,191 @@
+{
+ "Je ne peux pas répondre, je te rappelle.": {
+  "en": "Can't talk right now, I'll call you back.",
+  "es": "No puedo contestar, te llamo luego.",
+  "de": "Kann gerade nicht rangehen, ich rufe zurück.",
+  "it": "Non posso rispondere, ti richiamo.",
+  "pt": "Não posso atender, te ligo depois."
+ },
+ "En réunion, je te rappelle plus tard.": {
+  "en": "In a meeting, I'll call you back later.",
+  "es": "Estoy en una reunión, te llamo más tarde.",
+  "de": "Bin in einem Meeting, ich rufe später zurück.",
+  "it": "Sono in riunione, ti richiamo più tardi.",
+  "pt": "Estou em reunião, te ligo mais tarde."
+ },
+ "Je suis au volant, je te rappelle.": {
+  "en": "I'm driving, I'll call you back.",
+  "es": "Estoy conduciendo, te llamo luego.",
+  "de": "Ich fahre gerade, ich rufe zurück.",
+  "it": "Sto guidando, ti richiamo.",
+  "pt": "Estou dirigindo, te ligo depois."
+ },
+ "Envoie-moi un SMS stp.": {
+  "en": "Please text me.",
+  "es": "Mándame un SMS, porfa.",
+  "de": "Schreib mir bitte eine SMS.",
+  "it": "Mandami un SMS, per favore.",
+  "pt": "Me manda um SMS, por favor."
+ },
+ "J'arrive !": {
+  "en": "On my way!",
+  "es": "¡Ya voy!",
+  "de": "Bin gleich da!",
+  "it": "Arrivo!",
+  "pt": "Já estou chegando!"
+ },
+ "décrocher à l'oreille": {
+  "en": "raise to answer",
+  "es": "contestar al acercar al oído",
+  "de": "ans Ohr halten zum Annehmen",
+  "it": "rispondi portando all'orecchio",
+  "pt": "atender ao levar ao ouvido"
+ },
+ "retourner = silence": {
+  "en": "flip = silence",
+  "es": "girar = silencio",
+  "de": "umdrehen = stumm",
+  "it": "capovolgi = silenzio",
+  "pt": "virar = silêncio"
+ },
+ "Désactivés": {
+  "en": "Off",
+  "es": "Desactivados",
+  "de": "Aus",
+  "it": "Disattivati",
+  "pt": "Desativados"
+ },
+ "Ça marche pendant que le téléphone sonne, sans toucher l'écran.": {
+  "en": "Works while the phone is ringing, without touching the screen.",
+  "es": "Funciona mientras suena el teléfono, sin tocar la pantalla.",
+  "de": "Funktioniert, während das Telefon klingelt, ohne den Bildschirm zu berühren.",
+  "it": "Funziona mentre il telefono squilla, senza toccare lo schermo.",
+  "pt": "Funciona enquanto o telefone toca, sem tocar na tela."
+ },
+ "📞 Décrocher": {
+  "en": "📞 Answer",
+  "es": "📞 Contestar",
+  "de": "📞 Annehmen",
+  "it": "📞 Rispondere",
+  "pt": "📞 Atender"
+ },
+ "Porter à l'oreille pour décrocher": {
+  "en": "Raise to ear to answer",
+  "es": "Acercar al oído para contestar",
+  "de": "Zum Annehmen ans Ohr halten",
+  "it": "Porta all'orecchio per rispondere",
+  "pt": "Levar ao ouvido para atender"
+ },
+ "Sors-le de la poche ou prends-le, porte-le à l'oreille : c'est décroché. Ne se déclenche pas s'il reste dans la poche.": {
+  "en": "Take it out of your pocket or pick it up and raise it to your ear: the call is answered. Doesn't trigger while it stays in your pocket.",
+  "es": "Sácalo del bolsillo o cógelo y acércalo al oído: llamada contestada. No se activa si sigue en el bolsillo.",
+  "de": "Aus der Tasche nehmen oder hochheben und ans Ohr halten: Anruf angenommen. Löst nicht aus, solange es in der Tasche bleibt.",
+  "it": "Tiralo fuori dalla tasca o prendilo e portalo all'orecchio: la chiamata è risposta. Non si attiva se resta in tasca.",
+  "pt": "Tire do bolso ou pegue e leve ao ouvido: a chamada é atendida. Não dispara se continuar no bolso."
+ },
+ "🔕 Couper la sonnerie": {
+  "en": "🔕 Silence the ringer",
+  "es": "🔕 Silenciar el tono",
+  "de": "🔕 Klingelton stummschalten",
+  "it": "🔕 Silenzia la suoneria",
+  "pt": "🔕 Silenciar o toque"
+ },
+ "Retourner le téléphone": {
+  "en": "Flip the phone over",
+  "es": "Girar el teléfono",
+  "de": "Telefon umdrehen",
+  "it": "Capovolgi il telefono",
+  "pt": "Virar o telefone"
+ },
+ "Écran contre la table : sonnerie et vibration coupées. L'appel continue en silence.": {
+  "en": "Screen down on the table: ringer and vibration off. The call keeps ringing silently.",
+  "es": "Pantalla contra la mesa: tono y vibración apagados. La llamada sigue en silencio.",
+  "de": "Bildschirm nach unten: Klingelton und Vibration aus. Der Anruf läuft lautlos weiter.",
+  "it": "Schermo contro il tavolo: suoneria e vibrazione disattivate. La chiamata continua in silenzio.",
+  "pt": "Tela virada para a mesa: toque e vibração desligados. A chamada continua em silêncio."
+ },
+ "Double vibration quand c'est fini": {
+  "en": "Double vibration when it's over",
+  "es": "Doble vibración al terminar",
+  "de": "Doppelvibration, wenn es vorbei ist",
+  "it": "Doppia vibrazione quando finisce",
+  "pt": "Vibração dupla quando terminar"
+ },
+ "Quand l'appel coupé est terminé, 2 petites vibrations : tu peux le reprendre.": {
+  "en": "When the silenced call has ended, 2 short vibrations: you can pick the phone back up.",
+  "es": "Cuando termina la llamada silenciada, 2 vibraciones cortas: puedes volver a cogerlo.",
+  "de": "Wenn der stummgeschaltete Anruf vorbei ist, 2 kurze Vibrationen: du kannst es wieder nehmen.",
+  "it": "Quando la chiamata silenziata è finita, 2 brevi vibrazioni: puoi riprenderlo.",
+  "pt": "Quando a chamada silenciada terminar, 2 vibrações curtas: você pode pegá-lo de volta."
+ },
+ "📳 Fin d'appel": {
+  "en": "📳 End of call",
+  "es": "📳 Fin de llamada",
+  "de": "📳 Anrufende",
+  "it": "📳 Fine chiamata",
+  "pt": "📳 Fim da chamada"
+ },
+ "Double vibration à la fin de chaque appel": {
+  "en": "Double vibration at the end of every call",
+  "es": "Doble vibración al final de cada llamada",
+  "de": "Doppelvibration am Ende jedes Anrufs",
+  "it": "Doppia vibrazione alla fine di ogni chiamata",
+  "pt": "Vibração dupla no fim de cada chamada"
+ },
+ "Pratique quand l'autre raccroche alors que le téléphone est à l'oreille.": {
+  "en": "Handy when the other person hangs up while the phone is at your ear.",
+  "es": "Útil cuando el otro cuelga mientras tienes el teléfono en el oído.",
+  "de": "Praktisch, wenn die andere Person auflegt, während das Telefon am Ohr ist.",
+  "it": "Utile quando l'altro riattacca mentre hai il telefono all'orecchio.",
+  "pt": "Útil quando a outra pessoa desliga enquanto o telefone está no ouvido."
+ },
+ "Tester la vibration": {
+  "en": "Test vibration",
+  "es": "Probar la vibración",
+  "de": "Vibration testen",
+  "it": "Prova la vibrazione",
+  "pt": "Testar a vibração"
+ },
+ "Proposées sur un appel entrant (bouton 💬). L'appel est refusé et le SMS part via ton appli Messages.": {
+  "en": "Offered on incoming calls (💬 button). The call is declined and the SMS is sent through your Messages app.",
+  "es": "Se ofrecen en las llamadas entrantes (botón 💬). La llamada se rechaza y el SMS se envía con tu app de Mensajes.",
+  "de": "Werden bei eingehenden Anrufen angeboten (Taste 💬). Der Anruf wird abgelehnt und die SMS über deine Nachrichten-App gesendet.",
+  "it": "Proposte durante una chiamata in arrivo (pulsante 💬). La chiamata viene rifiutata e l'SMS parte dalla tua app Messaggi.",
+  "pt": "Oferecidas nas chamadas recebidas (botão 💬). A chamada é recusada e o SMS é enviado pelo seu app de Mensagens."
+ },
+ "💬 Mes réponses": {
+  "en": "💬 My replies",
+  "es": "💬 Mis respuestas",
+  "de": "💬 Meine Antworten",
+  "it": "💬 Le mie risposte",
+  "pt": "💬 Minhas respostas"
+ },
+ "Supprimer": {
+  "en": "Delete",
+  "es": "Eliminar",
+  "de": "Löschen",
+  "it": "Elimina",
+  "pt": "Excluir"
+ },
+ "Nouvelle réponse…": {
+  "en": "New reply…",
+  "es": "Nueva respuesta…",
+  "de": "Neue Antwort…",
+  "it": "Nuova risposta…",
+  "pt": "Nova resposta…"
+ },
+ "Ajouter": {
+  "en": "Add",
+  "es": "Añadir",
+  "de": "Hinzufügen",
+  "it": "Aggiungi",
+  "pt": "Adicionar"
+ },
+ "Remettre les réponses par défaut": {
+  "en": "Restore default replies",
+  "es": "Restablecer respuestas predeterminadas",
+  "de": "Standardantworten wiederherstellen",
+  "it": "Ripristina le risposte predefinite",
+  "pt": "Restaurar respostas padrão"
+ }
+}

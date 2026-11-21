@@ -1,0 +1,338 @@
+{
+  "🎙️ Enregistrement des appels : configuration à terminer": {
+    "en": "🎙️ Call recording: setup to finish",
+    "es": "🎙️ Grabación de llamadas: configuración pendiente",
+    "de": "🎙️ Anrufaufnahme: Einrichtung abschließen",
+    "it": "🎙️ Registrazione chiamate: configurazione da completare",
+    "pt": "🎙️ Gravação de chamadas: configuração por concluir"
+  },
+  "🎙️ Enregistrement indisponible : {0}": {
+    "en": "🎙️ Recording unavailable: {0}",
+    "es": "🎙️ Grabación no disponible: {0}",
+    "de": "🎙️ Aufnahme nicht verfügbar: {0}",
+    "it": "🎙️ Registrazione non disponibile: {0}",
+    "pt": "🎙️ Gravação indisponível: {0}"
+  },
+  "service arrêté": {
+    "en": "service stopped",
+    "es": "servicio detenido",
+    "de": "Dienst gestoppt",
+    "it": "servizio arrestato",
+    "pt": "serviço parado"
+  },
+  "🎙️ Enregistreur Di-Allô": {
+    "en": "🎙️ Di-Allô recorder",
+    "es": "🎙️ Grabadora Di-Allô",
+    "de": "🎙️ Di-Allô-Rekorder",
+    "it": "🎙️ Registratore Di-Allô",
+    "pt": "🎙️ Gravador Di-Allô"
+  },
+  "Enregistrer les appels": {
+    "en": "Record calls",
+    "es": "Grabar llamadas",
+    "de": "Anrufe aufnehmen",
+    "it": "Registra chiamate",
+    "pt": "Gravar chamadas"
+  },
+  "MP3 dans Rec/ · les deux voix · sans autre appli": {
+    "en": "MP3 in Rec/ · both voices · no other app",
+    "es": "MP3 en Rec/ · ambas voces · sin otra app",
+    "de": "MP3 in Rec/ · beide Stimmen · ohne andere App",
+    "it": "MP3 in Rec/ · entrambe le voci · senza altre app",
+    "pt": "MP3 em Rec/ · as duas vozes · sem outro app"
+  },
+  "Quand ?": {
+    "en": "When?",
+    "es": "¿Cuándo?",
+    "de": "Wann?",
+    "it": "Quando?",
+    "pt": "Quando?"
+  },
+  "Quand je veux : bouton 🔴 pendant l'appel": {
+    "en": "When I want: 🔴 button during the call",
+    "es": "Cuando yo quiera: botón 🔴 durante la llamada",
+    "de": "Wann ich will: 🔴-Taste während des Anrufs",
+    "it": "Quando voglio: pulsante 🔴 durante la chiamata",
+    "pt": "Quando eu quiser: botão 🔴 durante a chamada"
+  },
+  "Tout seul pour mes contacts (🔴 pour les autres)": {
+    "en": "Automatically for my contacts (🔴 for others)",
+    "es": "Automático para mis contactos (🔴 para los demás)",
+    "de": "Automatisch für meine Kontakte (🔴 für andere)",
+    "it": "Automatico per i miei contatti (🔴 per gli altri)",
+    "pt": "Automático para os meus contatos (🔴 para os outros)"
+  },
+  "Tout seul pour tous les appels": {
+    "en": "Automatically for all calls",
+    "es": "Automático para todas las llamadas",
+    "de": "Automatisch für alle Anrufe",
+    "it": "Automatico per tutte le chiamate",
+    "pt": "Automático para todas as chamadas"
+  },
+  "Le bouton 🔴 reste toujours disponible pendant l'appel pour démarrer ou arrêter.": {
+    "en": "The 🔴 button is always available during the call to start or stop.",
+    "es": "El botón 🔴 siempre está disponible durante la llamada para iniciar o detener.",
+    "de": "Die 🔴-Taste ist während des Anrufs immer verfügbar, um zu starten oder zu stoppen.",
+    "it": "Il pulsante 🔴 resta sempre disponibile durante la chiamata per avviare o fermare.",
+    "pt": "O botão 🔴 fica sempre disponível durante a chamada para iniciar ou parar."
+  },
+  "✅ Prêt à enregistrer": {
+    "en": "✅ Ready to record",
+    "es": "✅ Listo para grabar",
+    "de": "✅ Bereit zur Aufnahme",
+    "it": "✅ Pronto a registrare",
+    "pt": "✅ Pronto para gravar"
+  },
+  "Vérifier": {
+    "en": "Check",
+    "es": "Comprobar",
+    "de": "Prüfen",
+    "it": "Verifica",
+    "pt": "Verificar"
+  },
+  "Configurer": {
+    "en": "Set up",
+    "es": "Configurar",
+    "de": "Einrichten",
+    "it": "Configura",
+    "pt": "Configurar"
+  },
+  "🎙️ Activer l'enregistrement": {
+    "en": "🎙️ Enable recording",
+    "es": "🎙️ Activar la grabación",
+    "de": "🎙️ Aufnahme aktivieren",
+    "it": "🎙️ Attiva la registrazione",
+    "pt": "🎙️ Ativar a gravação"
+  },
+  "Android réserve le son des appels aux outils de développement. Di-Allô passe par le « Débogage sans fil » de ton téléphone : une association une seule fois, puis il l'allume et l'éteint tout seul quand il en a besoin.": {
+    "en": "Android reserves call audio for developer tools. Di-Allô goes through your phone's \"Wireless debugging\": you pair it once, then it turns it on and off by itself when needed.",
+    "es": "Android reserva el audio de las llamadas a las herramientas de desarrollo. Di-Allô usa la «Depuración inalámbrica» de tu teléfono: se vincula una sola vez y luego la enciende y apaga solo cuando la necesita.",
+    "de": "Android gibt den Anruf-Ton nur für Entwicklertools frei. Di-Allô nutzt das „Debugging über WLAN“ deines Telefons: einmal koppeln, danach schaltet es das Debugging selbst ein und aus, wenn es gebraucht wird.",
+    "it": "Android riserva l'audio delle chiamate agli strumenti per sviluppatori. Di-Allô usa il «Debug wireless» del tuo telefono: lo associ una sola volta, poi lo accende e lo spegne da solo quando serve.",
+    "pt": "O Android reserva o áudio das chamadas para as ferramentas de desenvolvimento. O Di-Allô usa a \"Depuração por Wi-Fi\" do seu telefone: você pareia uma única vez e depois ele liga e desliga sozinho quando precisa."
+  },
+  "Tout est prêt": {
+    "en": "All set",
+    "es": "Todo listo",
+    "de": "Alles bereit",
+    "it": "Tutto pronto",
+    "pt": "Tudo pronto"
+  },
+  "Le service d'enregistrement tourne. Bouton 🔴 dans l'écran d'appel.": {
+    "en": "The recording service is running. 🔴 button on the call screen.",
+    "es": "El servicio de grabación está en marcha. Botón 🔴 en la pantalla de llamada.",
+    "de": "Der Aufnahmedienst läuft. 🔴-Taste im Anrufbildschirm.",
+    "it": "Il servizio di registrazione è attivo. Pulsante 🔴 nella schermata di chiamata.",
+    "pt": "O serviço de gravação está em execução. Botão 🔴 na tela de chamada."
+  },
+  "Options pour les développeurs": {
+    "en": "Developer options",
+    "es": "Opciones para desarrolladores",
+    "de": "Entwickleroptionen",
+    "it": "Opzioni sviluppatore",
+    "pt": "Opções do desenvolvedor"
+  },
+  "Activées": {
+    "en": "Enabled",
+    "es": "Activadas",
+    "de": "Aktiviert",
+    "it": "Attivate",
+    "pt": "Ativadas"
+  },
+  "Réglages › À propos du téléphone › touche 7 fois « Version de l'OS ».": {
+    "en": "Settings › About phone › tap \"OS version\" 7 times.",
+    "es": "Ajustes › Información del teléfono › toca 7 veces «Versión del SO».",
+    "de": "Einstellungen › Über das Telefon › tippe 7-mal auf „OS-Version“.",
+    "it": "Impostazioni › Informazioni sul telefono › tocca 7 volte «Versione SO».",
+    "pt": "Configurações › Sobre o telefone › toque 7 vezes em \"Versão do SO\"."
+  },
+  "Ouvrir « À propos »": {
+    "en": "Open \"About phone\"",
+    "es": "Abrir «Información del teléfono»",
+    "de": "„Über das Telefon“ öffnen",
+    "it": "Apri «Informazioni sul telefono»",
+    "pt": "Abrir \"Sobre o telefone\""
+  },
+  "Wi-Fi connecté": {
+    "en": "Wi-Fi connected",
+    "es": "Wi-Fi conectado",
+    "de": "WLAN verbunden",
+    "it": "Wi-Fi connesso",
+    "pt": "Wi-Fi conectado"
+  },
+  "Le débogage sans fil ne marche qu'en Wi-Fi.": {
+    "en": "Wireless debugging only works on Wi-Fi.",
+    "es": "La depuración inalámbrica solo funciona con Wi-Fi.",
+    "de": "Debugging über WLAN funktioniert nur im WLAN.",
+    "it": "Il debug wireless funziona solo in Wi-Fi.",
+    "pt": "A depuração por Wi-Fi só funciona em Wi-Fi."
+  },
+  "Ouvrir le Wi-Fi": {
+    "en": "Open Wi-Fi",
+    "es": "Abrir Wi-Fi",
+    "de": "WLAN öffnen",
+    "it": "Apri Wi-Fi",
+    "pt": "Abrir Wi-Fi"
+  },
+  "Débogage sans fil": {
+    "en": "Wireless debugging",
+    "es": "Depuración inalámbrica",
+    "de": "Debugging über WLAN",
+    "it": "Debug wireless",
+    "pt": "Depuração por Wi-Fi"
+  },
+  "Activé": {
+    "en": "On",
+    "es": "Activado",
+    "de": "An",
+    "it": "Attivo",
+    "pt": "Ativado"
+  },
+  "Options pour les développeurs › « Débogage sans fil » › Activer (coche « Toujours autoriser sur ce réseau »).": {
+    "en": "Developer options › \"Wireless debugging\" › turn on (check \"Always allow on this network\").",
+    "es": "Opciones para desarrolladores › «Depuración inalámbrica» › Activar (marca «Permitir siempre en esta red»).",
+    "de": "Entwickleroptionen › „Debugging über WLAN“ › Aktivieren (aktiviere „In diesem Netzwerk immer zulassen“).",
+    "it": "Opzioni sviluppatore › «Debug wireless» › Attiva (spunta «Consenti sempre su questa rete»).",
+    "pt": "Opções do desenvolvedor › \"Depuração por Wi-Fi\" › Ativar (marque \"Sempre permitir nesta rede\")."
+  },
+  "Ouvrir le débogage sans fil": {
+    "en": "Open Wireless debugging",
+    "es": "Abrir Depuración inalámbrica",
+    "de": "Debugging über WLAN öffnen",
+    "it": "Apri Debug wireless",
+    "pt": "Abrir Depuração por Wi-Fi"
+  },
+  "Associer Di-Allô": {
+    "en": "Pair Di-Allô",
+    "es": "Vincular Di-Allô",
+    "de": "Di-Allô koppeln",
+    "it": "Associa Di-Allô",
+    "pt": "Parear o Di-Allô"
+  },
+  "Associé": {
+    "en": "Paired",
+    "es": "Vinculado",
+    "de": "Gekoppelt",
+    "it": "Associato",
+    "pt": "Pareado"
+  },
+  "Dans « Débogage sans fil », touche « Associer l'appareil avec un code ». Une notification Di-Allô apparaît : tapes-y le code à 6 chiffres sans fermer l'écran du code.": {
+    "en": "In \"Wireless debugging\", tap \"Pair device with pairing code\". A Di-Allô notification appears: type the 6-digit code into it without closing the code screen.",
+    "es": "En «Depuración inalámbrica», toca «Vincular dispositivo con código de vinculación». Aparece una notificación de Di-Allô: escribe ahí el código de 6 dígitos sin cerrar la pantalla del código.",
+    "de": "Tippe in „Debugging über WLAN“ auf „Gerät über einen Kopplungscode koppeln“. Eine Di-Allô-Benachrichtigung erscheint: Gib dort den 6-stelligen Code ein, ohne den Code-Bildschirm zu schließen.",
+    "it": "In «Debug wireless», tocca «Accoppia dispositivo con codice di accoppiamento». Compare una notifica di Di-Allô: inserisci lì il codice a 6 cifre senza chiudere la schermata del codice.",
+    "pt": "Em \"Depuração por Wi-Fi\", toque em \"Parear o dispositivo com um código de pareamento\". Aparece uma notificação do Di-Allô: digite nela o código de 6 dígitos sem fechar a tela do código."
+  },
+  "Associer": {
+    "en": "Pair",
+    "es": "Vincular",
+    "de": "Koppeln",
+    "it": "Associa",
+    "pt": "Parear"
+  },
+  "Masquer": {
+    "en": "Hide",
+    "es": "Ocultar",
+    "de": "Ausblenden",
+    "it": "Nascondi",
+    "pt": "Ocultar"
+  },
+  "Écran partagé : saisir ici": {
+    "en": "Split screen: enter here",
+    "es": "Pantalla dividida: introducir aquí",
+    "de": "Geteilter Bildschirm: hier eingeben",
+    "it": "Schermo diviso: inserisci qui",
+    "pt": "Tela dividida: digitar aqui"
+  },
+  "Port": {
+    "en": "Port",
+    "es": "Puerto",
+    "de": "Port",
+    "it": "Porta",
+    "pt": "Porta"
+  },
+  "Code": {
+    "en": "Code",
+    "es": "Código",
+    "de": "Code",
+    "it": "Codice",
+    "pt": "Código"
+  },
+  "Associer avec ce code": {
+    "en": "Pair with this code",
+    "es": "Vincular con este código",
+    "de": "Mit diesem Code koppeln",
+    "it": "Associa con questo codice",
+    "pt": "Parear com este código"
+  },
+  "Service d'enregistrement": {
+    "en": "Recording service",
+    "es": "Servicio de grabación",
+    "de": "Aufnahmedienst",
+    "it": "Servizio di registrazione",
+    "pt": "Serviço de gravação"
+  },
+  "En marche": {
+    "en": "Running",
+    "es": "En marcha",
+    "de": "Läuft",
+    "it": "In funzione",
+    "pt": "Em execução"
+  },
+  "Lancé automatiquement après l'association.": {
+    "en": "Started automatically after pairing.",
+    "es": "Se inicia automáticamente tras la vinculación.",
+    "de": "Startet automatisch nach dem Koppeln.",
+    "it": "Avviato automaticamente dopo l'associazione.",
+    "pt": "Iniciado automaticamente após o pareamento."
+  },
+  "✅ Service lancé": {
+    "en": "✅ Service started",
+    "es": "✅ Servicio iniciado",
+    "de": "✅ Dienst gestartet",
+    "it": "✅ Servizio avviato",
+    "pt": "✅ Serviço iniciado"
+  },
+  "Lancement impossible": {
+    "en": "Couldn't start",
+    "es": "No se pudo iniciar",
+    "de": "Start nicht möglich",
+    "it": "Avvio impossibile",
+    "pt": "Não foi possível iniciar"
+  },
+  "Lancement…": {
+    "en": "Starting…",
+    "es": "Iniciando…",
+    "de": "Wird gestartet…",
+    "it": "Avvio…",
+    "pt": "Iniciando…"
+  },
+  "Lancer maintenant": {
+    "en": "Start now",
+    "es": "Iniciar ahora",
+    "de": "Jetzt starten",
+    "it": "Avvia ora",
+    "pt": "Iniciar agora"
+  },
+  "Refaire l'association": {
+    "en": "Pair again",
+    "es": "Volver a vincular",
+    "de": "Erneut koppeln",
+    "it": "Rifai l'associazione",
+    "pt": "Parear novamente"
+  },
+  "Terminé": {
+    "en": "Done",
+    "es": "Hecho",
+    "de": "Fertig",
+    "it": "Fatto",
+    "pt": "Concluído"
+  },
+  "Fermer": {
+    "en": "Close",
+    "es": "Cerrar",
+    "de": "Schließen",
+    "it": "Chiudi",
+    "pt": "Fechar"
+  }
+}

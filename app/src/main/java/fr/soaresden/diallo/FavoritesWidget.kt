@@ -76,14 +76,20 @@ class FavoritesWidget : AppWidgetProvider() {
                     starred.addAll(best.values)
                 }
             } catch (_: Throwable) { }
+            val n = WidgetPrefs.count(ctx).coerceIn(1, SLOTS)
+            val frequent = counts.entries.sortedByDescending { it.value }.mapNotNull { everyone[it.key] }
             val list = starred.sortedWith(compareByDescending<Fav> { it.calls }.thenBy { it.name.lowercase() })
-            if (list.size >= SLOTS) return list.take(SLOTS)
-            // complète avec les plus appelés
-            val more = counts.entries.sortedByDescending { it.value }.mapNotNull { everyone[it.key] }.filter { m -> list.none { keyOf(it.number) == keyOf(m.number) } }
-            return (list + more).take(SLOTS)
+            return when (WidgetPrefs.source(ctx)) {
+                1 -> list.take(n)                       // favoris seulement
+                2 -> frequent.take(n)                   // les plus appelés
+                else -> {                               // favoris, complétés par les plus appelés
+                    if (list.size >= n) list.take(n)
+                    else (list + frequent.filter { m -> list.none { keyOf(it.number) == keyOf(m.number) } }).take(n)
+                }
+            }
         }
 
-        private fun avatar(ctx: Context, name: String, photo: String?, px: Int = 144): Bitmap {
+        internal fun avatar(ctx: Context, name: String, photo: String?, px: Int = 144): Bitmap {
             val out = Bitmap.createBitmap(px, px, Bitmap.Config.ARGB_8888)
             val c = Canvas(out); val p = Paint(Paint.ANTI_ALIAS_FLAG)
             val src = photo?.let { u -> try { ctx.contentResolver.openInputStream(Uri.parse(u))?.use { BitmapFactory.decodeStream(it) } } catch (_: Throwable) { null } }
@@ -105,6 +111,10 @@ class FavoritesWidget : AppWidgetProvider() {
         private fun render(ctx: Context, mgr: AppWidgetManager, ids: IntArray) {
             val favs = favorites(ctx)
             val views = RemoteViews(ctx.packageName, R.layout.widget_favorites)
+            val style = WidgetPrefs.style(ctx); val fg = WidgetPrefs.fg(style); val names = WidgetPrefs.names(ctx)
+            views.setInt(R.id.root, "setBackgroundResource", WidgetPrefs.bg(style))
+            views.setTextColor(R.id.header_title, fg); views.setTextViewText(R.id.header_title, tr("Favoris"))
+            views.setTextColor(R.id.empty, fg); views.setTextViewText(R.id.empty, tr("Ajoute des favoris ⭐ dans tes contacts"))
             val open = PendingIntent.getActivity(ctx, 10, Intent(ctx, MainActivity::class.java).putExtra("tab", 2).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
             views.setOnClickPendingIntent(R.id.header, open)
             views.setViewVisibility(R.id.empty, if (favs.isEmpty()) View.VISIBLE else View.GONE)
@@ -116,6 +126,8 @@ class FavoritesWidget : AppWidgetProvider() {
                 views.setViewVisibility(SLOT[i], View.VISIBLE)
                 views.setImageViewBitmap(IMG[i], avatar(ctx, f.name, f.photo))
                 views.setTextViewText(NAME[i], f.name.substringBefore(' ').take(12))
+                views.setTextColor(NAME[i], fg)
+                views.setViewVisibility(NAME[i], if (names) View.VISIBLE else View.GONE)
                 val call = PendingIntent.getActivity(ctx, 100 + i, Intent(Intent.ACTION_CALL, Uri.fromParts("tel", f.number, null)), PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
                 views.setOnClickPendingIntent(SLOT[i], call)
             }

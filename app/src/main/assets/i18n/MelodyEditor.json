@@ -1,0 +1,21 @@
+{
+  "Jeter": {"en": "Discard", "es": "Descartar", "de": "Verwerfen", "it": "Scarta", "pt": "Descartar"},
+  "Mélodie modifiée ✏️": {"en": "Melody updated ✏️", "es": "Melodía modificada ✏️", "de": "Melodie geändert ✏️", "it": "Melodia modificata ✏️", "pt": "Melodia alterada ✏️"},
+  "Mélodie enregistrée 🎼": {"en": "Melody saved 🎼", "es": "Melodía guardada 🎼", "de": "Melodie gespeichert 🎼", "it": "Melodia salvata 🎼", "pt": "Melodia salva 🎼"},
+  "Enregistrer": {"en": "Save", "es": "Guardar", "de": "Speichern", "it": "Salva", "pt": "Salvar"},
+  "rythme d'origine": {"en": "original rhythm", "es": "ritmo original", "de": "Originalrhythmus", "it": "ritmo originale", "pt": "ritmo original"},
+  "rythme régulier": {"en": "steady rhythm", "es": "ritmo regular", "de": "gleichmäßiger Rhythmus", "it": "ritmo regolare", "pt": "ritmo regular"},
+  "Tape des notes avec le clavier en bas 🎹": {"en": "Type notes with the keypad below 🎹", "es": "Escribe notas con el teclado de abajo 🎹", "de": "Tippe Noten mit der Tastatur unten 🎹", "it": "Digita le note con la tastiera qui sotto 🎹", "pt": "Digite notas com o teclado abaixo 🎹"},
+  "Début": {"en": "Start", "es": "Inicio", "de": "Anfang", "it": "Inizio", "pt": "Início"},
+  "Curseur à gauche": {"en": "Cursor left", "es": "Cursor a la izquierda", "de": "Cursor nach links", "it": "Cursore a sinistra", "pt": "Cursor à esquerda"},
+  "Pause": {"en": "Pause", "es": "Pausa", "de": "Pause", "it": "Pausa", "pt": "Pausar"},
+  "Lire depuis le curseur": {"en": "Play from cursor", "es": "Reproducir desde el cursor", "de": "Ab Cursor abspielen", "it": "Riproduci dal cursore", "pt": "Tocar a partir do cursor"},
+  "Curseur à droite": {"en": "Cursor right", "es": "Cursor a la derecha", "de": "Cursor nach rechts", "it": "Cursore a destra", "pt": "Cursor à direita"},
+  "🎵 Rythme d'origine": {"en": "🎵 Original rhythm", "es": "🎵 Ritmo original", "de": "🎵 Originalrhythmus", "it": "🎵 Ritmo originale", "pt": "🎵 Ritmo original"},
+  "🎵 Rythme joué": {"en": "🎵 Played rhythm", "es": "🎵 Ritmo tocado", "de": "🎵 Gespielter Rhythmus", "it": "🎵 Ritmo suonato", "pt": "🎵 Ritmo tocado"},
+  "📏 Régulier": {"en": "📏 Steady", "es": "📏 Regular", "de": "📏 Gleichmäßig", "it": "📏 Regolare", "pt": "📏 Regular"},
+  "Notes modifiées : rythme régulier (␣ ou ↵ = pause).": {"en": "Notes edited: steady rhythm (␣ or ↵ = rest).", "es": "Notas modificadas: ritmo regular (␣ o ↵ = pausa).", "de": "Noten geändert: gleichmäßiger Rhythmus (␣ oder ↵ = Pause).", "it": "Note modificate: ritmo regolare (␣ o ↵ = pausa).", "pt": "Notas alteradas: ritmo regular (␣ ou ↵ = pausa)."},
+  "pause": {"en": "rest", "es": "pausa", "de": "Pause", "it": "pausa", "pt": "pausa"},
+  "ligne": {"en": "line", "es": "línea", "de": "Zeile", "it": "riga", "pt": "linha"},
+  "effacer": {"en": "delete", "es": "borrar", "de": "löschen", "it": "cancella", "pt": "apagar"}
+}

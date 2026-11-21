@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_desc">I tuoi preferiti: un tocco per chiamare</string>
+    <string name="widget_fav_label">Di-Allô · Preferiti</string>
+    <string name="widget_contact_label">Di-Allô · Contatto</string>
+    <string name="widget_contact_desc">Un contatto nella schermata Home: un tocco per chiamare</string>
+</resources>

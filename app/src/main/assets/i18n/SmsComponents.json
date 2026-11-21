@@ -1,0 +1,8 @@
+{
+  "SMS reçus": { "en": "Received SMS", "es": "SMS recibidos", "de": "Empfangene SMS", "it": "SMS ricevuti", "pt": "SMS recebidos" },
+  "SMS de {0}": { "en": "SMS from {0}", "es": "SMS de {0}", "de": "SMS von {0}", "it": "SMS da {0}", "pt": "SMS de {0}" },
+  "Di-Allô n'est pas une messagerie": { "en": "Di-Allô is not a messaging app", "es": "Di-Allô no es una app de mensajería", "de": "Di-Allô ist keine Nachrichten-App", "it": "Di-Allô non è un'app di messaggistica", "pt": "O Di-Allô não é um app de mensagens" },
+  "Il est devenu l'app SMS par défaut seulement pour restaurer ton backup. Remets Google Messages par défaut pour écrire tes SMS.": { "en": "It only became the default SMS app to restore your backup. Set Google Messages back as default to write your texts.", "es": "Solo se convirtió en la app de SMS predeterminada para restaurar tu copia de seguridad. Vuelve a poner Google Mensajes como predeterminada para escribir tus SMS.", "de": "Es wurde nur zur Standard-SMS-App, um dein Backup wiederherzustellen. Setze Google Messages wieder als Standard, um SMS zu schreiben.", "it": "È diventata l'app SMS predefinita solo per ripristinare il tuo backup. Reimposta Google Messaggi come predefinita per scrivere i tuoi SMS.", "pt": "Ele só virou o app de SMS padrão para restaurar seu backup. Volte a definir o Google Mensagens como padrão para escrever seus SMS." },
+  "Changer l'app SMS par défaut": { "en": "Change default SMS app", "es": "Cambiar la app de SMS predeterminada", "de": "Standard-SMS-App ändern", "it": "Cambia app SMS predefinita", "pt": "Alterar o app de SMS padrão" },
+  "Fermer": { "en": "Close", "es": "Cerrar", "de": "Schließen", "it": "Chiudi", "pt": "Fechar" }
+}

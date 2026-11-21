@@ -48,8 +48,18 @@ internal fun noteColor(k: String): Color = when (k) {
     "7" -> Color(0xFF8E5BE0)
     else -> Color.Gray
 }
-internal fun noteName(k: String): String = when (k) {
-    "1", "8" -> "Do"; "2", "9" -> "Ré"; "3", "*" -> "Mi"; "4", "0" -> "Fa"; "5", "#" -> "Sol"; "6" -> "La"; "7" -> "Si"; else -> ""
+/** Noms des notes Do → Si selon la langue affichée (C D E… en anglais / allemand, solfège ailleurs). */
+private val NOTE_NAMES = mapOf(
+    "fr" to listOf("Do", "Ré", "Mi", "Fa", "Sol", "La", "Si"),
+    "en" to listOf("C", "D", "E", "F", "G", "A", "B"),
+    "de" to listOf("C", "D", "E", "F", "G", "A", "H"),
+    "es" to listOf("Do", "Re", "Mi", "Fa", "Sol", "La", "Si"),
+    "it" to listOf("Do", "Re", "Mi", "Fa", "Sol", "La", "Si"),
+    "pt" to listOf("Dó", "Ré", "Mi", "Fá", "Sol", "Lá", "Si")
+)
+internal fun noteName(k: String): String {
+    val i = when (k) { "1", "8" -> 0; "2", "9" -> 1; "3", "*" -> 2; "4", "0" -> 3; "5", "#" -> 4; "6" -> 5; "7" -> 6; else -> return "" }
+    return (NOTE_NAMES[I18n.lang.value] ?: NOTE_NAMES.getValue("fr"))[i]
 }
 
 /**
@@ -106,26 +116,26 @@ internal fun MelodyEditDialog(played: List<Melodies.Note>, typed: String, existi
             Column(Modifier.fillMaxSize().systemBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp)) {
                 // ---------- En-tête ----------
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = { close() }) { Icon(Icons.Filled.Close, if (existing != null) "Annuler" else "Jeter") }
+                    IconButton(onClick = { close() }) { Icon(Icons.Filled.Close, if (existing != null) tr("Annuler") else tr("Jeter")) }
                     OutlinedTextField(name, { name = it }, Modifier.weight(1f), singleLine = true, textStyle = LocalTextStyle.current.copy(fontWeight = FontWeight.SemiBold), shape = RoundedCornerShape(14.dp))
                     Spacer(Modifier.width(8.dp))
                     Button(enabled = notes.isNotEmpty(), onClick = {
                         Melodies.stop()
                         if (existing != null) Melodies.update(ctx, existing.copy(name = name.trim().ifBlank { existing.name }, notes = notes))
                         else Melodies.add(ctx, name, instr, notes)
-                        Toast.makeText(ctx, if (existing != null) "Mélodie modifiée ✏️" else "Mélodie enregistrée 🎼", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(ctx, if (existing != null) tr("Mélodie modifiée ✏️") else tr("Mélodie enregistrée 🎼"), Toast.LENGTH_SHORT).show()
                         onDone()
-                    }) { Text(if (existing != null) "Enregistrer" else "Garder") }
+                    }) { Text(if (existing != null) tr("Enregistrer") else tr("Garder")) }
                 }
                 Text(
-                    "${notes.size} notes · ${fmtMelodyDur(total)} · ${instrLabel(instr)}" + if (useRhythm) " · rythme d'origine" else " · rythme régulier",
+                    trn(notes.size, "{0} note · {1} · {2}", "{0} notes · {1} · {2}", fmtMelodyDur(total), instrLabel(instr)) + " · " + if (useRhythm) tr("rythme d'origine") else tr("rythme régulier"),
                     fontSize = 12.sp, color = muted(.6f), modifier = Modifier.padding(start = 8.dp, top = 4.dp, bottom = 6.dp)
                 )
 
                 // ---------- Partition ----------
                 Surface(Modifier.fillMaxWidth().weight(1f), shape = RoundedCornerShape(20.dp), color = cs.surface) {
                     Box(Modifier.fillMaxSize()) {
-                        if (text.isEmpty()) Text("Tape des notes avec le clavier en bas 🎹", color = muted(.5f), modifier = Modifier.align(Alignment.Center))
+                        if (text.isEmpty()) Text(tr("Tape des notes avec le clavier en bas 🎹"), color = muted(.5f), modifier = Modifier.align(Alignment.Center))
                         LazyColumn(Modifier.fillMaxSize().padding(end = 14.dp), state = listState, contentPadding = PaddingValues(10.dp)) {
                             items(lines.size) { li ->
                                 val (off, l) = lines[li]
@@ -173,19 +183,19 @@ internal fun MelodyEditDialog(played: List<Melodies.Note>, typed: String, existi
                 }
                 // ---------- Lecture ----------
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = { cursor = 0; if (isPlaying) playFrom(0) }) { Icon(Icons.Filled.SkipPrevious, "Début") }
-                    IconButton(onClick = { cursor = (cursor - 1).coerceAtLeast(0) }) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, "Curseur à gauche") }
+                    IconButton(onClick = { cursor = 0; if (isPlaying) playFrom(0) }) { Icon(Icons.Filled.SkipPrevious, tr("Début")) }
+                    IconButton(onClick = { cursor = (cursor - 1).coerceAtLeast(0) }) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, tr("Curseur à gauche")) }
                     Box(
                         Modifier.size(58.dp).clip(CircleShape).background(if (notes.isEmpty()) cs.surfaceVariant else cs.primary)
                             .clickable(enabled = notes.isNotEmpty()) { if (isPlaying) Melodies.stop() else playFrom(if (curNote >= n) 0 else curNote) },
                         contentAlignment = Alignment.Center
-                    ) { Icon(if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow, if (isPlaying) "Pause" else "Lire depuis le curseur", tint = cs.onPrimary, modifier = Modifier.size(32.dp)) }
-                    IconButton(onClick = { cursor = (cursor + 1).coerceAtMost(text.length) }) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, "Curseur à droite") }
+                    ) { Icon(if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow, if (isPlaying) tr("Pause") else tr("Lire depuis le curseur"), tint = cs.onPrimary, modifier = Modifier.size(32.dp)) }
+                    IconButton(onClick = { cursor = (cursor + 1).coerceAtMost(text.length) }) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, tr("Curseur à droite")) }
                     TextButton(onClick = { showTempo = !showTempo }) { Text(if (useRhythm) "🎵" else "📏", fontSize = 18.sp) }
                 }
                 if (showTempo) Column(Modifier.padding(horizontal = 6.dp)) {
-                    Segmented(listOf(if (existing != null) "🎵 Rythme d'origine" else "🎵 Rythme joué", "📏 Régulier"), if (useRhythm) 0 else 1, { asPlayed = it == 0 })
-                    if (changed) Text("Notes modifiées : rythme régulier (␣ ou ↵ = pause).", fontSize = 11.5.sp, color = muted(.55f), modifier = Modifier.padding(top = 2.dp))
+                    Segmented(listOf(if (existing != null) tr("🎵 Rythme d'origine") else tr("🎵 Rythme joué"), tr("📏 Régulier")), if (useRhythm) 0 else 1, { asPlayed = it == 0 })
+                    if (changed) Text(tr("Notes modifiées : rythme régulier (␣ ou ↵ = pause)."), fontSize = 11.5.sp, color = muted(.55f), modifier = Modifier.padding(top = 2.dp))
                     if (!useRhythm) Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("${(60000 / step).toInt()} / min", fontSize = 12.sp, color = cs.onSurface, modifier = Modifier.width(70.dp))
                         Slider(step, { step = it }, valueRange = 120f..700f, modifier = Modifier.weight(1f))
@@ -201,9 +211,9 @@ internal fun MelodyEditDialog(played: List<Melodies.Note>, typed: String, existi
                         }
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        EditKey("␣", "pause", cs.outline, Modifier.weight(1f)) { insert(" ") }
-                        EditKey("↵", "ligne", cs.outline, Modifier.weight(1f)) { insert("\n") }
-                        EditKey("⌫", "effacer", Red, Modifier.weight(1f)) { erase() }
+                        EditKey("␣", tr("pause"), cs.outline, Modifier.weight(1f)) { insert(" ") }
+                        EditKey("↵", tr("ligne"), cs.outline, Modifier.weight(1f)) { insert("\n") }
+                        EditKey("⌫", tr("effacer"), Red, Modifier.weight(1f)) { erase() }
                     }
                 }
             }

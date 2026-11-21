@@ -203,7 +203,7 @@ object Recordings {
     }
 
     /** Date et heure complètes : « sam. 21 nov. 2026 · 23:42 ». */
-    fun fmtDate(t: Long): String = SimpleDateFormat("EEE d MMM yyyy · HH:mm", Locale.FRANCE).format(java.util.Date(t))
+    fun fmtDate(t: Long): String = SimpleDateFormat("EEE d MMM yyyy · HH:mm", I18n.locale).format(java.util.Date(t))
 
     /** Durées lues dans les fichiers (ms), gardées en mémoire et dans les préférences (nom + taille → durée). */
     val durations = androidx.compose.runtime.mutableStateMapOf<String, Long>()
@@ -232,7 +232,7 @@ object Recordings {
 
     fun fmtSize(b: Long): String = when {
         b <= 0 -> ""
-        b < 1024 * 1024 -> "${(b / 1024).coerceAtLeast(1)} Ko"
-        else -> String.format(Locale.FRANCE, "%.1f Mo", b / (1024.0 * 1024.0))
+        b < 1024 * 1024 -> tr("{0} Ko", (b / 1024).coerceAtLeast(1))
+        else -> tr("{0} Mo", String.format(I18n.locale, "%.1f", b / (1024.0 * 1024.0)))
     }
 }

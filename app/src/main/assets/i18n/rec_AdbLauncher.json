@@ -1,0 +1,54 @@
+{
+  "Association…": { "en": "Pairing…", "es": "Vinculando…", "de": "Wird gekoppelt…", "it": "Associazione…", "pt": "Pareando…" },
+  "Écran « Associer avec un code » introuvable : laisse-le ouvert pendant la saisie": {
+    "en": "\"Pair with code\" screen not found: keep it open while typing",
+    "es": "No se encuentra la pantalla «Vincular con código»: déjala abierta mientras escribes",
+    "de": "Bildschirm „Mit Code koppeln“ nicht gefunden: lass ihn während der Eingabe offen",
+    "it": "Schermata «Accoppia con codice» non trovata: lasciala aperta durante l'inserimento",
+    "pt": "Tela \"Parear com código\" não encontrada: deixe-a aberta enquanto digita"
+  },
+  "Code refusé": { "en": "Code rejected", "es": "Código rechazado", "de": "Code abgelehnt", "it": "Codice rifiutato", "pt": "Código recusado" },
+  "✅ Associé. Lancement du service…": { "en": "✅ Paired. Starting the service…", "es": "✅ Vinculado. Iniciando el servicio…", "de": "✅ Gekoppelt. Dienst wird gestartet…", "it": "✅ Associato. Avvio del servizio…", "pt": "✅ Pareado. Iniciando o serviço…" },
+  "✅ Prêt : les appels peuvent être enregistrés": { "en": "✅ Ready: calls can be recorded", "es": "✅ Listo: ya se pueden grabar las llamadas", "de": "✅ Bereit: Anrufe können aufgenommen werden", "it": "✅ Pronto: le chiamate possono essere registrate", "pt": "✅ Pronto: as chamadas podem ser gravadas" },
+  "Associé, mais lancement impossible : {0}": { "en": "Paired, but couldn't start: {0}", "es": "Vinculado, pero no se pudo iniciar: {0}", "de": "Gekoppelt, aber Start nicht möglich: {0}", "it": "Associato, ma avvio impossibile: {0}", "pt": "Pareado, mas não foi possível iniciar: {0}" },
+  "Enregistrement pas encore configuré (Réglages › Enregistrement)": {
+    "en": "Recording not set up yet (Settings › Recording)",
+    "es": "Grabación aún no configurada (Ajustes › Grabación)",
+    "de": "Aufnahme noch nicht eingerichtet (Einstellungen › Aufnahme)",
+    "it": "Registrazione non ancora configurata (Impostazioni › Registrazione)",
+    "pt": "Gravação ainda não configurada (Configurações › Gravação)"
+  },
+  "Active le « Débogage sans fil » (Options pour les développeurs)": {
+    "en": "Turn on \"Wireless debugging\" (Developer options)",
+    "es": "Activa la «Depuración inalámbrica» (Opciones para desarrolladores)",
+    "de": "Aktiviere „Debugging über WLAN“ (Entwickleroptionen)",
+    "it": "Attiva il «Debug wireless» (Opzioni sviluppatore)",
+    "pt": "Ative a \"Depuração por Wi-Fi\" (Opções do desenvolvedor)"
+  },
+  "Débogage sans fil injoignable (Wi-Fi connecté ?)": {
+    "en": "Wireless debugging unreachable (Wi-Fi connected?)",
+    "es": "Depuración inalámbrica inaccesible (¿Wi-Fi conectado?)",
+    "de": "Debugging über WLAN nicht erreichbar (WLAN verbunden?)",
+    "it": "Debug wireless non raggiungibile (Wi-Fi connesso?)",
+    "pt": "Depuração por Wi-Fi inacessível (Wi-Fi conectado?)"
+  },
+  "Dans « Débogage sans fil », touche « Associer l'appareil avec un code », puis tape le code ici.": {
+    "en": "In \"Wireless debugging\", tap \"Pair device with pairing code\", then type the code here.",
+    "es": "En «Depuración inalámbrica», toca «Vincular dispositivo con código de vinculación» y escribe el código aquí.",
+    "de": "Tippe in „Debugging über WLAN“ auf „Gerät über einen Kopplungscode koppeln“ und gib den Code hier ein.",
+    "it": "In «Debug wireless», tocca «Accoppia dispositivo con codice di accoppiamento», poi inserisci qui il codice.",
+    "pt": "Em \"Depuração por Wi-Fi\", toque em \"Parear o dispositivo com um código de pareamento\" e digite o código aqui."
+  },
+  "Configuration de l'enregistrement": { "en": "Recording setup", "es": "Configuración de la grabación", "de": "Aufnahme-Einrichtung", "it": "Configurazione della registrazione", "pt": "Configuração da gravação" },
+  "Code d'association (6 chiffres)": { "en": "Pairing code (6 digits)", "es": "Código de vinculación (6 dígitos)", "de": "Kopplungscode (6 Ziffern)", "it": "Codice di accoppiamento (6 cifre)", "pt": "Código de pareamento (6 dígitos)" },
+  "Saisir le code": { "en": "Enter code", "es": "Introducir código", "de": "Code eingeben", "it": "Inserisci codice", "pt": "Digitar código" },
+  "Di-Allô · Enregistrement des appels": { "en": "Di-Allô · Call recording", "es": "Di-Allô · Grabación de llamadas", "de": "Di-Allô · Anrufaufnahme", "it": "Di-Allô · Registrazione chiamate", "pt": "Di-Allô · Gravação de chamadas" },
+  "Association en cours…": { "en": "Pairing in progress…", "es": "Vinculación en curso…", "de": "Kopplung läuft…", "it": "Associazione in corso…", "pt": "Pareamento em andamento…" },
+  "Réessaie : « Associer l'appareil avec un code » puis tape le nouveau code.": {
+    "en": "Try again: \"Pair device with pairing code\", then type the new code.",
+    "es": "Inténtalo de nuevo: «Vincular dispositivo con código de vinculación» y escribe el nuevo código.",
+    "de": "Versuch es erneut: „Gerät über einen Kopplungscode koppeln“ und gib den neuen Code ein.",
+    "it": "Riprova: «Accoppia dispositivo con codice di accoppiamento», poi inserisci il nuovo codice.",
+    "pt": "Tente de novo: \"Parear o dispositivo com um código de pareamento\" e digite o novo código."
+  }
+}

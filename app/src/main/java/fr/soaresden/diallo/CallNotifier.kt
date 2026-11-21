@@ -25,11 +25,13 @@ object CallNotifier {
 
     private fun channels(ctx: Context) {
         val nm = nm(ctx)
-        if (nm.getNotificationChannel(CH_IN) == null) nm.createNotificationChannel(
-            NotificationChannel(CH_IN, "Appels entrants", NotificationManager.IMPORTANCE_HIGH).apply { setSound(null, null); enableVibration(false) }
+        // (re)crée les canaux ; recréer un canal existant ne fait que mettre à jour son nom (changement de langue)
+        val inName = tr("Appels entrants"); val onName = tr("Appel en cours")
+        if (nm.getNotificationChannel(CH_IN)?.name?.toString() != inName) nm.createNotificationChannel(
+            NotificationChannel(CH_IN, inName, NotificationManager.IMPORTANCE_HIGH).apply { setSound(null, null); enableVibration(false) }
         )
-        if (nm.getNotificationChannel(CH_ON) == null) nm.createNotificationChannel(
-            NotificationChannel(CH_ON, "Appel en cours", NotificationManager.IMPORTANCE_DEFAULT).apply { setSound(null, null); enableVibration(false) }
+        if (nm.getNotificationChannel(CH_ON)?.name?.toString() != onName) nm.createNotificationChannel(
+            NotificationChannel(CH_ON, onName, NotificationManager.IMPORTANCE_DEFAULT).apply { setSound(null, null); enableVibration(false) }
         )
     }
 
@@ -37,15 +39,16 @@ object CallNotifier {
         val call = HyperInCallService.current.value ?: return cancel(ctx)
         val state = HyperInCallService.callState.intValue
         if (state == Call.STATE_DISCONNECTED || state == Call.STATE_DISCONNECTING) return cancel(ctx)
+        I18n.ensure(ctx)
         channels(ctx)
         val number = call.details?.handle?.schemeSpecificPart ?: ""
         val title = HyperInCallService.nameOf(call)
         val ringing = state == Call.STATE_RINGING
         val stateText = when (state) {
-            Call.STATE_RINGING -> "Appel entrant"
-            Call.STATE_ACTIVE -> if (HyperInCallService.speakerOn) "En cours · haut-parleur" else "Appel en cours"
-            Call.STATE_HOLDING -> "En attente"
-            else -> "Appel…"
+            Call.STATE_RINGING -> tr("Appel entrant")
+            Call.STATE_ACTIVE -> if (HyperInCallService.speakerOn) tr("En cours · haut-parleur") else tr("Appel en cours")
+            Call.STATE_HOLDING -> tr("En attente")
+            else -> tr("Appel…")
         }
 
         val flags = PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
@@ -69,7 +72,7 @@ object CallNotifier {
         val connect = call.details?.connectTimeMillis ?: 0L
         if (state == Call.STATE_ACTIVE && connect > 0) b.setWhen(connect).setShowWhen(true).setUsesChronometer(true)
 
-        val spkLabel = if (HyperInCallService.speakerOn) "Écouteur" else "Haut-parleur"
+        val spkLabel = if (HyperInCallService.speakerOn) tr("Écouteur") else tr("Haut-parleur")
         val n = try {
             if (Build.VERSION.SDK_INT >= 31) {
                 val person = Person.Builder().setName(title).setImportant(true).build()
@@ -91,11 +94,11 @@ object CallNotifier {
             .setCategory(Notification.CATEGORY_CALL).setColor(0xFF22C55E.toInt())
         if (ringing) {
             b.setFullScreenIntent(open, true)
-            b.addAction(Notification.Action.Builder(ic, "Refuser", hang).build())
-            b.addAction(Notification.Action.Builder(ic, "Répondre", answer).build())
+            b.addAction(Notification.Action.Builder(ic, tr("Refuser"), hang).build())
+            b.addAction(Notification.Action.Builder(ic, tr("Répondre"), answer).build())
         } else {
             b.addAction(Notification.Action.Builder(ic, spkLabel, spk).build())
-            b.addAction(Notification.Action.Builder(ic, "Raccrocher", hang).build())
+            b.addAction(Notification.Action.Builder(ic, tr("Raccrocher"), hang).build())
         }
         return b.build()
     }

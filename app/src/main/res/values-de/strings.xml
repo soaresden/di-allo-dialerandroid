@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_desc">Deine Favoriten: einmal tippen zum Anrufen</string>
+    <string name="widget_fav_label">Di-Allô · Favoriten</string>
+    <string name="widget_contact_label">Di-Allô · Kontakt</string>
+    <string name="widget_contact_desc">Ein Kontakt auf dem Startbildschirm: einmal tippen zum Anrufen</string>
+</resources>

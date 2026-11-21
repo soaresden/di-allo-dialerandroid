@@ -66,7 +66,7 @@ class HyperInCallService : InCallService() {
         if (go) rec.start(this, known?.first ?: num.ifBlank { "Numéro masqué" }, num.ifBlank { null })
     }
 
-    override fun onCreate() { super.onCreate(); CrashLog.install(this); instance = this; DataFolder.init(this) }
+    override fun onCreate() { super.onCreate(); CrashLog.install(this); I18n.ensure(this); instance = this; DataFolder.init(this) }
     override fun onDestroy() { AutoSpeaker.stop(); RingGestures.stop(); CallNotifier.cancel(this); if (instance === this) instance = null; super.onDestroy() }
 
     override fun onCallAdded(call: Call) {
@@ -119,9 +119,9 @@ class HyperInCallService : InCallService() {
         fun numberOf(c: Call): String = c.details?.handle?.schemeSpecificPart ?: ""
         fun isConference(c: Call) = c.details?.hasProperty(Call.Details.PROPERTY_CONFERENCE) == true || c.children.isNotEmpty()
         fun nameOf(c: Call): String {
-            if (isConference(c)) return "Conférence"
+            if (isConference(c)) return tr("Conférence")
             val n = numberOf(c)
-            return names[n]?.first ?: if (n.isBlank()) "Numéro masqué" else displayNumber(n)
+            return names[n]?.first ?: if (n.isBlank()) tr("Numéro masqué") else displayNumber(n)
         }
         fun photoOf(c: Call): String? = names[numberOf(c)]?.second
 

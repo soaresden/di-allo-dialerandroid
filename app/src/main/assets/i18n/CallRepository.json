@@ -1,0 +1,51 @@
+{
+  "Sortant": {
+    "en": "Outgoing",
+    "es": "Saliente",
+    "de": "Ausgehend",
+    "it": "In uscita",
+    "pt": "Efetuada"
+  },
+  "Entrant": {
+    "en": "Incoming",
+    "es": "Entrante",
+    "de": "Eingehend",
+    "it": "In arrivo",
+    "pt": "Recebida"
+  },
+  "Manqué": {
+    "en": "Missed",
+    "es": "Perdida",
+    "de": "Verpasst",
+    "it": "Persa",
+    "pt": "Perdida"
+  },
+  "Rejeté": {
+    "en": "Declined",
+    "es": "Rechazada",
+    "de": "Abgelehnt",
+    "it": "Rifiutata",
+    "pt": "Rejeitada"
+  },
+  "Messagerie": {
+    "en": "Voicemail",
+    "es": "Buzón de voz",
+    "de": "Mailbox",
+    "it": "Segreteria",
+    "pt": "Correio de voz"
+  },
+  "Appel": {
+    "en": "Call",
+    "es": "Llamada",
+    "de": "Anruf",
+    "it": "Chiamata",
+    "pt": "Chamada"
+  },
+  "Inconnu": {
+    "en": "Unknown",
+    "es": "Desconocido",
+    "de": "Unbekannt",
+    "it": "Sconosciuto",
+    "pt": "Desconhecido"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "Le service ne répond pas": {
+    "en": "The service isn't responding",
+    "es": "El servicio no responde",
+    "de": "Der Dienst antwortet nicht",
+    "it": "Il servizio non risponde",
+    "pt": "O serviço não responde"
+  },
+  "Service d'enregistrement injoignable": {
+    "en": "Recording service unreachable",
+    "es": "Servicio de grabación inaccesible",
+    "de": "Aufnahmedienst nicht erreichbar",
+    "it": "Servizio di registrazione non raggiungibile",
+    "pt": "Serviço de gravação inacessível"
+  },
+  "Pas de réponse du service": {
+    "en": "No response from the service",
+    "es": "Sin respuesta del servicio",
+    "de": "Keine Antwort vom Dienst",
+    "it": "Nessuna risposta dal servizio",
+    "pt": "Sem resposta do serviço"
+  },
+  "Refusé": {
+    "en": "Declined",
+    "es": "Rechazada",
+    "de": "Abgelehnt",
+    "it": "Rifiutata",
+    "pt": "Recusada"
+  },
+  "✅ Enregistré : {0}": {
+    "en": "✅ Saved: {0}",
+    "es": "✅ Guardado: {0}",
+    "de": "✅ Gespeichert: {0}",
+    "it": "✅ Salvato: {0}",
+    "pt": "✅ Salvo: {0}"
+  },
+  "⚠️ Impossible d'enregistrer le fichier": {
+    "en": "⚠️ Couldn't save the file",
+    "es": "⚠️ No se pudo guardar el archivo",
+    "de": "⚠️ Datei konnte nicht gespeichert werden",
+    "it": "⚠️ Impossibile salvare il file",
+    "pt": "⚠️ Não foi possível salvar o arquivo"
+  }
+}

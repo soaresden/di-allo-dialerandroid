@@ -1,0 +1,9 @@
+{
+  "😬 Di-Allô a planté": { "en": "😬 Di-Allô crashed", "es": "😬 Di-Allô se ha bloqueado", "de": "😬 Di-Allô ist abgestürzt", "it": "😬 Di-Allô si è bloccato", "pt": "😬 O Di-Allô travou" },
+  "Envoie ce rapport pour que le bug soit corrigé :": { "en": "Send this report so the bug can be fixed:", "es": "Envía este informe para que se corrija el error:", "de": "Sende diesen Bericht, damit der Fehler behoben wird:", "it": "Invia questo rapporto per far correggere il bug:", "pt": "Envie este relatório para que o bug seja corrigido:" },
+  "Plantage Di-Allô": { "en": "Di-Allô crash", "es": "Bloqueo de Di-Allô", "de": "Di-Allô-Absturz", "it": "Arresto di Di-Allô", "pt": "Travamento do Di-Allô" },
+  "Envoyer le rapport": { "en": "Send the report", "es": "Enviar el informe", "de": "Bericht senden", "it": "Invia il rapporto", "pt": "Enviar o relatório" },
+  "Partager": { "en": "Share", "es": "Compartir", "de": "Teilen", "it": "Condividi", "pt": "Compartilhar" },
+  "Rapport copié": { "en": "Report copied", "es": "Informe copiado", "de": "Bericht kopiert", "it": "Rapporto copiato", "pt": "Relatório copiado" },
+  "Copier": { "en": "Copy", "es": "Copiar", "de": "Kopieren", "it": "Copia", "pt": "Copiar" }
+}

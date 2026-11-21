@@ -4,8 +4,18 @@ package fr.soaresden.diallo
  * Origine des numéros : pays (drapeau), type (mobile / fixe / box / spécial) et région française.
  * Région par défaut : France (les numéros sans indicatif sont considérés français).
  */
-data class Country(val iso: String, val name: String) {
+data class Country(val iso: String, val frName: String) {
     val flag: String get() = iso.uppercase().map { Character.toChars(0x1F1E6 + (it - 'A')).concatToString() }.joinToString("")
+    /** Nom affiché dans la langue choisie (le français du tableau sinon). */
+    val name: String get() = if (I18n.lang.value == "fr") frName else when (iso) {
+        "US" -> tr("États-Unis / Canada")
+        "RE" -> if (frName.contains("/")) tr("La Réunion / Mayotte") else localName()
+        else -> localName()
+    }
+    private fun localName(): String {
+        val s = try { java.util.Locale("", iso).getDisplayCountry(I18n.locale) } catch (_: Throwable) { "" }
+        return if (s.isNotEmpty() && s != iso) s else frName
+    }
 }
 
 private val CODES: Map<String, Country> = listOf(
@@ -83,7 +93,7 @@ fun flagOf(n: String): String = countryOf(n)?.flag ?: if (n.any { it.isDigit() }
 /** Texte affiché pour un numéro : drapeau + format lisible. */
 fun phoneText(n: String): String = flagOf(n) + " " + displayNumber(n) + (lineLabel(n)?.let { " · " + it.substringBefore(" ·") } ?: "")
 
-/** Type de ligne (pour les numéros français). */
+/** Type de ligne (pour les numéros français). Identifiant français : traduire à l'affichage avec tr(). */
 fun lineType(n: String): String {
     val d = n.filter { it.isDigit() }
     if (d.isEmpty()) return "Masqué"
@@ -99,13 +109,19 @@ fun lineType(n: String): String {
     }
 }
 
-/** Région d'un fixe français (01 à 05) ; null sinon. */
+/** Région d'un fixe français (01 à 05) ; null sinon. Identifiant français : traduire à l'affichage avec tr(). */
 fun frRegion(n: String): String? {
     val c = countryOf(n) ?: return null
     if (c.iso != "FR") return if (c.iso in DOM_NAMES.keys) "Outre-mer" else null
     val nat = nationalDigits(n)
     return when (nat.take(2)) { "01" -> "Île-de-France"; "02" -> "Nord-Ouest"; "03" -> "Nord-Est"; "04" -> "Sud-Est"; "05" -> "Sud-Ouest"; else -> null }
 }
+
+/** Type de ligne traduit, pour l'affichage. */
+fun lineTypeLabel(n: String): String = tr(lineType(n))
+
+/** Région traduite, pour l'affichage ; null si inconnue. */
+fun frRegionLabel(n: String): String? = frRegion(n)?.let { tr(it) }
 
 /** Outre-mer composé en national → indicatif international. */
 private val DOM_CC = mapOf("RE" to "262", "YT" to "262", "GP" to "590", "MQ" to "596", "GF" to "594")
@@ -145,10 +161,10 @@ fun intlNumber(n: String): String {
 
 /** Mobile ou fixe (et région pour la France) : « 📱 Mobile », « ☎️ Fixe · Île-de-France »… null si on ne sait pas. */
 fun lineLabel(n: String): String? = when (lineType(n)) {
-    "Mobile" -> "📱 Mobile"
-    "Fixe" -> "☎️ Fixe" + (frRegion(n)?.let { " · $it" } ?: "")
-    "Box / VoIP" -> "🌐 Box / VoIP"
-    "Numéro spécial" -> "💶 N° spécial"
-    "Court / service" -> "🔢 Service"
+    "Mobile" -> "📱 " + tr("Mobile")
+    "Fixe" -> "☎️ " + tr("Fixe") + (frRegionLabel(n)?.let { " · $it" } ?: "")
+    "Box / VoIP" -> "🌐 " + tr("Box / VoIP")
+    "Numéro spécial" -> "💶 " + tr("N° spécial")
+    "Court / service" -> "🔢 " + tr("Service")
     else -> null
 }

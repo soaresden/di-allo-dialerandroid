@@ -125,19 +125,19 @@ internal fun ContactsMap(onBack: () -> Unit, onOpen: (Long) -> Unit) {
         // ---- Barre du haut ----
         Surface(Modifier.fillMaxWidth().padding(10.dp), shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surface.copy(alpha = .95f), shadowElevation = 4.dp) {
             Row(Modifier.padding(end = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onBack) { Icon(Icons.Filled.ArrowBack, "Retour", tint = MaterialTheme.colorScheme.onSurface) }
+                IconButton(onClick = onBack) { Icon(Icons.Filled.ArrowBack, tr("Retour"), tint = MaterialTheme.colorScheme.onSurface) }
                 Column(Modifier.weight(1f)) {
-                    Text("🗺️ Carte des contacts", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
+                    Text(tr("🗺️ Carte des contacts"), fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
                     Text(
                         when {
-                            total == 0 -> "Aucune adresse dans tes contacts"
-                            done < todo -> "Localisation des adresses… $done / $todo"
-                            else -> "${places.size} adresses sur la carte" + if (missing > 0) " · $missing introuvables" else ""
+                            total == 0 -> tr("Aucune adresse dans tes contacts")
+                            done < todo -> tr("Localisation des adresses… {0} / {1}", done, todo)
+                            else -> trn(places.size, "{0} adresse sur la carte", "{0} adresses sur la carte") + if (missing > 0) trn(missing, " · {0} introuvable", " · {0} introuvables") else ""
                         }, fontSize = 11.5.sp, color = muted()
                     )
                 }
                 if (done < todo) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
-                IconButton(onClick = { fitRequest++ }) { Icon(Icons.Filled.ZoomOutMap, "Tout voir", tint = MaterialTheme.colorScheme.primary) }
+                IconButton(onClick = { fitRequest++ }) { Icon(Icons.Filled.ZoomOutMap, tr("Tout voir"), tint = MaterialTheme.colorScheme.primary) }
             }
         }
 
@@ -147,7 +147,7 @@ internal fun ContactsMap(onBack: () -> Unit, onOpen: (Long) -> Unit) {
                 Column(Modifier.padding(vertical = 8.dp)) {
                     Row(Modifier.padding(start = 16.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                         Text("📍 " + g.first().raw.address, Modifier.weight(1f), fontSize = 12.5.sp, color = muted(.75f), maxLines = 2, overflow = TextOverflow.Ellipsis)
-                        IconButton(onClick = { selected = null }) { Icon(Icons.Filled.Close, "Fermer", tint = muted()) }
+                        IconButton(onClick = { selected = null }) { Icon(Icons.Filled.Close, tr("Fermer"), tint = muted()) }
                     }
                     LazyColumn(Modifier.heightIn(max = 260.dp)) {
                         items(g.size) { i ->
@@ -156,9 +156,9 @@ internal fun ContactsMap(onBack: () -> Unit, onOpen: (Long) -> Unit) {
                                 Avatar(p.raw.name, p.raw.photo, 38.dp); Spacer(Modifier.width(12.dp))
                                 Column(Modifier.weight(1f)) {
                                     Text(p.raw.name, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                    Text(p.raw.type ?: "Adresse", fontSize = 12.sp, color = muted())
+                                    Text(p.raw.type ?: tr("Adresse"), fontSize = 12.sp, color = muted())
                                 }
-                                Text("Fiche ›", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
+                                Text(tr("Fiche ›"), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
                             }
                         }
                     }

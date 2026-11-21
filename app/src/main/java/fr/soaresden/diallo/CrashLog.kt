@@ -64,10 +64,10 @@ internal fun CrashReport() {
     fun done() { val x = t; text = null; Thread { CrashLog.archive(ctx, x) }.start() }
     AlertDialog(
         onDismissRequest = { done() },
-        title = { Text("😬 Di-Allô a planté") },
+        title = { Text(tr("😬 Di-Allô a planté")) },
         text = {
             androidx.compose.foundation.layout.Column {
-                Text("Envoie ce rapport pour que le bug soit corrigé :", fontSize = 13.sp)
+                Text(tr("Envoie ce rapport pour que le bug soit corrigé :"), fontSize = 13.sp)
                 Text(
                     t.take(6000), fontSize = 10.5.sp, fontFamily = FontFamily.Monospace,
                     modifier = Modifier.heightIn(max = 320.dp).verticalScroll(rememberScrollState())
@@ -76,17 +76,17 @@ internal fun CrashReport() {
         },
         confirmButton = {
             Button(onClick = {
-                val send = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_SUBJECT, "Plantage Di-Allô").putExtra(Intent.EXTRA_TEXT, t)
-                try { ctx.startActivity(Intent.createChooser(send, "Envoyer le rapport")) } catch (_: Throwable) { }
+                val send = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_SUBJECT, tr("Plantage Di-Allô")).putExtra(Intent.EXTRA_TEXT, t)
+                try { ctx.startActivity(Intent.createChooser(send, tr("Envoyer le rapport"))) } catch (_: Throwable) { }
                 done()
-            }) { Text("Partager") }
+            }) { Text(tr("Partager")) }
         },
         dismissButton = {
             TextButton(onClick = {
-                (ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText("Plantage Di-Allô", t))
-                Toast.makeText(ctx, "Rapport copié", Toast.LENGTH_SHORT).show()
+                (ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(tr("Plantage Di-Allô"), t))
+                Toast.makeText(ctx, tr("Rapport copié"), Toast.LENGTH_SHORT).show()
                 done()
-            }) { Text("Copier") }
+            }) { Text(tr("Copier")) }
         }
     )
 }

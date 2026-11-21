@@ -41,11 +41,11 @@ import androidx.compose.foundation.verticalScroll
 
 internal val RecRed = Color(0xFFE5484D)
 
-internal fun instrLabel(id: String) = Synth.instruments.firstOrNull { it.id == id }?.let { "${it.emoji} ${it.name}" } ?: "🎵"
+internal fun instrLabel(id: String) = Synth.instruments.firstOrNull { it.id == id }?.let { "${it.emoji} ${tr(it.name)}" } ?: "🎵"
 
 private fun copyText(ctx: Context, t: String) {
-    (ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText("Mélodie", t))
-    Toast.makeText(ctx, "Mélodie copiée", Toast.LENGTH_SHORT).show()
+    (ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(tr("Mélodie"), t))
+    Toast.makeText(ctx, tr("Mélodie copiée"), Toast.LENGTH_SHORT).show()
 }
 
 /**
@@ -69,14 +69,14 @@ internal fun MelodyLibrary(modifier: Modifier = Modifier) {
         item {
             Row(Modifier.fillMaxWidth().padding(start = 14.dp, end = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text("🎼 Mes mélodies", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = cs.onBackground)
-                    Text("Joue : ça s'écrit en bas. ␣ = pause, ⌫ = corriger.", fontSize = 11.5.sp, color = muted(.55f))
+                    Text(tr("🎼 Mes mélodies"), fontWeight = FontWeight.Bold, fontSize = 15.sp, color = cs.onBackground)
+                    Text(tr("Joue : ça s'écrit en bas. ␣ = pause, ⌫ = corriger."), fontSize = 11.5.sp, color = muted(.55f))
                 }
-                TextButton(onClick = { fromText = true }) { Icon(Icons.Filled.Keyboard, null, Modifier.size(16.dp)); Spacer(Modifier.width(4.dp)); Text("En chiffres", fontSize = 13.sp) }
+                TextButton(onClick = { fromText = true }) { Icon(Icons.Filled.Keyboard, null, Modifier.size(16.dp)); Spacer(Modifier.width(4.dp)); Text(tr("En chiffres"), fontSize = 13.sp) }
             }
         }
         if (list.isEmpty()) item {
-            Text("Aucune mélodie pour l'instant 🎹", color = muted(.5f), fontSize = 13.sp, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(16.dp))
+            Text(tr("Aucune mélodie pour l'instant 🎹"), color = muted(.5f), fontSize = 13.sp, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(16.dp))
         }
         items(list, key = { "m${it.id}" }) { m ->
             val on = playing == m.id
@@ -86,24 +86,24 @@ internal fun MelodyLibrary(modifier: Modifier = Modifier) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(Modifier.size(38.dp).clip(CircleShape).background(if (on) cs.primary else cs.primaryContainer), contentAlignment = Alignment.Center) {
-                    Icon(if (on) Icons.Filled.Stop else Icons.Filled.PlayArrow, if (on) "Arrêter" else "Écouter", tint = if (on) cs.onPrimary else cs.primary, modifier = Modifier.size(20.dp))
+                    Icon(if (on) Icons.Filled.Stop else Icons.Filled.PlayArrow, if (on) tr("Arrêter") else tr("Écouter"), tint = if (on) cs.onPrimary else cs.primary, modifier = Modifier.size(20.dp))
                 }
                 Spacer(Modifier.width(10.dp))
                 Column(Modifier.weight(1f)) {
                     Text(m.name, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = cs.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text("${m.notes.size} notes · ${fmtMelodyDur(m.durationMs)} · ${instrLabel(m.instr)}", fontSize = 11.5.sp, color = muted())
+                    Text(trn(m.notes.size, "{0} note · {1} · {2}", "{0} notes · {1} · {2}", fmtMelodyDur(m.durationMs), instrLabel(m.instr)), fontSize = 11.5.sp, color = muted())
                 }
                 Box {
-                    IconButton(onClick = { menu = true }, modifier = Modifier.size(36.dp)) { Icon(Icons.Filled.MoreVert, "Options", tint = muted(.6f)) }
+                    IconButton(onClick = { menu = true }, modifier = Modifier.size(36.dp)) { Icon(Icons.Filled.MoreVert, tr("Options"), tint = muted(.6f)) }
                     DropdownMenu(menu, { menu = false }) {
-                        DropdownMenuItem(text = { Text("✏️ Modifier") }, onClick = { menu = false; Melodies.stop(); editing = m })
-                        DropdownMenuItem(text = { Text("📋 Copier") }, onClick = { menu = false; copyText(ctx, "${m.name} : ${Melodies.toText(m.notes, lines = true)}") })
-                        DropdownMenuItem(text = { Text("📤 Partager") }, onClick = {
+                        DropdownMenuItem(text = { Text(tr("✏️ Modifier")) }, onClick = { menu = false; Melodies.stop(); editing = m })
+                        DropdownMenuItem(text = { Text(tr("📋 Copier")) }, onClick = { menu = false; copyText(ctx, "${m.name} : ${Melodies.toText(m.notes, lines = true)}") })
+                        DropdownMenuItem(text = { Text(tr("📤 Partager")) }, onClick = {
                             menu = false
-                            val t = "${m.name} : ${Melodies.toText(m.notes, lines = true)}\n\n🎹 à jouer sur Di-Allô"
-                            try { ctx.startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, t), "Partager la mélodie")) } catch (_: Throwable) { }
+                            val t = "${m.name} : ${Melodies.toText(m.notes, lines = true)}\n\n" + tr("🎹 à jouer sur Di-Allô")
+                            try { ctx.startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, t), tr("Partager la mélodie"))) } catch (_: Throwable) { }
                         })
-                        DropdownMenuItem(text = { Text("🗑️ Supprimer", color = RecRed) }, onClick = { menu = false; Melodies.delete(ctx, m.id) })
+                        DropdownMenuItem(text = { Text(tr("🗑️ Supprimer"), color = RecRed) }, onClick = { menu = false; Melodies.delete(ctx, m.id) })
                     }
                 }
             }
@@ -115,8 +115,8 @@ internal fun MelodyLibrary(modifier: Modifier = Modifier) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(Modifier.weight(1f)) {
-                    Text("📖 Recueil · ${Melodies.SONGBOOK.size} airs du domaine public", fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = cs.primary)
-                    if (!bookClosed) Text("▶ écouter avec ton instrument · ＋ ajouter à tes mélodies", fontSize = 11.sp, color = muted(.55f))
+                    Text(tr("📖 Recueil · {0} airs du domaine public", Melodies.SONGBOOK.size), fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = cs.primary)
+                    if (!bookClosed) Text(tr("▶ écouter avec ton instrument · ＋ ajouter à tes mélodies"), fontSize = 11.sp, color = muted(.55f))
                 }
                 Chevron(bookClosed)
             }
@@ -127,18 +127,18 @@ internal fun MelodyLibrary(modifier: Modifier = Modifier) {
             val on = playing == pid
             val notes = remember(i) { p.notes }
             Row(
-                Modifier.fillMaxWidth().clickable { if (on) Melodies.stop() else Melodies.play(pid, p.name, Synth.currentId, notes) }.padding(horizontal = 12.dp, vertical = 4.dp),
+                Modifier.fillMaxWidth().clickable { if (on) Melodies.stop() else Melodies.play(pid, Melodies.title(p), Synth.currentId, notes) }.padding(horizontal = 12.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(Modifier.size(32.dp).clip(CircleShape).background(if (on) cs.primary else cs.surfaceVariant), contentAlignment = Alignment.Center) {
-                    Icon(if (on) Icons.Filled.Stop else Icons.Filled.PlayArrow, if (on) "Arrêter" else "Écouter", tint = if (on) cs.onPrimary else cs.onSurface, modifier = Modifier.size(18.dp))
+                    Icon(if (on) Icons.Filled.Stop else Icons.Filled.PlayArrow, if (on) tr("Arrêter") else tr("Écouter"), tint = if (on) cs.onPrimary else cs.onSurface, modifier = Modifier.size(18.dp))
                 }
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
-                    Text(p.name, fontWeight = FontWeight.Medium, fontSize = 13.5.sp, color = cs.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text("${notes.size} notes · ${fmtMelodyDur((notes.lastOrNull()?.t ?: 0) + 400)}", fontSize = 11.sp, color = muted())
+                    Text(Melodies.title(p), fontWeight = FontWeight.Medium, fontSize = 13.5.sp, color = cs.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(trn(notes.size, "{0} note · {1}", "{0} notes · {1}", fmtMelodyDur((notes.lastOrNull()?.t ?: 0) + 400)), fontSize = 11.sp, color = muted())
                 }
-                TextButton(onClick = { Melodies.add(ctx, p.name, Synth.currentId, notes); Toast.makeText(ctx, "« ${p.name} » ajoutée 🎼", Toast.LENGTH_SHORT).show() }) { Text("＋", fontSize = 18.sp) }
+                TextButton(onClick = { val title = Melodies.title(p); Melodies.add(ctx, title, Synth.currentId, notes); Toast.makeText(ctx, tr("« {0} » ajoutée 🎼", title), Toast.LENGTH_SHORT).show() }) { Text("＋", fontSize = 18.sp) }
             }
         }
         item { Text(Melodies.LEGEND, fontSize = 10.5.sp, color = muted(.4f), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(10.dp)) }
@@ -187,7 +187,7 @@ internal fun KaraokeDisplay(h: Dp) {
             Text("🎶 ${name ?: ""}", fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold, color = cs.primary, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
             Text("${(idx + 1).coerceAtLeast(0)} / ${notes.size}", fontSize = 11.5.sp, color = muted(.55f))
             Spacer(Modifier.width(6.dp))
-            Icon(Icons.Filled.Stop, "Arrêter", tint = cs.primary, modifier = Modifier.size(22.dp).clip(CircleShape).clickable { Melodies.stop() })
+            Icon(Icons.Filled.Stop, tr("Arrêter"), tint = cs.primary, modifier = Modifier.size(22.dp).clip(CircleShape).clickable { Melodies.stop() })
         }
         Text(shown, fontSize = 30.sp, letterSpacing = 3.sp, fontFamily = FontFamily.Monospace, maxLines = 1, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
         if (nextLine.isNotBlank()) Text(nextLine.take(30), fontSize = 12.sp, fontFamily = FontFamily.Monospace, color = muted(.35f), maxLines = 1, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
@@ -209,10 +209,10 @@ internal fun MelodyFromTextDialog(onDone: () -> Unit) {
     val notes = remember(digits, step) { Melodies.fromText(digits, step.toInt()) }
     AlertDialog(
         onDismissRequest = { Melodies.stop(); onDone() },
-        title = { Text("⌨️ Mélodie en chiffres") },
+        title = { Text(tr("⌨️ Mélodie en chiffres")) },
         text = {
             Column {
-                OutlinedTextField(name, { name = it }, label = { Text("Nom") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(name, { name = it }, label = { Text(tr("Nom")) }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 Spacer(Modifier.height(8.dp))
                 OutlinedTextField(
                     digits, { v ->
@@ -220,33 +220,33 @@ internal fun MelodyFromTextDialog(onDone: () -> Unit) {
                         if (v.contains(':')) { val (n, d) = Melodies.parsePasted(v); n?.let { name = it }; digits = d }
                         else digits = v.replace("\r", "").filter { it.toString() in Melodies.VALID || it == ' ' || it == '\n' }
                     },
-                    label = { Text("Touches") }, placeholder = { Text("ex. 624 624 687") },
+                    label = { Text(tr("Touches")) }, placeholder = { Text(tr("ex. 624 624 687")) },
                     textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Monospace, fontSize = 17.sp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone), maxLines = 7,
                     modifier = Modifier.fillMaxWidth()
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
-                        Text("Espace = pause · retour à la ligne = pause aussi", fontSize = 11.5.sp, color = muted(.55f))
+                        Text(tr("Espace = pause · retour à la ligne = pause aussi"), fontSize = 11.5.sp, color = muted(.55f))
                         Text(Melodies.LEGEND, fontSize = 10.5.sp, color = muted(.45f))
                     }
                     TextButton(onClick = {
                         val clip = (ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).primaryClip
                         val t = clip?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.coerceToText(ctx)?.toString().orEmpty()
-                        if (t.isBlank()) Toast.makeText(ctx, "Presse-papiers vide", Toast.LENGTH_SHORT).show()
+                        if (t.isBlank()) Toast.makeText(ctx, tr("Presse-papiers vide"), Toast.LENGTH_SHORT).show()
                         else { val (n, d) = Melodies.parsePasted(t); n?.let { name = it }; digits = d }
-                    }) { Text("📋 Coller") }
+                    }) { Text(tr("📋 Coller")) }
                 }
                 Spacer(Modifier.height(10.dp))
-                Text("Tempo : ${(60000 / step).toInt()} notes / min", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
+                Text(tr("Tempo : {0} notes / min", (60000 / step).toInt()), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
                 Slider(step, { step = it }, valueRange = 120f..700f)
                 TextButton(enabled = notes.isNotEmpty(), onClick = { if (playing == -2L) Melodies.stop() else Melodies.play(-2L, name, instr, notes) }) {
                     Icon(if (playing == -2L) Icons.Filled.Stop else Icons.Filled.PlayArrow, null, Modifier.size(18.dp)); Spacer(Modifier.width(4.dp))
-                    Text(if (playing == -2L) "Arrêter" else "Écouter (${instrLabel(instr)})")
+                    Text(if (playing == -2L) tr("Arrêter") else tr("Écouter ({0})", instrLabel(instr)))
                 }
             }
         },
-        confirmButton = { Button(enabled = notes.isNotEmpty(), onClick = { Melodies.stop(); Melodies.add(ctx, name, instr, notes); onDone() }) { Text("Garder") } },
-        dismissButton = { TextButton(onClick = { Melodies.stop(); onDone() }) { Text("Annuler") } }
+        confirmButton = { Button(enabled = notes.isNotEmpty(), onClick = { Melodies.stop(); Melodies.add(ctx, name, instr, notes); onDone() }) { Text(tr("Garder")) } },
+        dismissButton = { TextButton(onClick = { Melodies.stop(); onDone() }) { Text(tr("Annuler")) } }
     )
 }

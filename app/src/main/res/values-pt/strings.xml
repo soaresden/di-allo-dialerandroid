@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_desc">Os teus favoritos: um toque para ligar</string>
+    <string name="widget_fav_label">Di-Allô · Favoritos</string>
+    <string name="widget_contact_label">Di-Allô · Contacto</string>
+    <string name="widget_contact_desc">Um contacto no ecrã inicial: um toque para ligar</string>
+</resources>

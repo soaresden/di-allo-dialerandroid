@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_desc">Your favourites: one tap to call</string>
+    <string name="widget_fav_label">Di-Allô · Favourites</string>
+    <string name="widget_contact_label">Di-Allô · Contact</string>
+    <string name="widget_contact_desc">One contact on your home screen: one tap to call</string>
+</resources>

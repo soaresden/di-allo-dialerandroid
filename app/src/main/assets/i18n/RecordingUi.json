@@ -1,0 +1,282 @@
+{
+  "Écouter": {
+    "en": "Listen",
+    "es": "Escuchar",
+    "de": "Anhören",
+    "it": "Ascolta",
+    "pt": "Ouvir"
+  },
+  "Supprimer": {
+    "en": "Delete",
+    "es": "Eliminar",
+    "de": "Löschen",
+    "it": "Elimina",
+    "pt": "Excluir"
+  },
+  "🎙️ Enregistrements ({0})": {
+    "en": "🎙️ Recordings ({0})",
+    "es": "🎙️ Grabaciones ({0})",
+    "de": "🎙️ Aufnahmen ({0})",
+    "it": "🎙️ Registrazioni ({0})",
+    "pt": "🎙️ Gravações ({0})"
+  },
+  "Moins": {
+    "en": "Less",
+    "es": "Menos",
+    "de": "Weniger",
+    "it": "Meno",
+    "pt": "Menos"
+  },
+  "Voir les {0}": {
+    "en": "See all {0}",
+    "es": "Ver las {0}",
+    "de": "Alle {0} anzeigen",
+    "it": "Vedi tutte le {0}",
+    "pt": "Ver as {0}"
+  },
+  "Chercher un contact, un numéro…": {
+    "en": "Search a contact, a number…",
+    "es": "Buscar un contacto, un número…",
+    "de": "Kontakt oder Nummer suchen…",
+    "it": "Cerca un contatto, un numero…",
+    "pt": "Pesquisar um contato, um número…"
+  },
+  "Effacer": {
+    "en": "Clear",
+    "es": "Borrar",
+    "de": "Löschen",
+    "it": "Cancella",
+    "pt": "Limpar"
+  },
+  "Par contact": {
+    "en": "By contact",
+    "es": "Por contacto",
+    "de": "Nach Kontakt",
+    "it": "Per contatto",
+    "pt": "Por contato"
+  },
+  "Par date": {
+    "en": "By date",
+    "es": "Por fecha",
+    "de": "Nach Datum",
+    "it": "Per data",
+    "pt": "Por data"
+  },
+  "{0} enregistrement": {
+    "en": "{0} recording",
+    "es": "{0} grabación",
+    "de": "{0} Aufnahme",
+    "it": "{0} registrazione",
+    "pt": "{0} gravação"
+  },
+  "{0} enregistrements": {
+    "en": "{0} recordings",
+    "es": "{0} grabaciones",
+    "de": "{0} Aufnahmen",
+    "it": "{0} registrazioni",
+    "pt": "{0} gravações"
+  },
+  "{0} correspondant": {
+    "en": "{0} contact",
+    "es": "{0} interlocutor",
+    "de": "{0} Gesprächspartner",
+    "it": "{0} interlocutore",
+    "pt": "{0} interlocutor"
+  },
+  "{0} correspondants": {
+    "en": "{0} contacts",
+    "es": "{0} interlocutores",
+    "de": "{0} Gesprächspartner",
+    "it": "{0} interlocutori",
+    "pt": "{0} interlocutores"
+  },
+  "Réglages": {
+    "en": "Settings",
+    "es": "Ajustes",
+    "de": "Einstellungen",
+    "it": "Impostazioni",
+    "pt": "Configurações"
+  },
+  "Lecture des enregistrements…": {
+    "en": "Reading recordings…",
+    "es": "Leyendo grabaciones…",
+    "de": "Aufnahmen werden gelesen…",
+    "it": "Lettura delle registrazioni…",
+    "pt": "Lendo gravações…"
+  },
+  "Aucun enregistrement.\nPendant un appel, touche 🔴 Enregistrer (à activer dans Réglages › Pendant l'appel › Enregistrement).": {
+    "en": "No recordings.\nDuring a call, tap 🔴 Record (turn it on in Settings › During the call › Recording).",
+    "es": "Ninguna grabación.\nDurante una llamada, toca 🔴 Grabar (actívalo en Ajustes › Durante la llamada › Grabación).",
+    "de": "Keine Aufnahmen.\nTippe während eines Anrufs auf 🔴 Aufnehmen (aktivieren unter Einstellungen › Während des Anrufs › Aufnahme).",
+    "it": "Nessuna registrazione.\nDurante una chiamata, tocca 🔴 Registra (da attivare in Impostazioni › Durante la chiamata › Registrazione).",
+    "pt": "Nenhuma gravação.\nDurante uma chamada, toque em 🔴 Gravar (ative em Configurações › Durante a chamada › Gravação)."
+  },
+  "{0} enregistrement · dernier {1}": {
+    "en": "{0} recording · last {1}",
+    "es": "{0} grabación · última {1}",
+    "de": "{0} Aufnahme · zuletzt {1}",
+    "it": "{0} registrazione · ultima {1}",
+    "pt": "{0} gravação · última {1}"
+  },
+  "{0} enregistrements · dernier {1}": {
+    "en": "{0} recordings · last {1}",
+    "es": "{0} grabaciones · última {1}",
+    "de": "{0} Aufnahmen · zuletzt {1}",
+    "it": "{0} registrazioni · ultima {1}",
+    "pt": "{0} gravações · última {1}"
+  },
+  "Appeler": {
+    "en": "Call",
+    "es": "Llamar",
+    "de": "Anrufen",
+    "it": "Chiama",
+    "pt": "Ligar"
+  },
+  "Supprimer l'enregistrement ?": {
+    "en": "Delete this recording?",
+    "es": "¿Eliminar la grabación?",
+    "de": "Aufnahme löschen?",
+    "it": "Eliminare la registrazione?",
+    "pt": "Excluir a gravação?"
+  },
+  "Le fichier sera effacé du dossier Rec.": {
+    "en": "The file will be erased from the Rec folder.",
+    "es": "El archivo se borrará de la carpeta Rec.",
+    "de": "Die Datei wird aus dem Ordner Rec gelöscht.",
+    "it": "Il file verrà cancellato dalla cartella Rec.",
+    "pt": "O arquivo será apagado da pasta Rec."
+  },
+  "Suppression impossible": {
+    "en": "Couldn't delete",
+    "es": "No se pudo eliminar",
+    "de": "Löschen nicht möglich",
+    "it": "Impossibile eliminare",
+    "pt": "Não foi possível excluir"
+  },
+  "Annuler": {
+    "en": "Cancel",
+    "es": "Cancelar",
+    "de": "Abbrechen",
+    "it": "Annulla",
+    "pt": "Cancelar"
+  },
+  "Lecture impossible de ce fichier.": {
+    "en": "This file can't be played.",
+    "es": "No se puede reproducir este archivo.",
+    "de": "Diese Datei kann nicht abgespielt werden.",
+    "it": "Impossibile riprodurre questo file.",
+    "pt": "Não é possível reproduzir este arquivo."
+  },
+  "Fichier illisible ou plus accessible.": {
+    "en": "File unreadable or no longer accessible.",
+    "es": "Archivo ilegible o ya no accesible.",
+    "de": "Datei unlesbar oder nicht mehr zugänglich.",
+    "it": "File illeggibile o non più accessibile.",
+    "pt": "Arquivo ilegível ou não mais acessível."
+  },
+  "Reculer de 10 s": {
+    "en": "Back 10 s",
+    "es": "Retroceder 10 s",
+    "de": "10 s zurück",
+    "it": "Indietro di 10 s",
+    "pt": "Voltar 10 s"
+  },
+  "Pause": {
+    "en": "Pause",
+    "es": "Pausa",
+    "de": "Pause",
+    "it": "Pausa",
+    "pt": "Pausar"
+  },
+  "Lecture": {
+    "en": "Play",
+    "es": "Reproducir",
+    "de": "Abspielen",
+    "it": "Riproduci",
+    "pt": "Reproduzir"
+  },
+  "Avancer de 10 s": {
+    "en": "Forward 10 s",
+    "es": "Avanzar 10 s",
+    "de": "10 s vor",
+    "it": "Avanti di 10 s",
+    "pt": "Avançar 10 s"
+  },
+  "Partager l'enregistrement": {
+    "en": "Share recording",
+    "es": "Compartir grabación",
+    "de": "Aufnahme teilen",
+    "it": "Condividi registrazione",
+    "pt": "Compartilhar gravação"
+  },
+  "📤 Partager": {
+    "en": "📤 Share",
+    "es": "📤 Compartir",
+    "de": "📤 Teilen",
+    "it": "📤 Condividi",
+    "pt": "📤 Compartilhar"
+  },
+  "🗑️ Supprimer": {
+    "en": "🗑️ Delete",
+    "es": "🗑️ Eliminar",
+    "de": "🗑️ Löschen",
+    "it": "🗑️ Elimina",
+    "pt": "🗑️ Excluir"
+  },
+  "Les enregistrements sont rangés dans ton dossier, sous Rec/ (aaaa-mm-jj-hhmmss-NOM.mp3), et s'affichent avec les appels (🎙️), sur la fiche du contact et dans l'onglet REC.": {
+    "en": "Recordings are stored in your folder, under Rec/ (yyyy-mm-dd-hhmmss-NAME.mp3), and show up with the calls (🎙️), on the contact's page and in the REC tab.",
+    "es": "Las grabaciones se guardan en tu carpeta, en Rec/ (aaaa-mm-dd-hhmmss-NOMBRE.mp3), y aparecen con las llamadas (🎙️), en la ficha del contacto y en la pestaña REC.",
+    "de": "Aufnahmen werden in deinem Ordner unter Rec/ (jjjj-mm-tt-hhmmss-NAME.mp3) abgelegt und erscheinen bei den Anrufen (🎙️), auf der Kontaktseite und im Tab REC.",
+    "it": "Le registrazioni sono salvate nella tua cartella, in Rec/ (aaaa-mm-gg-hhmmss-NOME.mp3), e compaiono con le chiamate (🎙️), nella scheda del contatto e nella scheda REC.",
+    "pt": "As gravações ficam na sua pasta, em Rec/ (aaaa-mm-dd-hhmmss-NOME.mp3), e aparecem junto às chamadas (🎙️), na ficha do contato e na aba REC."
+  },
+  "⚠️ Choisis d'abord un dossier de travail (Réglages › Sauvegardes) : Rec/ y sera créé.": {
+    "en": "⚠️ First choose a working folder (Settings › Backups): Rec/ will be created there.",
+    "es": "⚠️ Elige primero una carpeta de trabajo (Ajustes › Copias de seguridad): allí se creará Rec/.",
+    "de": "⚠️ Wähle zuerst einen Arbeitsordner (Einstellungen › Sicherungen): Rec/ wird dort angelegt.",
+    "it": "⚠️ Scegli prima una cartella di lavoro (Impostazioni › Backup): Rec/ verrà creata lì.",
+    "pt": "⚠️ Escolha primeiro uma pasta de trabalho (Configurações › Backups): Rec/ será criada nela."
+  },
+  "Dossier Rec": {
+    "en": "Rec folder",
+    "es": "Carpeta Rec",
+    "de": "Ordner Rec",
+    "it": "Cartella Rec",
+    "pt": "Pasta Rec"
+  },
+  "{0} relié à un appel": {
+    "en": "{0} linked to a call",
+    "es": "{0} vinculada a una llamada",
+    "de": "{0} mit einem Anruf verknüpft",
+    "it": "{0} collegata a una chiamata",
+    "pt": "{0} vinculada a uma chamada"
+  },
+  "{0} reliés à un appel": {
+    "en": "{0} linked to a call",
+    "es": "{0} vinculadas a una llamada",
+    "de": "{0} mit einem Anruf verknüpft",
+    "it": "{0} collegate a una chiamata",
+    "pt": "{0} vinculadas a uma chamada"
+  },
+  "Lecture…": {
+    "en": "Reading…",
+    "es": "Leyendo…",
+    "de": "Wird gelesen…",
+    "it": "Lettura…",
+    "pt": "Lendo…"
+  },
+  "🔄 Relire le dossier": {
+    "en": "🔄 Rescan folder",
+    "es": "🔄 Volver a leer la carpeta",
+    "de": "🔄 Ordner neu einlesen",
+    "it": "🔄 Rileggi la cartella",
+    "pt": "🔄 Reler a pasta"
+  },
+  "⚖️ Enregistrer un appel pour soi est toléré ; le diffuser sans l'accord de l'autre personne est interdit. Préviens ton correspondant.": {
+    "en": "⚖️ Recording a call for yourself is tolerated; sharing it without the other person's consent is forbidden. Let the other person know.",
+    "es": "⚖️ Grabar una llamada para uno mismo se tolera; difundirla sin el consentimiento de la otra persona está prohibido. Avisa a tu interlocutor.",
+    "de": "⚖️ Einen Anruf für sich selbst aufzunehmen wird geduldet; ihn ohne Zustimmung der anderen Person weiterzugeben ist verboten. Sag deinem Gesprächspartner Bescheid.",
+    "it": "⚖️ Registrare una chiamata per sé è tollerato; diffonderla senza il consenso dell'altra persona è vietato. Avvisa il tuo interlocutore.",
+    "pt": "⚖️ Gravar uma chamada para si é tolerado; divulgá-la sem o consentimento da outra pessoa é proibido. Avise o seu interlocutor."
+  }
+}

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import fr.soaresden.diallo.Recordings
+import fr.soaresden.diallo.tr
 import java.io.BufferedReader
 import java.io.File
 import java.io.IOException
@@ -68,7 +69,7 @@ object CallRecorder {
             if (attempt > 0) Thread.sleep(2000)
             if (AdbLauncher.run(ctx, launchCommand(ctx))) {
                 repeat(30) { Thread.sleep(200); if (serverVersion(ctx) == RecServer.VERSION) return true }
-                AdbLauncher.lastError = "Le service ne répond pas"
+                AdbLauncher.lastError = tr("Le service ne répond pas")
             }
         }
         return false
@@ -100,14 +101,14 @@ object CallRecorder {
             val tmp = File(ctx.cacheDir, "rec-$t0.mp3")
             var ok = false
             try {
-                if (!ensureServer(ctx)) throw IOException(AdbLauncher.lastError ?: "Service d'enregistrement injoignable")
+                if (!ensureServer(ctx)) throw IOException(AdbLauncher.lastError ?: tr("Service d'enregistrement injoignable"))
                 if (halted) return
                 val s = Socket(); sock = s
                 s.connect(InetSocketAddress("127.0.0.1", port(ctx)), 1500)
                 s.getOutputStream().write("${token(ctx)} REC $HZ\n".toByteArray())
                 val inp = s.getInputStream()
-                val head = line(inp) ?: throw IOException("Pas de réponse du service")
-                if (!head.startsWith("OK")) throw IOException(head.removePrefix("ERR").trim().ifEmpty { "Refusé" })
+                val head = line(inp) ?: throw IOException(tr("Pas de réponse du service"))
+                if (!head.startsWith("OK")) throw IOException(head.removePrefix("ERR").trim().ifEmpty { tr("Refusé") })
                 since.longValue = System.currentTimeMillis(); CallRecorder.state.value = CallRecorder.State.ON
                 ok = encode(inp, tmp)
             } catch (t: Throwable) {
@@ -116,7 +117,7 @@ object CallRecorder {
                 try { sock?.close() } catch (_: Throwable) { }
                 if (ok && tmp.length() > 2048) {
                     val name = Recordings.store(ctx, tmp, t0, who, number) ?: keepLocally(tmp)
-                    lastSaved.value = name; message.value = name?.let { "✅ Enregistré : $it" } ?: "⚠️ Impossible d'enregistrer le fichier"
+                    lastSaved.value = name; message.value = name?.let { tr("✅ Enregistré : {0}", it) } ?: tr("⚠️ Impossible d'enregistrer le fichier")
                 }
                 tmp.delete()
                 session = null; CallRecorder.state.value = CallRecorder.State.IDLE; since.longValue = 0L

@@ -1,0 +1,21 @@
+{
+  "Numérotation rapide · touche {0}": { "en": "Speed dial · key {0}", "es": "Marcación rápida · tecla {0}", "de": "Kurzwahl · Taste {0}", "it": "Selezione rapida · tasto {0}", "pt": "Marcação rápida · tecla {0}" },
+  "Appui long sur {0} : appelle {1}": { "en": "Long-press {0}: calls {1}", "es": "Mantén pulsado {0}: llama a {1}", "de": "{0} lange drücken: ruft {1} an", "it": "Tieni premuto {0}: chiama {1}", "pt": "Mantém premido {0}: liga a {1}" },
+  "⭐ Favoris": { "en": "⭐ Favorites", "es": "⭐ Favoritos", "de": "⭐ Favoriten", "it": "⭐ Preferiti", "pt": "⭐ Favoritos" },
+  "Aucun favori. Mets une étoile à un contact dans l'app Contacts.": { "en": "No favorites. Star a contact in the Contacts app.", "es": "Sin favoritos. Marca un contacto con estrella en la app Contactos.", "de": "Keine Favoriten. Markiere einen Kontakt in der Kontakte-App mit einem Stern.", "it": "Nessun preferito. Metti una stella a un contatto nell'app Contatti.", "pt": "Sem favoritos. Marca um contacto com estrela na app Contactos." },
+  "Fréquents": { "en": "Frequent", "es": "Frecuentes", "de": "Häufig", "it": "Frequenti", "pt": "Frequentes" },
+  "Tes contacts fréquents apparaîtront ici.": { "en": "Your frequent contacts will appear here.", "es": "Tus contactos frecuentes aparecerán aquí.", "de": "Deine häufigen Kontakte erscheinen hier.", "it": "I tuoi contatti frequenti appariranno qui.", "pt": "Os teus contactos frequentes vão aparecer aqui." },
+  "Contact trouvé": { "en": "Contact found", "es": "Contacto encontrado", "de": "Kontakt gefunden", "it": "Contatto trovato", "pt": "Contacto encontrado" },
+  "Aucun contact ne correspond": { "en": "No matching contact", "es": "Ningún contacto coincide", "de": "Kein passender Kontakt", "it": "Nessun contatto corrisponde", "pt": "Nenhum contacto corresponde" },
+  "60+ résultats": { "en": "60+ results", "es": "60+ resultados", "de": "60+ Treffer", "it": "60+ risultati", "pt": "60+ resultados" },
+  "{0} résultat": { "en": "{0} result", "es": "{0} resultado", "de": "{0} Treffer", "it": "{0} risultato", "pt": "{0} resultado" },
+  "{0} résultats": { "en": "{0} results", "es": "{0} resultados", "de": "{0} Treffer", "it": "{0} risultati", "pt": "{0} resultados" },
+  "Saisis un numéro ou un nom (T9)": { "en": "Type a number or a name (T9)", "es": "Escribe un número o un nombre (T9)", "de": "Nummer oder Namen eingeben (T9)", "it": "Digita un numero o un nome (T9)", "pt": "Escreve um número ou um nome (T9)" },
+  "Créer un contact": { "en": "Create contact", "es": "Crear contacto", "de": "Kontakt erstellen", "it": "Crea contatto", "pt": "Criar contacto" },
+  "PAUSE": { "en": "PAUSE", "es": "PAUSA", "de": "PAUSE", "it": "PAUSA", "pt": "PAUSA" },
+  "Garder la composition": { "en": "Keep the composition", "es": "Guardar la composición", "de": "Komposition behalten", "it": "Tieni la composizione", "pt": "Guardar a composição" },
+  "MODE COMPOSEUR · joue !": { "en": "COMPOSER MODE · play!", "es": "MODO COMPOSITOR · ¡toca!", "de": "KOMPONIERMODUS · spiel!", "it": "MODALITÀ COMPOSITORE · suona!", "pt": "MODO COMPOSITOR · toca!" },
+  "COMPOSEUR · {0} note · {1}": { "en": "COMPOSER · {0} note · {1}", "es": "COMPOSITOR · {0} nota · {1}", "de": "KOMPONIST · {0} Note · {1}", "it": "COMPOSITORE · {0} nota · {1}", "pt": "COMPOSITOR · {0} nota · {1}" },
+  "COMPOSEUR · {0} notes · {1}": { "en": "COMPOSER · {0} notes · {1}", "es": "COMPOSITOR · {0} notas · {1}", "de": "KOMPONIST · {0} Noten · {1}", "it": "COMPOSITORE · {0} note · {1}", "pt": "COMPOSITOR · {0} notas · {1}" },
+  "␣ pause · ⌫ corriger": { "en": "␣ pause · ⌫ undo", "es": "␣ pausa · ⌫ corregir", "de": "␣ Pause · ⌫ korrigieren", "it": "␣ pausa · ⌫ correggi", "pt": "␣ pausa · ⌫ corrigir" }
+}

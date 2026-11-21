@@ -1,0 +1,751 @@
+{
+  "7 j": {
+    "en": "7 d",
+    "es": "7 d",
+    "de": "7 T",
+    "it": "7 g",
+    "pt": "7 d"
+  },
+  "30 j": {
+    "en": "30 d",
+    "es": "30 d",
+    "de": "30 T",
+    "it": "30 g",
+    "pt": "30 d"
+  },
+  "3 mois": {
+    "en": "3 mo",
+    "es": "3 meses",
+    "de": "3 Mon.",
+    "it": "3 mesi",
+    "pt": "3 meses"
+  },
+  "1 an": {
+    "en": "1 yr",
+    "es": "1 año",
+    "de": "1 Jahr",
+    "it": "1 anno",
+    "pt": "1 ano"
+  },
+  "Tout": {
+    "en": "All",
+    "es": "Todo",
+    "de": "Alles",
+    "it": "Tutto",
+    "pt": "Tudo"
+  },
+  "7 derniers jours": {
+    "en": "Last 7 days",
+    "es": "Últimos 7 días",
+    "de": "Letzte 7 Tage",
+    "it": "Ultimi 7 giorni",
+    "pt": "Últimos 7 dias"
+  },
+  "30 derniers jours": {
+    "en": "Last 30 days",
+    "es": "Últimos 30 días",
+    "de": "Letzte 30 Tage",
+    "it": "Ultimi 30 giorni",
+    "pt": "Últimos 30 dias"
+  },
+  "3 derniers mois": {
+    "en": "Last 3 months",
+    "es": "Últimos 3 meses",
+    "de": "Letzte 3 Monate",
+    "it": "Ultimi 3 mesi",
+    "pt": "Últimos 3 meses"
+  },
+  "12 derniers mois": {
+    "en": "Last 12 months",
+    "es": "Últimos 12 meses",
+    "de": "Letzte 12 Monate",
+    "it": "Ultimi 12 mesi",
+    "pt": "Últimos 12 meses"
+  },
+  "Depuis le début": {
+    "en": "Since the beginning",
+    "es": "Desde el principio",
+    "de": "Seit Beginn",
+    "it": "Dall'inizio",
+    "pt": "Desde o início"
+  },
+  "Année {0}": {
+    "en": "Year {0}",
+    "es": "Año {0}",
+    "de": "Jahr {0}",
+    "it": "Anno {0}",
+    "pt": "Ano {0}"
+  },
+  "Semaine du {0}": {
+    "en": "Week of {0}",
+    "es": "Semana del {0}",
+    "de": "Woche vom {0}",
+    "it": "Settimana del {0}",
+    "pt": "Semana de {0}"
+  },
+  "Le plus vieil appel": {
+    "en": "The oldest call",
+    "es": "La llamada más antigua",
+    "de": "Der älteste Anruf",
+    "it": "La chiamata più vecchia",
+    "pt": "A chamada mais antiga"
+  },
+  "{0} · il y a {1} · {2}": {
+    "en": "{0} · {1} ago · {2}",
+    "es": "{0} · hace {1} · {2}",
+    "de": "{0} · vor {1} · {2}",
+    "it": "{0} · {1} fa · {2}",
+    "pt": "{0} · há {1} · {2}"
+  },
+  "La personne la plus ghostée": {
+    "en": "The most ghosted person",
+    "es": "La persona más ignorada",
+    "de": "Die am meisten geghostete Person",
+    "it": "La persona più ignorata",
+    "pt": "A pessoa mais ignorada"
+  },
+  "Tu as ignoré {0} de ses {1} appels ({2} %)": {
+    "en": "You ignored {0} of their {1} calls ({2}%)",
+    "es": "Ignoraste {0} de sus {1} llamadas ({2} %)",
+    "de": "Du hast {0} von {1} Anrufen ignoriert ({2} %)",
+    "it": "Hai ignorato {0} delle sue {1} chiamate ({2}%)",
+    "pt": "Ignoraste {0} das {1} chamadas ({2}%)"
+  },
+  "Celle/celui qui te ghoste": {
+    "en": "The one who ghosts you",
+    "es": "Quien te ignora",
+    "de": "Wer dich ghostet",
+    "it": "Chi ti ignora",
+    "pt": "Quem te ignora"
+  },
+  "{0} appel sans réponse sur {1} ({2} %)": {
+    "en": "{0} unanswered call out of {1} ({2}%)",
+    "es": "{0} llamada sin respuesta de {1} ({2} %)",
+    "de": "{0} unbeantworteter Anruf von {1} ({2} %)",
+    "it": "{0} chiamata senza risposta su {1} ({2}%)",
+    "pt": "{0} chamada sem resposta de {1} ({2}%)"
+  },
+  "{0} appels sans réponse sur {1} ({2} %)": {
+    "en": "{0} unanswered calls out of {1} ({2}%)",
+    "es": "{0} llamadas sin respuesta de {1} ({2} %)",
+    "de": "{0} unbeantwortete Anrufe von {1} ({2} %)",
+    "it": "{0} chiamate senza risposta su {1} ({2}%)",
+    "pt": "{0} chamadas sem resposta de {1} ({2}%)"
+  },
+  "Le/la plus bavard·e": {
+    "en": "The chattiest",
+    "es": "El/la más charlatán/a",
+    "de": "Die größte Plaudertasche",
+    "it": "Il/la più chiacchierone",
+    "pt": "O/a mais falador(a)"
+  },
+  "{0} en moyenne sur {1} appels": {
+    "en": "{0} on average over {1} calls",
+    "es": "{0} de media en {1} llamadas",
+    "de": "{0} im Schnitt bei {1} Anrufen",
+    "it": "{0} in media su {1} chiamate",
+    "pt": "{0} em média em {1} chamadas"
+  },
+  "Le marathon": {
+    "en": "The marathon",
+    "es": "El maratón",
+    "de": "Der Marathon",
+    "it": "La maratona",
+    "pt": "A maratona"
+  },
+  "avec {0} · {1}": {
+    "en": "with {0} · {1}",
+    "es": "con {0} · {1}",
+    "de": "mit {0} · {1}",
+    "it": "con {0} · {1}",
+    "pt": "com {0} · {1}"
+  },
+  "C'est toujours toi qui appelles": {
+    "en": "You're always the one calling",
+    "es": "Siempre llamas tú",
+    "de": "Du rufst immer an",
+    "it": "Chiami sempre tu",
+    "pt": "És sempre tu a ligar"
+  },
+  "{0} % des appels viennent de toi ({1} vs {2})": {
+    "en": "{0}% of calls come from you ({1} vs {2})",
+    "es": "El {0} % de las llamadas son tuyas ({1} vs {2})",
+    "de": "{0} % der Anrufe kommen von dir ({1} vs. {2})",
+    "it": "Il {0}% delle chiamate parte da te ({1} vs {2})",
+    "pt": "{0}% das chamadas são tuas ({1} vs {2})"
+  },
+  "Elle/il t'appelle, tu rappelles jamais": {
+    "en": "They call, you never call back",
+    "es": "Te llama y nunca devuelves la llamada",
+    "de": "Sie rufen an, du nie zurück",
+    "it": "Ti chiama, tu non richiami mai",
+    "pt": "Liga-te e nunca devolves a chamada"
+  },
+  "{0} appels reçus pour {1} passés": {
+    "en": "{0} received vs {1} made",
+    "es": "{0} recibidas frente a {1} hechas",
+    "de": "{0} erhalten, {1} getätigt",
+    "it": "{0} ricevute contro {1} effettuate",
+    "pt": "{0} recebidas para {1} feitas"
+  },
+  "Le retour de flamme": {
+    "en": "The comeback",
+    "es": "El reencuentro",
+    "de": "Das Comeback",
+    "it": "Il ritorno di fiamma",
+    "pt": "O regresso"
+  },
+  "Revenu·e après {0} de silence ({1})": {
+    "en": "Back after {0} of silence ({1})",
+    "es": "De vuelta tras {0} de silencio ({1})",
+    "de": "Zurück nach {0} Funkstille ({1})",
+    "it": "Tornato/a dopo {0} di silenzio ({1})",
+    "pt": "De volta após {0} de silêncio ({1})"
+  },
+  "Fidèle au poste": {
+    "en": "Always there",
+    "es": "Siempre ahí",
+    "de": "Immer treu",
+    "it": "Sempre presente",
+    "pt": "Sempre fiel"
+  },
+  "Depuis {0} · {1} appels": {
+    "en": "Since {0} · {1} calls",
+    "es": "Desde {0} · {1} llamadas",
+    "de": "Seit {0} · {1} Anrufe",
+    "it": "Dal {0} · {1} chiamate",
+    "pt": "Desde {0} · {1} chamadas"
+  },
+  "Oiseau de nuit": {
+    "en": "Night owl",
+    "es": "Ave nocturna",
+    "de": "Nachteule",
+    "it": "Nottambulo",
+    "pt": "Ave noturna"
+  },
+  "{0} appel entre minuit et 5 h": {
+    "en": "{0} call between midnight and 5 am",
+    "es": "{0} llamada entre medianoche y las 5",
+    "de": "{0} Anruf zwischen Mitternacht und 5 Uhr",
+    "it": "{0} chiamata tra mezzanotte e le 5",
+    "pt": "{0} chamada entre a meia-noite e as 5h"
+  },
+  "{0} appels entre minuit et 5 h": {
+    "en": "{0} calls between midnight and 5 am",
+    "es": "{0} llamadas entre medianoche y las 5",
+    "de": "{0} Anrufe zwischen Mitternacht und 5 Uhr",
+    "it": "{0} chiamate tra mezzanotte e le 5",
+    "pt": "{0} chamadas entre a meia-noite e as 5h"
+  },
+  "Complice principal : {0} ({1})": {
+    "en": "Main accomplice: {0} ({1})",
+    "es": "Cómplice principal: {0} ({1})",
+    "de": "Hauptkomplize: {0} ({1})",
+    "it": "Complice principale: {0} ({1})",
+    "pt": "Cúmplice principal: {0} ({1})"
+  },
+  "Le plus matinal": {
+    "en": "The early bird",
+    "es": "El más madrugador",
+    "de": "Der Frühaufsteher",
+    "it": "Il più mattiniero",
+    "pt": "O mais madrugador"
+  },
+  "{0} h {1}": {
+    "en": "{0}:{1}",
+    "es": "{0}:{1}",
+    "de": "{0}:{1} Uhr",
+    "it": "{0}:{1}",
+    "pt": "{0}h{1}"
+  },
+  "Jour record": {
+    "en": "Record day",
+    "es": "Día récord",
+    "de": "Rekordtag",
+    "it": "Giorno record",
+    "pt": "Dia recorde"
+  },
+  "{0} · surtout avec {1}": {
+    "en": "{0} · mostly with {1}",
+    "es": "{0} · sobre todo con {1}",
+    "de": "{0} · vor allem mit {1}",
+    "it": "{0} · soprattutto con {1}",
+    "pt": "{0} · sobretudo com {1}"
+  },
+  "Plus longue série": {
+    "en": "Longest streak",
+    "es": "Racha más larga",
+    "de": "Längste Serie",
+    "it": "Serie più lunga",
+    "pt": "Maior sequência"
+  },
+  "{0} jour d'affilée": {
+    "en": "{0} day in a row",
+    "es": "{0} día seguido",
+    "de": "{0} Tag am Stück",
+    "it": "{0} giorno di fila",
+    "pt": "{0} dia seguido"
+  },
+  "{0} jours d'affilée": {
+    "en": "{0} days in a row",
+    "es": "{0} días seguidos",
+    "de": "{0} Tage am Stück",
+    "it": "{0} giorni di fila",
+    "pt": "{0} dias seguidos"
+  },
+  "au téléphone chaque jour, jusqu'au {0}": {
+    "en": "on the phone every day, until {0}",
+    "es": "al teléfono cada día, hasta el {0}",
+    "de": "jeden Tag am Telefon, bis {0}",
+    "it": "al telefono ogni giorno, fino al {0}",
+    "pt": "ao telefone todos os dias, até {0}"
+  },
+  "Inconnus": {
+    "en": "Strangers",
+    "es": "Desconocidos",
+    "de": "Unbekannte",
+    "it": "Sconosciuti",
+    "pt": "Desconhecidos"
+  },
+  "{0} appel hors contacts": {
+    "en": "{0} call from non-contacts",
+    "es": "{0} llamada fuera de contactos",
+    "de": "{0} Anruf außerhalb der Kontakte",
+    "it": "{0} chiamata fuori dai contatti",
+    "pt": "{0} chamada fora dos contactos"
+  },
+  "{0} appels hors contacts": {
+    "en": "{0} calls from non-contacts",
+    "es": "{0} llamadas fuera de contactos",
+    "de": "{0} Anrufe außerhalb der Kontakte",
+    "it": "{0} chiamate fuori dai contatti",
+    "pt": "{0} chamadas fora dos contactos"
+  },
+  "dont {0} en numéro masqué": {
+    "en": "including {0} from private numbers",
+    "es": "de ellas {0} con número oculto",
+    "de": "davon {0} mit unterdrückter Nummer",
+    "it": "di cui {0} da numero privato",
+    "pt": "das quais {0} de número privado"
+  },
+  "aucun numéro masqué": {
+    "en": "no private numbers",
+    "es": "ningún número oculto",
+    "de": "keine unterdrückte Nummer",
+    "it": "nessun numero privato",
+    "pt": "nenhum número privado"
+  },
+  "Globe-trotter": {
+    "en": "Globetrotter",
+    "es": "Trotamundos",
+    "de": "Weltenbummler",
+    "it": "Giramondo",
+    "pt": "Viajante"
+  },
+  "{0} pays étranger": {
+    "en": "{0} foreign country",
+    "es": "{0} país extranjero",
+    "de": "{0} Ausland",
+    "it": "{0} paese estero",
+    "pt": "{0} país estrangeiro"
+  },
+  "{0} pays étrangers": {
+    "en": "{0} foreign countries",
+    "es": "{0} países extranjeros",
+    "de": "{0} Länder im Ausland",
+    "it": "{0} paesi esteri",
+    "pt": "{0} países estrangeiros"
+  },
+  "Surtout {0} {1} ({2})": {
+    "en": "Mostly {0} {1} ({2})",
+    "es": "Sobre todo {0} {1} ({2})",
+    "de": "Vor allem {0} {1} ({2})",
+    "it": "Soprattutto {0} {1} ({2})",
+    "pt": "Sobretudo {0} {1} ({2})"
+  },
+  "Temps passé au téléphone": {
+    "en": "Time spent on the phone",
+    "es": "Tiempo al teléfono",
+    "de": "Zeit am Telefon",
+    "it": "Tempo al telefono",
+    "pt": "Tempo ao telefone"
+  },
+  "soit environ {0} films de 1 h 30": {
+    "en": "about {0} 90-minute movies",
+    "es": "unas {0} películas de hora y media",
+    "de": "etwa {0} Filme à 90 Minuten",
+    "it": "circa {0} film da un'ora e mezza",
+    "pt": "cerca de {0} filmes de hora e meia"
+  },
+  "Tes habitudes": {
+    "en": "Your habits",
+    "es": "Tus hábitos",
+    "de": "Deine Gewohnheiten",
+    "it": "Le tue abitudini",
+    "pt": "Os teus hábitos"
+  },
+  "Le {0}, vers {1} h": {
+    "en": "On {0}, around {1}:00",
+    "es": "Los {0}, hacia las {1} h",
+    "de": "Am {0}, gegen {1} Uhr",
+    "it": "{0}, verso le {1}",
+    "pt": "{0}, por volta das {1}h"
+  },
+  "{0} appel un {1}": {
+    "en": "{0} call on a {1}",
+    "es": "{0} llamada un {1}",
+    "de": "{0} Anruf an einem {1}",
+    "it": "{0} chiamata di {1}",
+    "pt": "{0} chamada · {1}"
+  },
+  "{0} appels un {1}": {
+    "en": "{0} calls on a {1}",
+    "es": "{0} llamadas un {1}",
+    "de": "{0} Anrufe an einem {1}",
+    "it": "{0} chiamate di {1}",
+    "pt": "{0} chamadas · {1}"
+  },
+  "Pas de données : accorde l'accès au journal d'appels.": {
+    "en": "No data: grant access to the call log.",
+    "es": "Sin datos: permite el acceso al registro de llamadas.",
+    "de": "Keine Daten: Erlaube den Zugriff auf die Anrufliste.",
+    "it": "Nessun dato: consenti l'accesso al registro chiamate.",
+    "pt": "Sem dados: permite o acesso ao registo de chamadas."
+  },
+  "Masqué / court": {
+    "en": "Private / short",
+    "es": "Oculto / corto",
+    "de": "Unterdrückt / kurz",
+    "it": "Privato / breve",
+    "pt": "Privado / curto"
+  },
+  "Ton Di-Allô Wrapped": {
+    "en": "Your Di-Allô Wrapped",
+    "es": "Tu Di-Allô Wrapped",
+    "de": "Dein Di-Allô Wrapped",
+    "it": "Il tuo Di-Allô Wrapped",
+    "pt": "O teu Di-Allô Wrapped"
+  },
+  "Ton année au téléphone, en stories": {
+    "en": "Your year on the phone, as stories",
+    "es": "Tu año al teléfono, en historias",
+    "de": "Dein Telefonjahr als Stories",
+    "it": "Il tuo anno al telefono, in storie",
+    "pt": "O teu ano ao telefone, em stories"
+  },
+  "📊 Résumé": {
+    "en": "📊 Summary",
+    "es": "📊 Resumen",
+    "de": "📊 Übersicht",
+    "it": "📊 Riepilogo",
+    "pt": "📊 Resumo"
+  },
+  "au total": {
+    "en": "in total",
+    "es": "en total",
+    "de": "insgesamt",
+    "it": "in totale",
+    "pt": "no total"
+  },
+  "en moyenne": {
+    "en": "on average",
+    "es": "de media",
+    "de": "im Schnitt",
+    "it": "in media",
+    "pt": "em média"
+  },
+  "par jour": {
+    "en": "per day",
+    "es": "al día",
+    "de": "pro Tag",
+    "it": "al giorno",
+    "pt": "por dia"
+  },
+  "Sortants": {
+    "en": "Outgoing",
+    "es": "Salientes",
+    "de": "Ausgehend",
+    "it": "In uscita",
+    "pt": "Efetuadas"
+  },
+  "Entrants": {
+    "en": "Incoming",
+    "es": "Entrantes",
+    "de": "Eingehend",
+    "it": "In entrata",
+    "pt": "Recebidas"
+  },
+  "Manqués": {
+    "en": "Missed",
+    "es": "Perdidas",
+    "de": "Verpasst",
+    "it": "Perse",
+    "pt": "Perdidas"
+  },
+  "✅ Tu réponds à {0} % des appels reçus · 👥 {1}": {
+    "en": "✅ You answer {0}% of incoming calls · 👥 {1}",
+    "es": "✅ Respondes al {0} % de las llamadas recibidas · 👥 {1}",
+    "de": "✅ Du nimmst {0} % der Anrufe an · 👥 {1}",
+    "it": "✅ Rispondi al {0}% delle chiamate ricevute · 👥 {1}",
+    "pt": "✅ Atendes {0}% das chamadas recebidas · 👥 {1}"
+  },
+  "📈 Activité": {
+    "en": "📈 Activity",
+    "es": "📈 Actividad",
+    "de": "📈 Aktivität",
+    "it": "📈 Attività",
+    "pt": "📈 Atividade"
+  },
+  "touche une barre": {
+    "en": "tap a bar",
+    "es": "toca una barra",
+    "de": "tippe auf einen Balken",
+    "it": "tocca una barra",
+    "pt": "toca numa barra"
+  },
+  "🌍 Origine": {
+    "en": "🌍 Origin",
+    "es": "🌍 Origen",
+    "de": "🌍 Herkunft",
+    "it": "🌍 Origine",
+    "pt": "🌍 Origem"
+  },
+  "Pays": {
+    "en": "Country",
+    "es": "País",
+    "de": "Land",
+    "it": "Paese",
+    "pt": "País"
+  },
+  "Type": {
+    "en": "Type",
+    "es": "Tipo",
+    "de": "Typ",
+    "it": "Tipo",
+    "pt": "Tipo"
+  },
+  "Région": {
+    "en": "Region",
+    "es": "Región",
+    "de": "Region",
+    "it": "Regione",
+    "pt": "Região"
+  },
+  "{0} pays différent": {
+    "en": "{0} country",
+    "es": "{0} país",
+    "de": "{0} Land",
+    "it": "{0} paese",
+    "pt": "{0} país"
+  },
+  "{0} pays différents": {
+    "en": "{0} different countries",
+    "es": "{0} países distintos",
+    "de": "{0} verschiedene Länder",
+    "it": "{0} paesi diversi",
+    "pt": "{0} países diferentes"
+  },
+  "Aucun fixe français sur la période.": {
+    "en": "No French landlines in this period.",
+    "es": "Ningún fijo francés en este periodo.",
+    "de": "Keine französischen Festnetznummern im Zeitraum.",
+    "it": "Nessun fisso francese nel periodo.",
+    "pt": "Nenhum fixo francês no período."
+  },
+  "Rien sur la période.": {
+    "en": "Nothing in this period.",
+    "es": "Nada en este periodo.",
+    "de": "Nichts im Zeitraum.",
+    "it": "Niente nel periodo.",
+    "pt": "Nada no período."
+  },
+  "⏰ Habitudes": {
+    "en": "⏰ Habits",
+    "es": "⏰ Hábitos",
+    "de": "⏰ Gewohnheiten",
+    "it": "⏰ Abitudini",
+    "pt": "⏰ Hábitos"
+  },
+  "Heures": {
+    "en": "Hours",
+    "es": "Horas",
+    "de": "Stunden",
+    "it": "Ore",
+    "pt": "Horas"
+  },
+  "Jours": {
+    "en": "Days",
+    "es": "Días",
+    "de": "Tage",
+    "it": "Giorni",
+    "pt": "Dias"
+  },
+  "🏆 Classements": {
+    "en": "🏆 Rankings",
+    "es": "🏆 Clasificaciones",
+    "de": "🏆 Ranglisten",
+    "it": "🏆 Classifiche",
+    "pt": "🏆 Classificações"
+  },
+  "Top": {
+    "en": "Top",
+    "es": "Top",
+    "de": "Top",
+    "it": "Top",
+    "pt": "Top"
+  },
+  "Durée": {
+    "en": "Duration",
+    "es": "Duración",
+    "de": "Dauer",
+    "it": "Durata",
+    "pt": "Duração"
+  },
+  "Ghostés": {
+    "en": "Ghosted",
+    "es": "Ignorados",
+    "de": "Geghostet",
+    "it": "Ignorati",
+    "pt": "Ignorados"
+  },
+  "Oubliés": {
+    "en": "Forgotten",
+    "es": "Olvidados",
+    "de": "Vergessen",
+    "it": "Dimenticati",
+    "pt": "Esquecidos"
+  },
+  "Rien à signaler ici.": {
+    "en": "Nothing to report here.",
+    "es": "Nada que destacar aquí.",
+    "de": "Hier gibt es nichts zu melden.",
+    "it": "Niente da segnalare qui.",
+    "pt": "Nada a assinalar aqui."
+  },
+  "🎉 Faits marrants": {
+    "en": "🎉 Fun facts",
+    "es": "🎉 Datos curiosos",
+    "de": "🎉 Lustige Fakten",
+    "it": "🎉 Curiosità",
+    "pt": "🎉 Curiosidades"
+  },
+  "Voir {0} autre": {
+    "en": "See {0} more",
+    "es": "Ver {0} más",
+    "de": "{0} weiteren anzeigen",
+    "it": "Vedi altro {0}",
+    "pt": "Ver mais {0}"
+  },
+  "Voir les {0} autres": {
+    "en": "See {0} more",
+    "es": "Ver los {0} restantes",
+    "de": "{0} weitere anzeigen",
+    "it": "Vedi gli altri {0}",
+    "pt": "Ver os outros {0}"
+  },
+  "📚 Données comptées": {
+    "en": "📚 Data counted",
+    "es": "📚 Datos contados",
+    "de": "📚 Gezählte Daten",
+    "it": "📚 Dati conteggiati",
+    "pt": "📚 Dados contados"
+  },
+  "{0} appel du journal, du {1} à aujourd'hui. Tous sont pris en compte.": {
+    "en": "{0} call in the log, from {1} to today. All are counted.",
+    "es": "{0} llamada del registro, del {1} a hoy. Todas se tienen en cuenta.",
+    "de": "{0} Anruf in der Liste, vom {1} bis heute. Alle werden gezählt.",
+    "it": "{0} chiamata nel registro, dal {1} a oggi. Tutte sono conteggiate.",
+    "pt": "{0} chamada do registo, de {1} até hoje. Todas são contadas."
+  },
+  "{0} appels du journal, du {1} à aujourd'hui. Tous sont pris en compte.": {
+    "en": "{0} calls in the log, from {1} to today. All are counted.",
+    "es": "{0} llamadas del registro, del {1} a hoy. Todas se tienen en cuenta.",
+    "de": "{0} Anrufe in der Liste, vom {1} bis heute. Alle werden gezählt.",
+    "it": "{0} chiamate nel registro, dal {1} a oggi. Tutte sono conteggiate.",
+    "pt": "{0} chamadas do registo, de {1} até hoje. Todas são contadas."
+  },
+  "Les années absentes ne sont pas dans le journal du téléphone{0}. Si tu as une sauvegarde plus ancienne (XML « SMS Backup & Restore »), importe-la dans Réglages › Sauvegardes : les appels manquants y sont ajoutés, puis comptés ici.": {
+    "en": "Missing years aren't in the phone's call log{0}. If you have an older backup (\"SMS Backup & Restore\" XML), import it in Settings › Backups: missing calls are added, then counted here.",
+    "es": "Los años que faltan no están en el registro del teléfono{0}. Si tienes una copia más antigua (XML «SMS Backup & Restore»), impórtala en Ajustes › Copias de seguridad: las llamadas que faltan se añaden y se cuentan aquí.",
+    "de": "Fehlende Jahre sind nicht in der Anrufliste des Telefons{0}. Hast du eine ältere Sicherung (XML „SMS Backup & Restore“), importiere sie unter Einstellungen › Sicherungen: Fehlende Anrufe werden ergänzt und hier mitgezählt.",
+    "it": "Gli anni mancanti non sono nel registro del telefono{0}. Se hai un backup più vecchio (XML «SMS Backup & Restore»), importalo in Impostazioni › Backup: le chiamate mancanti vengono aggiunte e poi conteggiate qui.",
+    "pt": "Os anos em falta não estão no registo do telefone{0}. Se tiveres uma cópia mais antiga (XML «SMS Backup & Restore»), importa-a em Definições › Cópias de segurança: as chamadas em falta são adicionadas e contadas aqui."
+  },
+  " (il commence en {0})": {
+    "en": " (it starts in {0})",
+    "es": " (empieza en {0})",
+    "de": " (sie beginnt {0})",
+    "it": " (inizia nel {0})",
+    "pt": " (começa em {0})"
+  },
+  "Aucun appel avec ce contact.": {
+    "en": "No calls with this contact.",
+    "es": "Ninguna llamada con este contacto.",
+    "de": "Keine Anrufe mit diesem Kontakt.",
+    "it": "Nessuna chiamata con questo contatto.",
+    "pt": "Nenhuma chamada com este contacto."
+  },
+  "Appels": {
+    "en": "Calls",
+    "es": "Llamadas",
+    "de": "Anrufe",
+    "it": "Chiamate",
+    "pt": "Chamadas"
+  },
+  "Durée totale": {
+    "en": "Total time",
+    "es": "Duración total",
+    "de": "Gesamtdauer",
+    "it": "Durata totale",
+    "pt": "Duração total"
+  },
+  "Moyenne": {
+    "en": "Average",
+    "es": "Media",
+    "de": "Schnitt",
+    "it": "Media",
+    "pt": "Média"
+  },
+  "Premier appel": {
+    "en": "First call",
+    "es": "Primera llamada",
+    "de": "Erster Anruf",
+    "it": "Prima chiamata",
+    "pt": "Primeira chamada"
+  },
+  "Dernier": {
+    "en": "Last",
+    "es": "Última",
+    "de": "Letzter",
+    "it": "Ultima",
+    "pt": "Última"
+  },
+  "Réponds à": {
+    "en": "You answer",
+    "es": "Respondes",
+    "de": "Du nimmst an",
+    "it": "Rispondi",
+    "pt": "Atendes"
+  },
+  "Te répond": {
+    "en": "They answer",
+    "es": "Te responde",
+    "de": "Nimmt an",
+    "it": "Ti risponde",
+    "pt": "Atende-te"
+  },
+  "Plus long": {
+    "en": "Longest",
+    "es": "Más larga",
+    "de": "Längster",
+    "it": "Più lunga",
+    "pt": "Mais longa"
+  },
+  "Derniers appels": {
+    "en": "Recent calls",
+    "es": "Últimas llamadas",
+    "de": "Letzte Anrufe",
+    "it": "Ultime chiamate",
+    "pt": "Últimas chamadas"
+  }
+}

@@ -46,6 +46,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         CrashLog.install(this)
+        I18n.init(this)
         DataFolder.init(this)
         takeTab(intent)
         setContent { App() }
@@ -120,10 +121,10 @@ private fun Root(theme: String, onTheme: (String) -> Unit) {
         AlertDialog(
             onDismissRequest = { pending = null },
             icon = { Icon(Icons.Filled.Call, null, tint = CallGreen) },
-            title = { Text("Appeler ?") },
+            title = { Text(tr("Appeler ?")) },
             text = { Column { Text(displayOf(num), fontWeight = FontWeight.SemiBold, fontSize = 17.sp); if (displayOf(num) != num) Text(phoneText(num), fontSize = 13.sp, color = muted()) } },
-            confirmButton = { Button(onClick = { placeCall(ctx, num); pending = null }, colors = ButtonDefaults.buttonColors(containerColor = CallGreen, contentColor = Color.White)) { Icon(Icons.Filled.Call, null, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text("Appeler") } },
-            dismissButton = { TextButton(onClick = { pending = null }) { Text("Annuler") } }
+            confirmButton = { Button(onClick = { placeCall(ctx, num); pending = null }, colors = ButtonDefaults.buttonColors(containerColor = CallGreen, contentColor = Color.White)) { Icon(Icons.Filled.Call, null, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text(tr("Appeler")) } },
+            dismissButton = { TextButton(onClick = { pending = null }) { Text(tr("Annuler")) } }
         )
     }
     if (wrapped) { WrappedScreen(data.calls, data.contacts) { wrapped = false }; return }
@@ -146,9 +147,9 @@ private fun Root(theme: String, onTheme: (String) -> Unit) {
             NavigationBar(containerColor = MaterialTheme.colorScheme.surface, tonalElevation = 0.dp) {
                 // id d'onglet stable (le widget ouvre 2, l'appel en cours 0) ; REC = 6, affiché avant Réglages s'il sert
                 val tabs = listOfNotNull(
-                    Triple(0, "Clavier", Icons.Filled.Dialpad), Triple(1, "Récents", Icons.Filled.Schedule), Triple(2, "Contacts", Icons.Filled.Person),
-                    Triple(3, "Notes", Icons.Filled.EditNote), Triple(4, "Stats", Icons.Filled.BarChart),
-                    if (showRec) Triple(6, "REC", Icons.Filled.Mic) else null, Triple(5, "Réglages", Icons.Filled.Settings)
+                    Triple(0, tr("Clavier"), Icons.Filled.Dialpad), Triple(1, tr("Récents"), Icons.Filled.Schedule), Triple(2, tr("Contacts"), Icons.Filled.Person),
+                    Triple(3, tr("Notes"), Icons.Filled.EditNote), Triple(4, tr("Stats"), Icons.Filled.BarChart),
+                    if (showRec) Triple(6, "REC", Icons.Filled.Mic) else null, Triple(5, tr("Réglages"), Icons.Filled.Settings)
                 )
                 tabs.forEach { (i, label, icon) ->
                     NavigationBarItem(
@@ -166,9 +167,9 @@ private fun Root(theme: String, onTheme: (String) -> Unit) {
         Column(Modifier.padding(pad).fillMaxSize()) {
             CallBanner()
             Header()
-            if (!isDefault) Banner(MaterialTheme.colorScheme.primaryContainer, "Définir Di-Allô comme téléphone par défaut", "Activer") { requestDefault() }
-            if (!granted) Banner(MaterialTheme.colorScheme.surfaceVariant, "Autoriser le journal d'appels et les contacts", "Autoriser") { permLauncher.launch(PERMS) }
-            recProblem?.let { Banner(MaterialTheme.colorScheme.surfaceVariant, it, "Régler") { fr.soaresden.diallo.rec.RecHealth.wizard.value = true } }
+            if (!isDefault) Banner(MaterialTheme.colorScheme.primaryContainer, tr("Définir Di-Allô comme téléphone par défaut"), tr("Activer")) { requestDefault() }
+            if (!granted) Banner(MaterialTheme.colorScheme.surfaceVariant, tr("Autoriser le journal d'appels et les contacts"), tr("Autoriser")) { permLauncher.launch(PERMS) }
+            recProblem?.let { Banner(MaterialTheme.colorScheme.surfaceVariant, it, tr("Régler")) { fr.soaresden.diallo.rec.RecHealth.wizard.value = true } }
             when (tab) {
                 0 -> DialScreen(confirm, { callVoicemail(ctx) }, data.contacts, frequent)
                 1 -> RecentsList(data.calls, confirm, onDeleted = { refresh++ }) { detail = it }
@@ -211,12 +212,12 @@ private fun CallBanner() {
     LaunchedEffect(Unit) { while (true) { now = System.currentTimeMillis(); kotlinx.coroutines.delay(1000) } }
     val ct = c.details?.connectTimeMillis ?: 0L
     val number = c.details?.handle?.schemeSpecificPart ?: ""
-    val name = contact?.first ?: if (number.isBlank()) "Numéro masqué" else displayNumber(number)
+    val name = contact?.first ?: if (number.isBlank()) tr("Numéro masqué") else displayNumber(number)
     val t = when {
-        state == android.telecom.Call.STATE_RINGING -> "appel entrant"
-        state == android.telecom.Call.STATE_HOLDING -> "en attente"
+        state == android.telecom.Call.STATE_RINGING -> tr("appel entrant")
+        state == android.telecom.Call.STATE_HOLDING -> tr("en attente")
         state == android.telecom.Call.STATE_ACTIVE && ct > 0 -> ((now - ct) / 1000).coerceAtLeast(0).let { "%02d:%02d".format(it / 60, it % 60) }
-        else -> "appel…"
+        else -> tr("appel…")
     }
     Surface(
         color = CallGreen, shape = RoundedCornerShape(14.dp),
@@ -227,10 +228,10 @@ private fun CallBanner() {
             Icon(Icons.Filled.Call, null, tint = Color.White, modifier = Modifier.size(18.dp)); Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
                 Text(name, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text("En cours · $t · touche pour revenir", color = Color.White.copy(alpha = .85f), fontSize = 12.sp, maxLines = 1)
+                Text(tr("En cours · {0} · touche pour revenir", t), color = Color.White.copy(alpha = .85f), fontSize = 12.sp, maxLines = 1)
             }
             Box(Modifier.size(38.dp).clip(CircleShape).background(Red).clickable { HyperInCallService.hangup() }, contentAlignment = Alignment.Center) {
-                Icon(Icons.Filled.CallEnd, "Raccrocher", tint = Color.White, modifier = Modifier.size(20.dp))
+                Icon(Icons.Filled.CallEnd, tr("Raccrocher"), tint = Color.White, modifier = Modifier.size(20.dp))
             }
         }
     }
@@ -258,10 +259,43 @@ private fun RecentsList(calls: List<CallRepository.CallEntry>, onConfirm: (Strin
     // appels supprimés : masqués tout de suite, avant le rechargement du journal
     val gone = remember { mutableStateListOf<Long>() }
     val shownCalls = remember(calls, gone.size) { if (gone.isEmpty()) calls else calls.filter { it.id !in gone } }
-    if (shownCalls.isEmpty()) { Empty("Aucun appel dans le journal."); return }
+    if (shownCalls.isEmpty()) { Empty(tr("Aucun appel dans le journal.")); return }
     val groups = remember(shownCalls) { shownCalls.groupBy { bucket(it.date) }.toSortedMap() }
     // Les périodes anciennes sont repliées par défaut (des milliers d'appels depuis 2008)
     val states = RECENT_LABELS.indices.map { i -> rememberCollapsed("recent_$i", default = i >= 3) }
+    // sélection multiple pour supprimer plusieurs appels d'un coup
+    val sel = remember { mutableStateListOf<Long>() }
+    val selecting = sel.isNotEmpty()
+    var askDelete by remember { mutableStateOf(false) }
+    androidx.activity.compose.BackHandler(enabled = selecting) { sel.clear() }
+    fun toggle(id: Long) { if (id < 0) return; if (id in sel) sel.remove(id) else sel.add(id) }
+    if (askDelete) AlertDialog(
+        onDismissRequest = { askDelete = false },
+        title = { Text(trn(sel.size, "Supprimer {0} appel ?", "Supprimer {0} appels ?")) },
+        text = { Text(tr("Ils seront effacés du journal du téléphone.")) },
+        confirmButton = {
+            Button(onClick = {
+                askDelete = false
+                val ids = sel.toList(); sel.clear(); gone.addAll(ids)
+                scope.launch {
+                    val ok = withContext(Dispatchers.IO) { ids.count { CallRepository.deleteCall(ctx, it) } }
+                    if (ok == 0) { gone.removeAll(ids); android.widget.Toast.makeText(ctx, tr("Impossible : Di-Allô doit être l'appli Téléphone par défaut"), android.widget.Toast.LENGTH_LONG).show() }
+                    else { android.widget.Toast.makeText(ctx, trn(ok, "{0} appel supprimé", "{0} appels supprimés"), android.widget.Toast.LENGTH_SHORT).show(); onDeleted() }
+                }
+            }, colors = ButtonDefaults.buttonColors(containerColor = Red, contentColor = Color.White)) { Text(tr("Supprimer")) }
+        },
+        dismissButton = { TextButton(onClick = { askDelete = false }) { Text(tr("Annuler")) } }
+    )
+    Column(Modifier.fillMaxSize()) {
+    if (selecting) Surface(color = MaterialTheme.colorScheme.primaryContainer, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp)) {
+        Row(Modifier.padding(start = 6.dp, end = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = { sel.clear() }) { Icon(Icons.Filled.Close, tr("Annuler")) }
+            Text(trn(sel.size, "{0} sélectionné", "{0} sélectionnés"), fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+            Button(onClick = { askDelete = true }, colors = ButtonDefaults.buttonColors(containerColor = Red, contentColor = Color.White), contentPadding = PaddingValues(horizontal = 14.dp, vertical = 4.dp)) {
+                Icon(Icons.Filled.Delete, null, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text(tr("Supprimer"))
+            }
+        }
+    }
     LazyColumn(Modifier.fillMaxSize().padding(horizontal = 12.dp)) {
         groups.forEach { (b, list) ->
             val st = states[b]
@@ -272,8 +306,13 @@ private fun RecentsList(calls: List<CallRepository.CallEntry>, onConfirm: (Strin
                         .clip(RoundedCornerShape(10.dp)).clickable { st.value = !st.value }.padding(horizontal = 6.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(RECENT_LABELS[b], fontWeight = FontWeight.Bold, fontSize = 13.sp, color = MaterialTheme.colorScheme.primary, modifier = Modifier.weight(1f))
-                    if (missed > 0) Text("$missed manqué${if (missed > 1) "s" else ""}  ", fontSize = 11.5.sp, color = Red)
+                    if (selecting) {
+                        val ids = list.map { it.id }.filter { it >= 0 }
+                        val all = ids.isNotEmpty() && ids.all { it in sel }
+                        Checkbox(all, { on -> if (on) ids.forEach { if (it !in sel) sel.add(it) } else sel.removeAll(ids) }, Modifier.size(32.dp))
+                    }
+                    Text(tr(RECENT_LABELS[b]), fontWeight = FontWeight.Bold, fontSize = 13.sp, color = MaterialTheme.colorScheme.primary, modifier = Modifier.weight(1f))
+                    if (missed > 0) Text(trn(missed, "{0} manqué", "{0} manqués") + "  ", fontSize = 11.5.sp, color = Red)
                     Text("${list.size}", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = muted())
                     Spacer(Modifier.width(4.dp)); Chevron(st.value)
                 }
@@ -284,19 +323,19 @@ private fun RecentsList(calls: List<CallRepository.CallEntry>, onConfirm: (Strin
                 var menu by remember { mutableStateOf(false) }
                 Box {
                 DropdownMenu(menu, { menu = false }) {
-                    DropdownMenuItem(text = { Text("📊 Fiche de ${row.display}") }, onClick = { menu = false; onDetail(keyOf(row.number).ifEmpty { row.number }) })
-                    Recordings.byCall.value[row.id]?.let { r -> DropdownMenuItem(text = { Text("🎙️ Écouter l'enregistrement") }, onClick = { menu = false; Recordings.open.value = r to row.display }) }
-                    DropdownMenuItem(text = { Text("🗑️ Supprimer cet appel", color = Red) }, enabled = row.id >= 0, onClick = {
+                    DropdownMenuItem(text = { Text(tr("📊 Fiche de {0}", row.display)) }, onClick = { menu = false; onDetail(keyOf(row.number).ifEmpty { row.number }) })
+                    Recordings.byCall.value[row.id]?.let { r -> DropdownMenuItem(text = { Text(tr("🎙️ Écouter l'enregistrement")) }, onClick = { menu = false; Recordings.open.value = r to row.display }) }
+                    if (row.number.any { it.isDigit() }) DropdownMenuItem(text = { Text("📌 " + tr("Sur l'écran d'accueil")) }, onClick = {
                         menu = false
-                        gone.add(row.id)
-                        scope.launch {
-                            val ok = withContext(Dispatchers.IO) { CallRepository.deleteCall(ctx, row.id) }
-                            if (!ok) { gone.remove(row.id); android.widget.Toast.makeText(ctx, "Impossible : Di-Allô doit être l'appli Téléphone par défaut", android.widget.Toast.LENGTH_LONG).show() }
-                            else { android.widget.Toast.makeText(ctx, "Appel supprimé", android.widget.Toast.LENGTH_SHORT).show(); onDeleted() }
-                        }
+                        if (!WidgetPrefs.pinContact(ctx, Pick(row.display, row.number, row.photoUri))) android.widget.Toast.makeText(ctx, tr("Ton écran d'accueil ne permet pas d'ajouter le widget depuis l'appli : appui long sur l'écran d'accueil › Widgets › Di-Allô."), android.widget.Toast.LENGTH_LONG).show()
                     })
+                    DropdownMenuItem(text = { Text("☑️ " + tr("Sélectionner pour supprimer"), color = Red) }, enabled = row.id >= 0, onClick = { menu = false; toggle(row.id) })
                 }
-                Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).combinedClickable(onClick = { onConfirm(row.number) }, onLongClick = { menu = true }).padding(vertical = 9.dp, horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                val picked = row.id in sel
+                Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(if (picked) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
+                    .combinedClickable(onClick = { if (selecting) toggle(row.id) else onConfirm(row.number) }, onLongClick = { if (selecting) toggle(row.id) else menu = true })
+                    .padding(vertical = 9.dp, horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                    if (selecting) { Checkbox(picked, { toggle(row.id) }, Modifier.size(32.dp), enabled = row.id >= 0); Spacer(Modifier.width(4.dp)) }
                     Avatar(row.display, row.photoUri); Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
                         Text(row.display, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis, color = if (isMissed) Red else MaterialTheme.colorScheme.onBackground)
@@ -314,13 +353,14 @@ private fun RecentsList(calls: List<CallRepository.CallEntry>, onConfirm: (Strin
         }
         item { Spacer(Modifier.height(12.dp)) }
     }
+    }
 }
 
 /* ---------- Helpers ---------- */
 private val PERMS = arrayOf(Manifest.permission.READ_CALL_LOG, Manifest.permission.WRITE_CALL_LOG, Manifest.permission.READ_CONTACTS, Manifest.permission.READ_PHONE_STATE, Manifest.permission.CALL_PHONE, Manifest.permission.POST_NOTIFICATIONS)
 private fun hasPerms(c: Context): Boolean = ContextCompat.checkSelfPermission(c, Manifest.permission.READ_CALL_LOG) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(c, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED
 private fun isDefaultDialer(c: Context): Boolean = c.getSystemService(RoleManager::class.java)?.isRoleHeld(RoleManager.ROLE_DIALER) == true
-private fun placeCall(c: Context, number: String) { try { val a = if (ContextCompat.checkSelfPermission(c, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) Intent.ACTION_CALL else Intent.ACTION_DIAL; c.startActivity(Intent(a, Uri.parse("tel:" + Uri.encode(number))).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) } catch (_: Throwable) {} }
+internal fun placeCall(c: Context, number: String) { try { val a = if (ContextCompat.checkSelfPermission(c, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) Intent.ACTION_CALL else Intent.ACTION_DIAL; c.startActivity(Intent(a, Uri.parse("tel:" + Uri.encode(number))).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) } catch (_: Throwable) {} }
 private fun callVoicemail(c: Context) { try { val a = if (ContextCompat.checkSelfPermission(c, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) Intent.ACTION_CALL else Intent.ACTION_DIAL; c.startActivity(Intent(a, Uri.fromParts("voicemail", "", null)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) } catch (_: Throwable) {} }
 
 /** Revérifie l'enregistreur après l'assistant (hors fil principal). */

@@ -49,19 +49,19 @@ internal fun NotesScreen(contacts: List<CallRepository.Contact>, onCall: (String
 
     Column(Modifier.fillMaxSize().padding(horizontal = 14.dp)) {
         OutlinedTextField(
-            q, { q = it }, Modifier.fillMaxWidth(), placeholder = { Text("Chercher dans les notes, un nom, un numéro…") }, singleLine = true,
+            q, { q = it }, Modifier.fillMaxWidth(), placeholder = { Text(tr("Chercher dans les notes, un nom, un numéro…")) }, singleLine = true,
             shape = RoundedCornerShape(16.dp), leadingIcon = { Icon(Icons.Filled.Search, null) },
-            trailingIcon = { if (q.isNotEmpty()) IconButton(onClick = { q = "" }) { Icon(Icons.Filled.Close, "Effacer") } }
+            trailingIcon = { if (q.isNotEmpty()) IconButton(onClick = { q = "" }) { Icon(Icons.Filled.Close, tr("Effacer")) } }
         )
         Spacer(Modifier.height(8.dp))
-        Segmented(listOf("🕘 Récentes", "👤 Par contact"), mode, { mode = it })
+        Segmented(listOf(tr("🕘 Récentes"), tr("👤 Par contact")), mode, { mode = it })
         Spacer(Modifier.height(6.dp))
         Text(
-            if (q.isBlank()) "${all.size} note${if (all.size > 1) "s" else ""}" else "${shown.size} résultat${if (shown.size > 1) "s" else ""} sur ${all.size}",
+            if (q.isBlank()) trn(all.size, "{0} note", "{0} notes") else trn(shown.size, "{0} résultat sur {1}", "{0} résultats sur {1}", all.size),
             fontSize = 12.sp, color = muted(.55f), modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
         )
-        if (all.isEmpty()) Empty("Aucune note pour l'instant.\nPrends des notes pendant tes appels 📝")
-        else if (shown.isEmpty()) Empty("Rien trouvé pour « $q ».")
+        if (all.isEmpty()) Empty(tr("Aucune note pour l'instant.\nPrends des notes pendant tes appels 📝"))
+        else if (shown.isEmpty()) Empty(tr("Rien trouvé pour « {0} ».", q))
         else LazyColumn(Modifier.fillMaxSize()) {
             if (mode == 0) items(shown, key = { "n${it.id}" }) { n ->
                 NoteCard(n, nameOf(n), byKey[n.key]?.photoUri, q, showWho = true, onCall = onCall, onDetail = onDetail)
@@ -77,10 +77,10 @@ internal fun NotesScreen(contacts: List<CallRepository.Contact>, onCall: (String
                             Avatar(nameOf(n0), byKey[k]?.photoUri, 34.dp); Spacer(Modifier.width(10.dp))
                             Column(Modifier.weight(1f)) {
                                 Text(nameOf(n0), fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onBackground, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                Text("${list.size} note${if (list.size > 1) "s" else ""} · ${phoneText(n0.number)}", fontSize = 12.sp, color = muted())
+                                Text(trn(list.size, "{0} note · {1}", "{0} notes · {1}", phoneText(n0.number)), fontSize = 12.sp, color = muted())
                             }
                             Box(Modifier.size(36.dp).clip(CircleShape).background(CallGreen).clickable { onCall(n0.number) }, contentAlignment = Alignment.Center) {
-                                Icon(Icons.Filled.Call, "Appeler", tint = Color.White, modifier = Modifier.size(18.dp))
+                                Icon(Icons.Filled.Call, tr("Appeler"), tint = Color.White, modifier = Modifier.size(18.dp))
                             }
                         }
                     }
@@ -106,9 +106,9 @@ private fun NoteCard(n: NotesRepository.Note, who: String, photo: String?, q: St
                     Text(fmtWhen(n.date), fontSize = 11.5.sp, color = muted(.55f))
                 }
                 IconButton(onClick = { if (confirm) NotesRepository.delete(ctx, n.id) else confirm = true }, modifier = Modifier.size(30.dp)) {
-                    if (confirm) Text("🗑️", fontSize = 15.sp) else Icon(Icons.Filled.Close, "Supprimer", tint = muted(.35f), modifier = Modifier.size(16.dp))
+                    if (confirm) Text("🗑️", fontSize = 15.sp) else Icon(Icons.Filled.Close, tr("Supprimer"), tint = muted(.35f), modifier = Modifier.size(16.dp))
                 }
-                if (showWho) IconButton(onClick = { onCall(n.number) }, modifier = Modifier.size(30.dp)) { Icon(Icons.Filled.Call, "Appeler", tint = CallGreen, modifier = Modifier.size(18.dp)) }
+                if (showWho) IconButton(onClick = { onCall(n.number) }, modifier = Modifier.size(30.dp)) { Icon(Icons.Filled.Call, tr("Appeler"), tint = CallGreen, modifier = Modifier.size(18.dp)) }
             }
             Spacer(Modifier.height(4.dp))
             Text(highlight(n.text, q, cs.primary), fontSize = 14.5.sp, color = cs.onSurface)

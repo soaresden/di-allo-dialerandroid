@@ -42,12 +42,12 @@ internal fun rememberFolderPicker(onRestored: () -> Unit): () -> Unit {
         AlertDialog(
             onDismissRequest = { found = null },
             icon = { Icon(Icons.Filled.Restore, null) },
-            title = { Text("Données Di-Allô trouvées") },
+            title = { Text(tr("Données Di-Allô trouvées")) },
             text = {
                 Text(
-                    "Ce dossier contient :\n• ${f.notes} note${if (f.notes > 1) "s" else ""}\n• ${f.settings} réglages" +
-                        (if (f.date > 0) " (du ${fmtDate(f.date)})" else "") + "\n• ${f.backups} sauvegarde${if (f.backups > 1) "s" else ""} d'appels / SMS\n\n" +
-                        "Restaurer les notes et les réglages ? (les notes actuelles sont gardées)"
+                    tr("Ce dossier contient :") + "\n• " + trn(f.notes, "{0} note", "{0} notes") + "\n• " + trn(f.settings, "{0} réglage", "{0} réglages") +
+                        (if (f.date > 0) " " + tr("(du {0})", fmtDate(f.date)) else "") + "\n• " + trn(f.backups, "{0} sauvegarde d'appels / SMS", "{0} sauvegardes d'appels / SMS") + "\n\n" +
+                        tr("Restaurer les notes et les réglages ? (les notes actuelles sont gardées)")
                 )
             },
             confirmButton = {
@@ -57,10 +57,10 @@ internal fun rememberFolderPicker(onRestored: () -> Unit): () -> Unit {
                         withContext(Dispatchers.IO) { DataFolder.restore(ctx); DataFolder.syncNow(ctx) }
                         onRestored()
                     }
-                }) { Text("Restaurer") }
+                }) { Text(tr("Restaurer")) }
             },
             dismissButton = {
-                TextButton(onClick = { found = null; scope.launch(Dispatchers.IO) { DataFolder.syncNow(ctx) } }) { Text("Non, écraser avec l'actuel") }
+                TextButton(onClick = { found = null; scope.launch(Dispatchers.IO) { DataFolder.syncNow(ctx) } }) { Text(tr("Non, écraser avec l'actuel")) }
             }
         )
     }
@@ -77,16 +77,16 @@ internal fun FolderPrompt(onRestored: () -> Unit) {
     AlertDialog(
         onDismissRequest = { show = false },
         icon = { Icon(Icons.Filled.Folder, null) },
-        title = { Text("📁 Dossier de travail") },
+        title = { Text(tr("📁 Dossier de travail")) },
         text = {
             Text(
-                "Choisis (ou crée) un dossier sur le téléphone, par exemple « Di-Allo ».\n\n" +
-                    "Di-Allô y range automatiquement tes notes, tes réglages et une sauvegarde complète des appels et des SMS/MMS.\n\n" +
-                    "Après une réinstallation, rechoisis ce dossier : tout revient."
+                tr("Choisis (ou crée) un dossier sur le téléphone, par exemple « Di-Allo ».") + "\n\n" +
+                    tr("Di-Allô y range automatiquement tes notes, tes réglages et une sauvegarde complète des appels et des SMS/MMS.") + "\n\n" +
+                    tr("Après une réinstallation, rechoisis ce dossier : tout revient.")
             )
         },
-        confirmButton = { Button(onClick = { show = false; pick() }) { Text("Choisir le dossier") } },
-        dismissButton = { TextButton(onClick = { show = false }) { Text("Plus tard") } }
+        confirmButton = { Button(onClick = { show = false; pick() }) { Text(tr("Choisir le dossier")) } },
+        dismissButton = { TextButton(onClick = { show = false }) { Text(tr("Plus tard")) } }
     )
 }
 
@@ -104,30 +104,30 @@ internal fun FolderCard() {
     var smsOk by remember { mutableStateOf(ContextCompat.checkSelfPermission(ctx, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED) }
     val smsPerm = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok -> smsOk = ok; if (ok) DataFolder.backupNowAsync(ctx) }
 
-    SectionCard("📁 Dossier & sauvegardes", id = "folder") {
+    SectionCard(tr("📁 Dossier & sauvegardes"), id = "folder") {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text(name ?: "Aucun dossier choisi", fontWeight = FontWeight.SemiBold, fontSize = 14.5.sp, color = if (name == null) Amber else MaterialTheme.colorScheme.onSurface)
-                Text("Notes, réglages et sauvegardes y sont rangés", fontSize = 12.sp, color = muted())
+                Text(name ?: tr("Aucun dossier choisi"), fontWeight = FontWeight.SemiBold, fontSize = 14.5.sp, color = if (name == null) Amber else MaterialTheme.colorScheme.onSurface)
+                Text(tr("Notes, réglages et sauvegardes y sont rangés"), fontSize = 12.sp, color = muted())
             }
-            Button(onClick = pick, contentPadding = PaddingValues(horizontal = 14.dp, vertical = 4.dp)) { Text(if (name == null) "Choisir" else "Changer", fontSize = 13.sp) }
+            Button(onClick = pick, contentPadding = PaddingValues(horizontal = 14.dp, vertical = 4.dp)) { Text(if (name == null) tr("Choisir") else tr("Changer"), fontSize = 13.sp) }
         }
         if (name != null) {
             Spacer(Modifier.height(10.dp))
-            SwitchLine("Sauvegarde automatique", "Une fois par jour : journal d'appels complet + SMS + MMS (photos comprises). Les 7 dernières sont gardées.", auto) { auto = it; DataFolder.setAutoBackup(ctx, it) }
-            if (!smsOk) Text("⚠️ Autorise la lecture des SMS pour les sauvegarder aussi.", fontSize = 12.sp, color = Amber, modifier = Modifier.padding(top = 4.dp))
+            SwitchLine(tr("Sauvegarde automatique"), tr("Une fois par jour : journal d'appels complet + SMS + MMS (photos comprises). Les 7 dernières sont gardées."), auto) { auto = it; DataFolder.setAutoBackup(ctx, it) }
+            if (!smsOk) Text(tr("⚠️ Autorise la lecture des SMS pour les sauvegarder aussi."), fontSize = 12.sp, color = Amber, modifier = Modifier.padding(top = 4.dp))
             Spacer(Modifier.height(10.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = { if (smsOk) DataFolder.backupNowAsync(ctx) else smsPerm.launch(Manifest.permission.READ_SMS) }, enabled = busy == null, modifier = Modifier.weight(1f)) { Text("Sauvegarder", fontSize = 13.sp) }
+                Button(onClick = { if (smsOk) DataFolder.backupNowAsync(ctx) else smsPerm.launch(Manifest.permission.READ_SMS) }, enabled = busy == null, modifier = Modifier.weight(1f)) { Text(tr("Sauvegarder"), fontSize = 13.sp) }
                 OutlinedButton(onClick = {
                     scope.launch { withContext(Dispatchers.IO) { DataFolder.restore(ctx) }; (ctx as? Activity)?.recreate() }
-                }, enabled = busy == null, modifier = Modifier.weight(1f)) { Text("Restaurer", fontSize = 13.sp) }
+                }, enabled = busy == null, modifier = Modifier.weight(1f)) { Text(tr("Restaurer"), fontSize = 13.sp) }
             }
             busy?.let { Spacer(Modifier.height(8.dp)); Row(verticalAlignment = Alignment.CenterVertically) { CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp); Spacer(Modifier.width(8.dp)); Text(it, fontSize = 13.sp, color = muted(.75f)) } }
             status?.let { Text(it, fontSize = 12.5.sp, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(top = 8.dp)) }
             val last = DataFolder.lastBackup(ctx)
-            if (last > 0) Text("Dernière sauvegarde complète : ${fmtWhen(last)}", fontSize = 12.sp, color = muted(.6f), modifier = Modifier.padding(top = 4.dp))
-            Text("« Restaurer » remet les notes et les réglages. Le journal d'appels et les SMS se restaurent dans le tableau ci-dessous.", fontSize = 11.5.sp, color = muted(.55f), modifier = Modifier.padding(top = 8.dp))
+            if (last > 0) Text(tr("Dernière sauvegarde complète : {0}", fmtWhen(last)), fontSize = 12.sp, color = muted(.6f), modifier = Modifier.padding(top = 4.dp))
+            Text(tr("« Restaurer » remet les notes et les réglages. Le journal d'appels et les SMS se restaurent dans le tableau ci-dessous."), fontSize = 11.5.sp, color = muted(.55f), modifier = Modifier.padding(top = 8.dp))
         }
     }
 }

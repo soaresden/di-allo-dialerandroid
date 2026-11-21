@@ -1,0 +1,163 @@
+{
+ "Déplier": {
+  "en": "Expand",
+  "es": "Desplegar",
+  "de": "Aufklappen",
+  "it": "Espandi",
+  "pt": "Expandir"
+ },
+ "Replier": {
+  "en": "Collapse",
+  "es": "Plegar",
+  "de": "Zuklappen",
+  "it": "Comprimi",
+  "pt": "Recolher"
+ },
+ "max {0}": {
+  "en": "max {0}",
+  "es": "máx. {0}",
+  "de": "max. {0}",
+  "it": "max {0}",
+  "pt": "máx. {0}"
+ },
+ "{0}j {1}h": {
+  "en": "{0}d {1}h",
+  "es": "{0}d {1}h",
+  "de": "{0}T {1}h",
+  "it": "{0}g {1}h",
+  "pt": "{0}d {1}h"
+ },
+ "aujourd'hui": {
+  "en": "today",
+  "es": "hoy",
+  "de": "heute",
+  "it": "oggi",
+  "pt": "hoje"
+ },
+ "hier": {
+  "en": "yesterday",
+  "es": "ayer",
+  "de": "gestern",
+  "it": "ieri",
+  "pt": "ontem"
+ },
+ "{0} j": {
+  "en": "{0} d",
+  "es": "{0} d",
+  "de": "{0} T",
+  "it": "{0} g",
+  "pt": "{0} d"
+ },
+ "{0} mois": {
+  "en": "{0} mo",
+  "es": "{0} meses",
+  "de": "{0} Mon.",
+  "it": "{0} mesi",
+  "pt": "{0} meses"
+ },
+ "{0} an": {
+  "en": "{0} yr",
+  "es": "{0} año",
+  "de": "{0} Jahr",
+  "it": "{0} anno",
+  "pt": "{0} ano"
+ },
+ "{0} ans": {
+  "en": "{0} yrs",
+  "es": "{0} años",
+  "de": "{0} Jahre",
+  "it": "{0} anni",
+  "pt": "{0} anos"
+ },
+ "Hier {0}": {
+  "en": "Yesterday {0}",
+  "es": "Ayer {0}",
+  "de": "Gestern {0}",
+  "it": "Ieri {0}",
+  "pt": "Ontem {0}"
+ },
+ "janv.": {
+  "en": "Jan",
+  "es": "ene.",
+  "de": "Jan.",
+  "it": "gen",
+  "pt": "jan."
+ },
+ "févr.": {
+  "en": "Feb",
+  "es": "feb.",
+  "de": "Feb.",
+  "it": "feb",
+  "pt": "fev."
+ },
+ "mars": {
+  "en": "Mar",
+  "es": "mar.",
+  "de": "März",
+  "it": "mar",
+  "pt": "mar."
+ },
+ "avr.": {
+  "en": "Apr",
+  "es": "abr.",
+  "de": "Apr.",
+  "it": "apr",
+  "pt": "abr."
+ },
+ "mai": {
+  "en": "May",
+  "es": "may.",
+  "de": "Mai",
+  "it": "mag",
+  "pt": "mai."
+ },
+ "juin": {
+  "en": "Jun",
+  "es": "jun.",
+  "de": "Juni",
+  "it": "giu",
+  "pt": "jun."
+ },
+ "juil.": {
+  "en": "Jul",
+  "es": "jul.",
+  "de": "Juli",
+  "it": "lug",
+  "pt": "jul."
+ },
+ "août": {
+  "en": "Aug",
+  "es": "ago.",
+  "de": "Aug.",
+  "it": "ago",
+  "pt": "ago."
+ },
+ "sept.": {
+  "en": "Sep",
+  "es": "sep.",
+  "de": "Sept.",
+  "it": "set",
+  "pt": "set."
+ },
+ "oct.": {
+  "en": "Oct",
+  "es": "oct.",
+  "de": "Okt.",
+  "it": "ott",
+  "pt": "out."
+ },
+ "nov.": {
+  "en": "Nov",
+  "es": "nov.",
+  "de": "Nov.",
+  "it": "nov",
+  "pt": "nov."
+ },
+ "déc.": {
+  "en": "Dec",
+  "es": "dic.",
+  "de": "Dez.",
+  "it": "dic",
+  "pt": "dez."
+ }
+}

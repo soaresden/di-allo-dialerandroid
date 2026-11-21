@@ -1,0 +1,415 @@
+{
+ "Appel terminé · {0}": {
+  "en": "Call ended · {0}",
+  "es": "Llamada finalizada · {0}",
+  "de": "Anruf beendet · {0}",
+  "it": "Chiamata terminata · {0}",
+  "pt": "Chamada encerrada · {0}"
+ },
+ "Appel terminé": {
+  "en": "Call ended",
+  "es": "Llamada finalizada",
+  "de": "Anruf beendet",
+  "it": "Chiamata terminata",
+  "pt": "Chamada encerrada"
+ },
+ "Double appel…": {
+  "en": "Call waiting…",
+  "es": "Llamada en espera…",
+  "de": "Anklopfen…",
+  "it": "Avviso di chiamata…",
+  "pt": "Chamada em espera…"
+ },
+ "Appel entrant…": {
+  "en": "Incoming call…",
+  "es": "Llamada entrante…",
+  "de": "Eingehender Anruf…",
+  "it": "Chiamata in arrivo…",
+  "pt": "Chamada recebida…"
+ },
+ "Appel en cours…": {
+  "en": "Calling…",
+  "es": "Llamando…",
+  "de": "Wird angerufen…",
+  "it": "Chiamata in corso…",
+  "pt": "Chamando…"
+ },
+ "⏸ En attente · {0}": {
+  "en": "⏸ On hold · {0}",
+  "es": "⏸ En espera · {0}",
+  "de": "⏸ Gehalten · {0}",
+  "it": "⏸ In attesa · {0}",
+  "pt": "⏸ Em espera · {0}"
+ },
+ "Conférence": {
+  "en": "Conference",
+  "es": "Conferencia",
+  "de": "Konferenz",
+  "it": "Conferenza",
+  "pt": "Conferência"
+ },
+ "Numéro masqué": {
+  "en": "Private number",
+  "es": "Número oculto",
+  "de": "Unbekannte Nummer",
+  "it": "Numero privato",
+  "pt": "Número oculto"
+ },
+ "Premier appel avec ce numéro 👋": {
+  "en": "First call with this number 👋",
+  "es": "Primera llamada con este número 👋",
+  "de": "Erster Anruf mit dieser Nummer 👋",
+  "it": "Prima chiamata con questo numero 👋",
+  "pt": "Primeira chamada com este número 👋"
+ },
+ "{0} appel": {
+  "en": "{0} call",
+  "es": "{0} llamada",
+  "de": "{0} Anruf",
+  "it": "{0} chiamata",
+  "pt": "{0} chamada"
+ },
+ "{0} appels": {
+  "en": "{0} calls",
+  "es": "{0} llamadas",
+  "de": "{0} Anrufe",
+  "it": "{0} chiamate",
+  "pt": "{0} chamadas"
+ },
+ "dernier {0}": {
+  "en": "last {0}",
+  "es": "última {0}",
+  "de": "zuletzt {0}",
+  "it": "ultima {0}",
+  "pt": "última {0}"
+ },
+ "{0} manqué": {
+  "en": "{0} missed",
+  "es": "{0} perdida",
+  "de": "{0} verpasst",
+  "it": "{0} persa",
+  "pt": "{0} perdida"
+ },
+ "{0} manqués": {
+  "en": "{0} missed",
+  "es": "{0} perdidas",
+  "de": "{0} verpasst",
+  "it": "{0} perse",
+  "pt": "{0} perdidas"
+ },
+ "📝 Dernière note · {0}": {
+  "en": "📝 Last note · {0}",
+  "es": "📝 Última nota · {0}",
+  "de": "📝 Letzte Notiz · {0}",
+  "it": "📝 Ultima nota · {0}",
+  "pt": "📝 Última nota · {0}"
+ },
+ "🔕 Silencieux": {
+  "en": "🔕 Silenced",
+  "es": "🔕 Silenciado",
+  "de": "🔕 Stumm",
+  "it": "🔕 Silenziato",
+  "pt": "🔕 Silenciado"
+ },
+ "🔕 Silence": {
+  "en": "🔕 Silence",
+  "es": "🔕 Silenciar",
+  "de": "🔕 Stumm",
+  "it": "🔕 Silenzia",
+  "pt": "🔕 Silenciar"
+ },
+ "💬 Message": {
+  "en": "💬 Message",
+  "es": "💬 Mensaje",
+  "de": "💬 Nachricht",
+  "it": "💬 Messaggio",
+  "pt": "💬 Mensagem"
+ },
+ "Refuser": {
+  "en": "Decline",
+  "es": "Rechazar",
+  "de": "Ablehnen",
+  "it": "Rifiuta",
+  "pt": "Recusar"
+ },
+ "Répondre": {
+  "en": "Answer",
+  "es": "Contestar",
+  "de": "Annehmen",
+  "it": "Rispondi",
+  "pt": "Atender"
+ },
+ "Mettre en attente\net répondre": {
+  "en": "Hold\nand answer",
+  "es": "Poner en espera\ny contestar",
+  "de": "Halten\nund annehmen",
+  "it": "Metti in attesa\ne rispondi",
+  "pt": "Pôr em espera\ne atender"
+ },
+ "Raccrocher\net répondre": {
+  "en": "End\nand answer",
+  "es": "Colgar\ny contestar",
+  "de": "Auflegen\nund annehmen",
+  "it": "Riattacca\ne rispondi",
+  "pt": "Desligar\ne atender"
+ },
+ "Haut-parleur": {
+  "en": "Speaker",
+  "es": "Altavoz",
+  "de": "Lautsprecher",
+  "it": "Vivavoce",
+  "pt": "Alto-falante"
+ },
+ "Coupé": {
+  "en": "Muted",
+  "es": "Silenciado",
+  "de": "Stumm an",
+  "it": "Silenziato",
+  "pt": "Mudo ativo"
+ },
+ "Muet": {
+  "en": "Mute",
+  "es": "Silenciar",
+  "de": "Stumm",
+  "it": "Muto",
+  "pt": "Mudo"
+ },
+ "Clavier": {
+  "en": "Keypad",
+  "es": "Teclado",
+  "de": "Tastatur",
+  "it": "Tastiera",
+  "pt": "Teclado"
+ },
+ "Ajouter": {
+  "en": "Add",
+  "es": "Añadir",
+  "de": "Hinzufügen",
+  "it": "Aggiungi",
+  "pt": "Adicionar"
+ },
+ "Reprendre": {
+  "en": "Resume",
+  "es": "Reanudar",
+  "de": "Fortsetzen",
+  "it": "Riprendi",
+  "pt": "Retomar"
+ },
+ "Attente": {
+  "en": "Hold",
+  "es": "Espera",
+  "de": "Halten",
+  "it": "Attesa",
+  "pt": "Espera"
+ },
+ "Auto HP": {
+  "en": "Auto speaker",
+  "es": "Altavoz auto",
+  "de": "Auto-Lautspr.",
+  "it": "Vivavoce auto",
+  "pt": "Alta-voz auto"
+ },
+ "Fusionner": {
+  "en": "Merge",
+  "es": "Combinar",
+  "de": "Verbinden",
+  "it": "Unisci",
+  "pt": "Juntar"
+ },
+ "📝 Notes": {
+  "en": "📝 Notes",
+  "es": "📝 Notas",
+  "de": "📝 Notizen",
+  "it": "📝 Note",
+  "pt": "📝 Notas"
+ },
+ "🕘 Historique": {
+  "en": "🕘 History",
+  "es": "🕘 Historial",
+  "de": "🕘 Verlauf",
+  "it": "🕘 Cronologia",
+  "pt": "🕘 Histórico"
+ },
+ "Numéro masqué : impossible de ranger une note.": {
+  "en": "Private number: can't save a note.",
+  "es": "Número oculto: no se puede guardar una nota.",
+  "de": "Unbekannte Nummer: Notiz kann nicht gespeichert werden.",
+  "it": "Numero privato: impossibile salvare una nota.",
+  "pt": "Número oculto: não é possível salvar uma nota."
+ },
+ "Note pendant l'appel…": {
+  "en": "Note during the call…",
+  "es": "Nota durante la llamada…",
+  "de": "Notiz während des Anrufs…",
+  "it": "Nota durante la chiamata…",
+  "pt": "Nota durante a chamada…"
+ },
+ "Enregistrer": {
+  "en": "Save",
+  "es": "Guardar",
+  "de": "Speichern",
+  "it": "Salva",
+  "pt": "Salvar"
+ },
+ "Chargement…": {
+  "en": "Loading…",
+  "es": "Cargando…",
+  "de": "Wird geladen…",
+  "it": "Caricamento…",
+  "pt": "Carregando…"
+ },
+ "Aucun appel précédent avec ce numéro.": {
+  "en": "No previous calls with this number.",
+  "es": "No hay llamadas anteriores con este número.",
+  "de": "Keine früheren Anrufe mit dieser Nummer.",
+  "it": "Nessuna chiamata precedente con questo numero.",
+  "pt": "Nenhuma chamada anterior com este número."
+ },
+ "Fermer": {
+  "en": "Close",
+  "es": "Cerrar",
+  "de": "Schließen",
+  "it": "Chiudi",
+  "pt": "Fechar"
+ },
+ "Enregistrer et fermer": {
+  "en": "Save and close",
+  "es": "Guardar y cerrar",
+  "de": "Speichern und schließen",
+  "it": "Salva e chiudi",
+  "pt": "Salvar e fechar"
+ },
+ "⏸ En attente": {
+  "en": "⏸ On hold",
+  "es": "⏸ En espera",
+  "de": "⏸ Gehalten",
+  "it": "⏸ In attesa",
+  "pt": "⏸ Em espera"
+ },
+ "En ligne": {
+  "en": "Active",
+  "es": "En curso",
+  "de": "Verbunden",
+  "it": "In linea",
+  "pt": "Em linha"
+ },
+ "Appel…": {
+  "en": "Calling…",
+  "es": "Llamando…",
+  "de": "Anruf…",
+  "it": "Chiamata…",
+  "pt": "Chamando…"
+ },
+ "Basculer": {
+  "en": "Swap",
+  "es": "Cambiar",
+  "de": "Wechseln",
+  "it": "Scambia",
+  "pt": "Alternar"
+ },
+ "Parler en privé": {
+  "en": "Talk privately",
+  "es": "Hablar en privado",
+  "de": "Privat sprechen",
+  "it": "Parla in privato",
+  "pt": "Falar em particular"
+ },
+ "Raccrocher ce participant": {
+  "en": "Hang up this participant",
+  "es": "Colgar a este participante",
+  "de": "Diesen Teilnehmer trennen",
+  "it": "Riattacca questo partecipante",
+  "pt": "Desligar este participante"
+ },
+ "Refuser avec un message": {
+  "en": "Decline with a message",
+  "es": "Rechazar con un mensaje",
+  "de": "Mit Nachricht ablehnen",
+  "it": "Rifiuta con un messaggio",
+  "pt": "Recusar com uma mensagem"
+ },
+ "Message perso…": {
+  "en": "Custom message…",
+  "es": "Mensaje personalizado…",
+  "de": "Eigene Nachricht…",
+  "it": "Messaggio personalizzato…",
+  "pt": "Mensagem personalizada…"
+ },
+ "Envoyer": {
+  "en": "Send",
+  "es": "Enviar",
+  "de": "Senden",
+  "it": "Invia",
+  "pt": "Enviar"
+ },
+ "Démarrage…": {
+  "en": "Starting…",
+  "es": "Iniciando…",
+  "de": "Wird gestartet…",
+  "it": "Avvio…",
+  "pt": "Iniciando…"
+ },
+ "REC {0} · Arrêter": {
+  "en": "REC {0} · Stop",
+  "es": "REC {0} · Detener",
+  "de": "REC {0} · Stopp",
+  "it": "REC {0} · Ferma",
+  "pt": "REC {0} · Parar"
+ },
+ "Tonalités": {
+  "en": "Tones",
+  "es": "Tonos",
+  "de": "Töne",
+  "it": "Toni",
+  "pt": "Tons"
+ },
+ "Fermer le clavier": {
+  "en": "Close keypad",
+  "es": "Cerrar teclado",
+  "de": "Tastatur schließen",
+  "it": "Chiudi tastiera",
+  "pt": "Fechar teclado"
+ },
+ "Sortant": {
+  "en": "Outgoing",
+  "es": "Saliente",
+  "de": "Ausgehend",
+  "it": "In uscita",
+  "pt": "Efetuada"
+ },
+ "Entrant": {
+  "en": "Incoming",
+  "es": "Entrante",
+  "de": "Eingehend",
+  "it": "In arrivo",
+  "pt": "Recebida"
+ },
+ "Manqué": {
+  "en": "Missed",
+  "es": "Perdida",
+  "de": "Verpasst",
+  "it": "Persa",
+  "pt": "Perdida"
+ },
+ "Refusé": {
+  "en": "Declined",
+  "es": "Rechazada",
+  "de": "Abgelehnt",
+  "it": "Rifiutata",
+  "pt": "Recusada"
+ },
+ "Messagerie": {
+  "en": "Voicemail",
+  "es": "Buzón de voz",
+  "de": "Mailbox",
+  "it": "Segreteria",
+  "pt": "Correio de voz"
+ },
+ "Appel": {
+  "en": "Call",
+  "es": "Llamada",
+  "de": "Anruf",
+  "it": "Chiamata",
+  "pt": "Chamada"
+ }
+}

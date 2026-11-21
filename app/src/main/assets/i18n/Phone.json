@@ -1,0 +1,20 @@
+{
+  "États-Unis / Canada": { "en": "United States / Canada", "es": "Estados Unidos / Canadá", "de": "USA / Kanada", "it": "Stati Uniti / Canada", "pt": "Estados Unidos / Canadá" },
+  "La Réunion / Mayotte": { "en": "Réunion / Mayotte", "es": "Reunión / Mayotte", "de": "Réunion / Mayotte", "it": "Riunione / Mayotte", "pt": "Reunião / Maiote" },
+  "Mobile": { "en": "Mobile", "es": "Móvil", "de": "Mobil", "it": "Cellulare", "pt": "Telemóvel" },
+  "Fixe": { "en": "Landline", "es": "Fijo", "de": "Festnetz", "it": "Fisso", "pt": "Fixo" },
+  "Box / VoIP": { "en": "Internet / VoIP", "es": "Internet / VoIP", "de": "Internet / VoIP", "it": "Internet / VoIP", "pt": "Internet / VoIP" },
+  "N° spécial": { "en": "Premium no.", "es": "N.º especial", "de": "Sondernr.", "it": "N. speciale", "pt": "N.º especial" },
+  "Numéro spécial": { "en": "Premium number", "es": "Número especial", "de": "Sondernummer", "it": "Numero speciale", "pt": "Número especial" },
+  "Service": { "en": "Service", "es": "Servicio", "de": "Dienst", "it": "Servizio", "pt": "Serviço" },
+  "Court / service": { "en": "Short / service", "es": "Corto / servicio", "de": "Kurz / Dienst", "it": "Breve / servizio", "pt": "Curto / serviço" },
+  "Étranger": { "en": "Foreign", "es": "Extranjero", "de": "Ausland", "it": "Estero", "pt": "Estrangeiro" },
+  "Masqué": { "en": "Private", "es": "Oculto", "de": "Unterdrückt", "it": "Privato", "pt": "Privado" },
+  "Autre": { "en": "Other", "es": "Otro", "de": "Andere", "it": "Altro", "pt": "Outro" },
+  "Île-de-France": { "en": "Île-de-France (Paris)", "es": "Isla de Francia", "de": "Île-de-France", "it": "Île-de-France", "pt": "Ilha de França" },
+  "Nord-Ouest": { "en": "North-West", "es": "Noroeste", "de": "Nordwesten", "it": "Nord-Ovest", "pt": "Noroeste" },
+  "Nord-Est": { "en": "North-East", "es": "Noreste", "de": "Nordosten", "it": "Nord-Est", "pt": "Nordeste" },
+  "Sud-Est": { "en": "South-East", "es": "Sureste", "de": "Südosten", "it": "Sud-Est", "pt": "Sudeste" },
+  "Sud-Ouest": { "en": "South-West", "es": "Suroeste", "de": "Südwesten", "it": "Sud-Ovest", "pt": "Sudoeste" },
+  "Outre-mer": { "en": "Overseas", "es": "Ultramar", "de": "Übersee", "it": "Oltremare", "pt": "Ultramar" }
+}

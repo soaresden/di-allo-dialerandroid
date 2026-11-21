@@ -43,11 +43,11 @@ internal fun presetRange(i: Int, oldest: Long): Range {
     val now = System.currentTimeMillis()
     val today = startOfDay(now)
     return when (i) {
-        0 -> Range(today - 6 * DAY_MS, now, "7 derniers jours", Gran.DAY)
-        1 -> Range(today - 29 * DAY_MS, now, "30 derniers jours", Gran.DAY)
-        2 -> Range(today - 12 * 7 * DAY_MS - 6 * DAY_MS, now, "3 derniers mois", Gran.WEEK)
-        3 -> Range(cal(today).apply { set(Calendar.DAY_OF_MONTH, 1); add(Calendar.MONTH, -11) }.timeInMillis, now, "12 derniers mois", Gran.MONTH)
-        else -> Range(cal(oldest).apply { set(Calendar.DAY_OF_YEAR, 1) }.let { startOfDay(it.timeInMillis) }, now, "Depuis le début", Gran.YEAR)
+        0 -> Range(today - 6 * DAY_MS, now, tr("7 derniers jours"), Gran.DAY)
+        1 -> Range(today - 29 * DAY_MS, now, tr("30 derniers jours"), Gran.DAY)
+        2 -> Range(today - 12 * 7 * DAY_MS - 6 * DAY_MS, now, tr("3 derniers mois"), Gran.WEEK)
+        3 -> Range(cal(today).apply { set(Calendar.DAY_OF_MONTH, 1); add(Calendar.MONTH, -11) }.timeInMillis, now, tr("12 derniers mois"), Gran.MONTH)
+        else -> Range(cal(oldest).apply { set(Calendar.DAY_OF_YEAR, 1) }.let { startOfDay(it.timeInMillis) }, now, tr("Depuis le début"), Gran.YEAR)
     }
 }
 
@@ -59,12 +59,11 @@ internal fun buckets(r: Range): List<Bucket> {
         Gran.YEAR -> c.set(Calendar.DAY_OF_YEAR, 1)
         else -> {}
     }
-    val wd = listOf("D", "L", "M", "M", "J", "V", "S")
     var guard = 0
     while (c.timeInMillis <= r.end && guard++ < 400) {
         val s = c.timeInMillis
         val label = when (r.gran) {
-            Gran.DAY -> if (r.end - r.start <= 8 * DAY_MS) wd[c.get(Calendar.DAY_OF_WEEK) - 1] else c.get(Calendar.DAY_OF_MONTH).toString()
+            Gran.DAY -> if (r.end - r.start <= 8 * DAY_MS) wdInitial(c.get(Calendar.DAY_OF_WEEK)) else c.get(Calendar.DAY_OF_MONTH).toString()
             Gran.WEEK -> "${c.get(Calendar.DAY_OF_MONTH)}/${c.get(Calendar.MONTH) + 1}"
             Gran.MONTH -> monthName(c.get(Calendar.MONTH)).take(1).uppercase()
             Gran.YEAR -> "'" + (c.get(Calendar.YEAR) % 100).toString().padStart(2, '0')
@@ -78,13 +77,22 @@ internal fun buckets(r: Range): List<Bucket> {
     return out
 }
 
+/** Initiale du jour (Calendar.SUNDAY…SATURDAY) dans la langue affichée : D L M M J V S, S M T W T F S… */
+private fun wdInitial(dow: Int): String =
+    Calendar.getInstance().apply { set(Calendar.DAY_OF_WEEK, dow) }.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, I18n.locale)
+        ?.take(1)?.uppercase(I18n.locale) ?: ""
+
+/** Nom complet du jour (Calendar.SUNDAY…SATURDAY) dans la langue affichée. */
+private fun wdName(dow: Int): String =
+    Calendar.getInstance().apply { set(Calendar.DAY_OF_WEEK, dow) }.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, I18n.locale) ?: ""
+
 /** Zoom sur une barre : année -> mois -> jours. */
 internal fun drill(b: Bucket, g: Gran): Range? {
     val c = cal(b.start)
     return when (g) {
-        Gran.YEAR -> Range(b.start, b.end - 1, "Année ${c.get(Calendar.YEAR)}", Gran.MONTH)
+        Gran.YEAR -> Range(b.start, b.end - 1, tr("Année {0}", c.get(Calendar.YEAR).toString()), Gran.MONTH)
         Gran.MONTH -> Range(b.start, b.end - 1, "${monthName(c.get(Calendar.MONTH)).replaceFirstChar { it.uppercase() }} ${c.get(Calendar.YEAR)}", Gran.DAY)
-        Gran.WEEK -> Range(b.start, b.end - 1, "Semaine du ${fmtDate(b.start)}", Gran.DAY)
+        Gran.WEEK -> Range(b.start, b.end - 1, tr("Semaine du {0}", fmtDate(b.start)), Gran.DAY)
         Gran.DAY -> null
     }
 }
@@ -140,75 +148,74 @@ private fun facts(calls: List<CallRepository.CallEntry>, aggs: Map<String, Agg>,
     val f = ArrayList<Fact>()
     val people = aggs.values.filter { it.number.any(Char::isDigit) }
 
-    calls.minByOrNull { it.date }?.let { f += Fact("🦕", "Le plus vieil appel", it.display, "${fmtDate(it.date)} · il y a ${agoText(it.date)} · ${it.dirLabel.lowercase()}", keyOf(it.number)) }
+    calls.minByOrNull { it.date }?.let { f += Fact("🦕", tr("Le plus vieil appel"), it.display, tr("{0} · il y a {1} · {2}", fmtDate(it.date), agoText(it.date), it.dirLabel.lowercase(I18n.locale)), keyOf(it.number)) }
 
     people.filter { it.inc + it.miss >= 3 }.maxWithOrNull(compareBy<Agg>({ it.miss.toDouble() / (it.inc + it.miss) }, { it.miss }))?.takeIf { it.miss > 0 }?.let {
-        f += Fact("👻", "La personne la plus ghostée", it.display, "Tu as ignoré ${it.miss} de ses ${it.inc + it.miss} appels (${pct(it.miss, it.inc + it.miss)} %)", it.key)
+        f += Fact("👻", tr("La personne la plus ghostée"), it.display, tr("Tu as ignoré {0} de ses {1} appels ({2} %)", it.miss, it.inc + it.miss, pct(it.miss, it.inc + it.miss)), it.key)
     }
     people.filter { it.out >= 3 }.maxWithOrNull(compareBy<Agg>({ it.outNoAns.toDouble() / it.out }, { it.outNoAns }))?.takeIf { it.outNoAns > 0 }?.let {
-        f += Fact("🙈", "Celle/celui qui te ghoste", it.display, "${it.outNoAns} appels sans réponse sur ${it.out} (${pct(it.outNoAns, it.out)} %)", it.key)
+        f += Fact("🙈", tr("Celle/celui qui te ghoste"), it.display, trn(it.outNoAns, "{0} appel sans réponse sur {1} ({2} %)", "{0} appels sans réponse sur {1} ({2} %)", it.out, pct(it.outNoAns, it.out)), it.key)
     }
     people.filter { it.ans >= 3 }.maxByOrNull { it.dur / it.ans }?.let {
-        f += Fact("🗣️", "Le/la plus bavard·e", it.display, "${fmtDur((it.dur / it.ans).toInt())} en moyenne sur ${it.ans} appels", it.key)
+        f += Fact("🗣️", tr("Le/la plus bavard·e"), it.display, tr("{0} en moyenne sur {1} appels", fmtDur((it.dur / it.ans).toInt()), it.ans), it.key)
     }
     calls.maxByOrNull { it.duration }?.takeIf { it.duration > 0 }?.let {
-        f += Fact("⏱️", "Le marathon", fmtDur(it.duration), "avec ${it.display} · ${fmtDate(it.date)}", keyOf(it.number))
+        f += Fact("⏱️", tr("Le marathon"), fmtDur(it.duration), tr("avec {0} · {1}", it.display, fmtDate(it.date)), keyOf(it.number))
     }
     people.filter { it.out + it.inc >= 6 }.maxByOrNull { it.out.toDouble() / (it.out + it.inc) }?.takeIf { it.out > it.inc }?.let {
-        f += Fact("📣", "C'est toujours toi qui appelles", it.display, "${pct(it.out, it.out + it.inc)} % des appels viennent de toi (${it.out} vs ${it.inc})", it.key)
+        f += Fact("📣", tr("C'est toujours toi qui appelles"), it.display, tr("{0} % des appels viennent de toi ({1} vs {2})", pct(it.out, it.out + it.inc), it.out, it.inc), it.key)
     }
     people.filter { it.out + it.inc >= 6 }.maxByOrNull { it.inc.toDouble() / (it.out + it.inc) }?.takeIf { it.inc > it.out * 2 }?.let {
-        f += Fact("🎣", "Elle/il t'appelle, tu rappelles jamais", it.display, "${it.inc} appels reçus pour ${it.out} passés", it.key)
+        f += Fact("🎣", tr("Elle/il t'appelle, tu rappelles jamais"), it.display, tr("{0} appels reçus pour {1} passés", it.inc, it.out), it.key)
     }
     people.filter { it.maxGap > 180 * DAY_MS }.maxByOrNull { it.maxGap }?.let {
-        f += Fact("💌", "Le retour de flamme", it.display, "Revenu·e après ${agoTextSpan(it.maxGap)} de silence (${fmtDate(it.gapEnd)})", it.key)
+        f += Fact("💌", tr("Le retour de flamme"), it.display, tr("Revenu·e après {0} de silence ({1})", agoTextSpan(it.maxGap), fmtDate(it.gapEnd)), it.key)
     }
     people.filter { it.n >= 3 }.maxByOrNull { it.last - it.first }?.let {
-        f += Fact("🤝", "Fidèle au poste", it.display, "Depuis ${fmtDate(it.first)} · ${it.n} appels", it.key)
+        f += Fact("🤝", tr("Fidèle au poste"), it.display, tr("Depuis {0} · {1} appels", fmtDate(it.first), it.n), it.key)
     }
     val night = calls.filter { cal(it.date).get(Calendar.HOUR_OF_DAY) in 0..4 }
     if (night.isNotEmpty()) {
         val top = night.groupBy { keyOf(it.number) }.maxByOrNull { it.value.size }!!.value
-        f += Fact("🦉", "Oiseau de nuit", "${night.size} appels entre minuit et 5 h", "Complice principal : ${top.first().display} (${top.size})", keyOf(top.first().number))
+        f += Fact("🦉", tr("Oiseau de nuit"), trn(night.size, "{0} appel entre minuit et 5 h", "{0} appels entre minuit et 5 h"), tr("Complice principal : {0} ({1})", top.first().display, top.size), keyOf(top.first().number))
     }
     calls.filter { cal(it.date).get(Calendar.HOUR_OF_DAY) in 4..11 }.minByOrNull { val c = cal(it.date); c.get(Calendar.HOUR_OF_DAY) * 60 + c.get(Calendar.MINUTE) }?.let {
         val c = cal(it.date)
-        f += Fact("🐓", "Le plus matinal", "%d h %02d".format(c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE)), "avec ${it.display} · ${fmtDate(it.date)}", keyOf(it.number))
+        f += Fact("🐓", tr("Le plus matinal"), tr("{0} h {1}", c.get(Calendar.HOUR_OF_DAY), "%02d".format(c.get(Calendar.MINUTE))), tr("avec {0} · {1}", it.display, fmtDate(it.date)), keyOf(it.number))
     }
     val byDay = calls.groupBy { startOfDay(it.date) }
     byDay.maxByOrNull { it.value.size }?.let { (d, l) ->
-        f += Fact("📅", "Jour record", "${l.size} appels", fmtDate(d) + " · surtout avec " + l.groupBy { keyOf(it.number) }.maxByOrNull { it.value.size }!!.value.first().display)
+        f += Fact("📅", tr("Jour record"), trn(l.size, "{0} appel", "{0} appels"), tr("{0} · surtout avec {1}", fmtDate(d), l.groupBy { keyOf(it.number) }.maxByOrNull { it.value.size }!!.value.first().display))
     }
     // plus longue série de jours consécutifs avec au moins un appel
     val days = byDay.keys.sorted()
     var best = 1; var cur = 1; var bestEnd = days.firstOrNull() ?: 0L
     for (i in 1 until days.size) { if (days[i] - days[i - 1] in (DAY_MS - 3_600_000)..(DAY_MS + 3_600_000)) cur++ else cur = 1; if (cur > best) { best = cur; bestEnd = days[i] } }
-    if (days.isNotEmpty()) f += Fact("🔥", "Plus longue série", "$best jours d'affilée", "au téléphone chaque jour, jusqu'au ${fmtDate(bestEnd)}")
+    if (days.isNotEmpty()) f += Fact("🔥", tr("Plus longue série"), trn(best, "{0} jour d'affilée", "{0} jours d'affilée"), tr("au téléphone chaque jour, jusqu'au {0}", fmtDate(bestEnd)))
     val unknown = calls.count { keyOf(it.number) !in contactKeys }
     val hidden = calls.count { it.number.none(Char::isDigit) }
-    f += Fact("🕵️", "Inconnus", "$unknown appels hors contacts", if (hidden > 0) "dont $hidden en numéro masqué" else "aucun numéro masqué")
+    f += Fact("🕵️", tr("Inconnus"), trn(unknown, "{0} appel hors contacts", "{0} appels hors contacts"), if (hidden > 0) tr("dont {0} en numéro masqué", hidden) else tr("aucun numéro masqué"))
     val foreign = calls.filter { val c = countryOf(it.number); c != null && c.iso != "FR" }
     if (foreign.isNotEmpty()) {
         val byC = foreign.groupBy { countryOf(it.number)!! }
         val top = byC.maxByOrNull { it.value.size }!!
-        f += Fact("🌍", "Globe-trotter", "${byC.size} pays étrangers", "Surtout ${top.key.flag} ${top.key.name} (${top.value.size} appels)")
+        f += Fact("🌍", tr("Globe-trotter"), trn(byC.size, "{0} pays étranger", "{0} pays étrangers"), tr("Surtout {0} {1} ({2})", top.key.flag, top.key.name, trn(top.value.size, "{0} appel", "{0} appels")))
     }
     val total = calls.sumOf { it.duration.toLong() }
-    if (total > 0) f += Fact("🛋️", "Temps passé au téléphone", fmtClock(total), "soit environ ${max(1, (total / 5400).toInt())} films de 1 h 30")
-    val wdNames = listOf("dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi")
+    if (total > 0) f += Fact("🛋️", tr("Temps passé au téléphone"), fmtClock(total), tr("soit environ {0} films de 1 h 30", max(1, (total / 5400).toInt())))
     calls.groupBy { cal(it.date).get(Calendar.DAY_OF_WEEK) }.maxByOrNull { it.value.size }?.let { (d, l) ->
         val h = calls.groupBy { cal(it.date).get(Calendar.HOUR_OF_DAY) }.maxByOrNull { it.value.size }!!.key
-        f += Fact("⏰", "Tes habitudes", "Le ${wdNames[d - 1]}, vers ${h} h", "${l.size} appels un ${wdNames[d - 1]}")
+        f += Fact("⏰", tr("Tes habitudes"), tr("Le {0}, vers {1} h", wdName(d), h), trn(l.size, "{0} appel un {1}", "{0} appels un {1}", wdName(d)))
     }
     return f
 }
 
-private fun agoTextSpan(ms: Long): String { val d = (ms / DAY_MS).toInt(); return if (d >= 365) "${d / 365} an${if (d / 365 > 1) "s" else ""}" else "${d / 30} mois" }
+private fun agoTextSpan(ms: Long): String { val d = (ms / DAY_MS).toInt(); return if (d >= 365) trn(d / 365, "{0} an", "{0} ans") else tr("{0} mois", d / 30) }
 
 /* ---------- Écran (version compacte, organisée) ---------- */
 @Composable
 internal fun StatsScreen(calls: List<CallRepository.CallEntry>, contacts: List<CallRepository.Contact>, onWrapped: () -> Unit = {}, onDetail: (String) -> Unit) {
-    if (calls.isEmpty()) { Empty("Pas de données : accorde l'accès au journal d'appels."); return }
+    if (calls.isEmpty()) { Empty(tr("Pas de données : accorde l'accès au journal d'appels.")); return }
     val oldest = remember(calls) { calls.minOf { it.date } }
     var preset by remember { mutableStateOf(1) }
     val stack = remember { mutableStateListOf<Range>() }
@@ -219,20 +226,21 @@ internal fun StatsScreen(calls: List<CallRepository.CallEntry>, contacts: List<C
     var allFacts by remember { mutableStateOf(false) }
 
     val inRange = remember(calls, range) { calls.filter { it.date in range.start..range.end } }
-    val bs = remember(range) { buckets(range) }
+    val lang = I18n.lang.value
+    val bs = remember(range, lang) { buckets(range) }
     val perBucket = remember(inRange, bs) { countIn(inRange, bs) }
     // Calculs lourds en arrière-plan : l'écran ne fige jamais
     val aggs by produceState(emptyMap<String, Agg>(), inRange) { value = withContext(Dispatchers.Default) { aggregate(inRange) } }
     val allAggs by produceState(emptyMap<String, Agg>(), calls) { value = withContext(Dispatchers.Default) { aggregate(calls) } }
     val contactKeys = remember(contacts) { contacts.map { keyOf(it.number) }.toHashSet() }
-    val fun_ by produceState(emptyList<Fact>(), inRange, contactKeys) { value = withContext(Dispatchers.Default) { facts(inRange, aggregate(inRange), contactKeys) } }
-    val origins by produceState(Triple(emptyList<Triple<String, String, Int>>(), emptyList<Triple<String, String, Int>>(), emptyList<Triple<String, String, Int>>()), inRange) {
+    val fun_ by produceState(emptyList<Fact>(), inRange, contactKeys, lang) { value = withContext(Dispatchers.Default) { facts(inRange, aggregate(inRange), contactKeys) } }
+    val origins by produceState(Triple(emptyList<Triple<String, String, Int>>(), emptyList<Triple<String, String, Int>>(), emptyList<Triple<String, String, Int>>()), inRange, lang) {
         value = withContext(Dispatchers.Default) {
-            val countries = inRange.groupBy { countryOf(it.number) }.map { (c, l) -> Triple(c?.flag ?: "❔", c?.name ?: "Masqué / court", l.size) }.sortedByDescending { it.third }
+            val countries = inRange.groupBy { countryOf(it.number) }.map { (c, l) -> Triple(c?.flag ?: "❔", c?.name ?: tr("Masqué / court"), l.size) }.sortedByDescending { it.third }
             val typeEmoji = mapOf("Mobile" to "📱", "Fixe" to "☎️", "Box / VoIP" to "🌐", "Numéro spécial" to "💶", "Court / service" to "🔢", "Étranger" to "✈️", "Masqué" to "🕵️")
-            val types = inRange.groupBy { lineType(it.number) }.map { (t, l) -> Triple(typeEmoji[t] ?: "❔", t, l.size) }.sortedByDescending { it.third }
+            val types = inRange.groupBy { lineType(it.number) }.map { (t, l) -> Triple(typeEmoji[t] ?: "❔", tr(t), l.size) }.sortedByDescending { it.third }
             val regEmoji = mapOf("Île-de-France" to "🗼", "Nord-Ouest" to "⚓", "Nord-Est" to "🏰", "Sud-Est" to "☀️", "Sud-Ouest" to "🍇", "Outre-mer" to "🏝️")
-            val regions = inRange.mapNotNull { frRegion(it.number) }.groupingBy { it }.eachCount().map { (r, n) -> Triple(regEmoji[r] ?: "📍", r, n) }.sortedByDescending { it.third }
+            val regions = inRange.mapNotNull { frRegion(it.number) }.groupingBy { it }.eachCount().map { (r, n) -> Triple(regEmoji[r] ?: "📍", tr(r), n) }.sortedByDescending { it.third }
             Triple(countries, types, regions)
         }
     }
@@ -249,17 +257,17 @@ internal fun StatsScreen(calls: List<CallRepository.CallEntry>, contacts: List<C
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("🎁", fontSize = 24.sp); Spacer(Modifier.width(10.dp))
                     Column(Modifier.weight(1f)) {
-                        Text("Ton Di-Allô Wrapped", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White)
-                        Text("Ton année au téléphone, en stories", fontSize = 12.sp, color = Color.White.copy(alpha = .85f))
+                        Text(tr("Ton Di-Allô Wrapped"), fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White)
+                        Text(tr("Ton année au téléphone, en stories"), fontSize = 12.sp, color = Color.White.copy(alpha = .85f))
                     }
                     Text("›", fontSize = 26.sp, color = Color.White)
                 }
             }
         }
         item {
-            Segmented(PRESETS, if (stack.isEmpty()) preset else -1, { preset = it; stack.clear() }, Modifier.padding(top = 2.dp, bottom = 6.dp))
+            Segmented(PRESETS.map { tr(it) }, if (stack.isEmpty()) preset else -1, { preset = it; stack.clear() }, Modifier.padding(top = 2.dp, bottom = 6.dp))
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 6.dp)) {
-                if (stack.isNotEmpty()) IconButton(onClick = { stack.removeAt(stack.lastIndex) }, modifier = Modifier.size(28.dp)) { Icon(Icons.Filled.ArrowBack, "Retour", tint = primary) }
+                if (stack.isNotEmpty()) IconButton(onClick = { stack.removeAt(stack.lastIndex) }, modifier = Modifier.size(28.dp)) { Icon(Icons.Filled.ArrowBack, tr("Retour"), tint = primary) }
                 Text(range.label, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = MaterialTheme.colorScheme.onBackground)
             }
         }
@@ -273,31 +281,31 @@ internal fun StatsScreen(calls: List<CallRepository.CallEntry>, contacts: List<C
             val miss = inRange.count { isMissed(it.type) }
             val days = max(1L, (minOf(range.end, System.currentTimeMillis()) - max(range.start, oldest)) / DAY_MS + 1)
             val tot = (out + inc + miss).coerceAtLeast(1).toFloat()
-            SectionCard("📊 Résumé", id = "st_sum") {
+            SectionCard(tr("📊 Résumé"), id = "st_sum") {
                 Row(Modifier.fillMaxWidth()) {
-                    BigStat("📞", "${inRange.size}", "appels", Modifier.weight(1f))
-                    BigStat("⏱️", fmtClock(totalDur), "au total", Modifier.weight(1f))
-                    BigStat("⌛", fmtDur(avg), "en moyenne", Modifier.weight(1f))
-                    BigStat("📆", "%.1f".format(inRange.size.toDouble() / days), "par jour", Modifier.weight(1f))
+                    BigStat("📞", "${inRange.size}", trn(inRange.size, "appel", "appels"), Modifier.weight(1f))
+                    BigStat("⏱️", fmtClock(totalDur), tr("au total"), Modifier.weight(1f))
+                    BigStat("⌛", fmtDur(avg), tr("en moyenne"), Modifier.weight(1f))
+                    BigStat("📆", String.format(I18n.locale, "%.1f", inRange.size.toDouble() / days), tr("par jour"), Modifier.weight(1f))
                 }
                 Spacer(Modifier.height(10.dp))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    DirStat(Icons.Filled.PhoneForwarded, "Sortants", out, (out * 100 / tot).toInt(), OutColor, Modifier.weight(1f))
-                    DirStat(Icons.Filled.PhoneCallback, "Entrants", inc, (inc * 100 / tot).toInt(), InColor, Modifier.weight(1f))
-                    DirStat(Icons.Filled.PhoneMissed, "Manqués", miss, (miss * 100 / tot).toInt(), Red, Modifier.weight(1f))
+                    DirStat(Icons.Filled.PhoneForwarded, tr("Sortants"), out, (out * 100 / tot).toInt(), OutColor, Modifier.weight(1f))
+                    DirStat(Icons.Filled.PhoneCallback, tr("Entrants"), inc, (inc * 100 / tot).toInt(), InColor, Modifier.weight(1f))
+                    DirStat(Icons.Filled.PhoneMissed, tr("Manqués"), miss, (miss * 100 / tot).toInt(), Red, Modifier.weight(1f))
                 }
                 Row(Modifier.fillMaxWidth().padding(top = 8.dp).height(6.dp).clip(RoundedCornerShape(50))) {
                     if (out > 0) Box(Modifier.weight(out / tot).fillMaxHeight().background(OutColor))
                     if (inc > 0) Box(Modifier.weight(inc / tot).fillMaxHeight().background(InColor))
                     if (miss > 0) Box(Modifier.weight(miss / tot).fillMaxHeight().background(Red))
                 }
-                Text("✅ Tu réponds à ${pct(inc, inc + miss)} % des appels reçus · 👥 ${aggs.size} correspondants", fontSize = 11.5.sp, color = muted(.65f), modifier = Modifier.padding(top = 6.dp))
+                Text(tr("✅ Tu réponds à {0} % des appels reçus · 👥 {1}", pct(inc, inc + miss), trn(aggs.size, "{0} correspondant", "{0} correspondants")), fontSize = 11.5.sp, color = muted(.65f), modifier = Modifier.padding(top = 6.dp))
             }
         }
         // ---- 📈 Activité (zoomable) ----
         item {
             val g = range.gran
-            SectionCard("📈 Activité", id = "st_act", action = { if (g != Gran.DAY) Text("touche une barre", fontSize = 10.5.sp, color = muted(.5f)) }) {
+            SectionCard(tr("📈 Activité"), id = "st_act", action = { if (g != Gran.DAY) Text(tr("touche une barre"), fontSize = 10.5.sp, color = muted(.5f)) }) {
                 BarChart(perBucket, bs.map { it.label }, primary, 96.dp, onBar = { i -> drill(bs[i], g)?.let { stack.add(it) } })
             }
         }
@@ -305,9 +313,9 @@ internal fun StatsScreen(calls: List<CallRepository.CallEntry>, contacts: List<C
         item {
             val (countries, types, regions) = origins
             val list = when (origin) { 0 -> countries; 1 -> types; else -> regions }
-            SectionCard("🌍 Origine", id = "st_org", action = { Segmented(listOf("Pays", "Type", "Région"), origin, { origin = it }, Modifier.width(190.dp)) }) {
-                if (origin == 0) Text("${countries.count { it.first != "❔" }} pays différents", fontSize = 11.5.sp, color = muted(.6f), modifier = Modifier.padding(bottom = 4.dp))
-                if (list.isEmpty()) Text(if (origin == 2) "Aucun fixe français sur la période." else "Rien sur la période.", fontSize = 12.sp, color = muted(.5f))
+            SectionCard(tr("🌍 Origine"), id = "st_org", action = { Segmented(listOf(tr("Pays"), tr("Type"), tr("Région")), origin, { origin = it }, Modifier.width(190.dp)) }) {
+                if (origin == 0) countries.count { it.first != "❔" }.let { nc -> Text(trn(nc, "{0} pays différent", "{0} pays différents"), fontSize = 11.5.sp, color = muted(.6f), modifier = Modifier.padding(bottom = 4.dp)) }
+                if (list.isEmpty()) Text(if (origin == 2) tr("Aucun fixe français sur la période.") else tr("Rien sur la période."), fontSize = 12.sp, color = muted(.5f))
                 val m = (list.maxOfOrNull { it.third } ?: 1).coerceAtLeast(1)
                 list.take(6).forEach { (e, name, n) -> EmojiBar(e, name, n.toFloat() / m, "$n", primary) }
             }
@@ -316,9 +324,9 @@ internal fun StatsScreen(calls: List<CallRepository.CallEntry>, contacts: List<C
         item {
             val hours = IntArray(24); val wds = IntArray(7)
             inRange.forEach { val c = cal(it.date); hours[c.get(Calendar.HOUR_OF_DAY)]++; wds[(c.get(Calendar.DAY_OF_WEEK) + 5) % 7]++ }
-            SectionCard("⏰ Habitudes", id = "st_hab", action = { Segmented(listOf("Heures", "Jours"), habit, { habit = it }, Modifier.width(140.dp)) }) {
+            SectionCard(tr("⏰ Habitudes"), id = "st_hab", action = { Segmented(listOf(tr("Heures"), tr("Jours")), habit, { habit = it }, Modifier.width(140.dp)) }) {
                 if (habit == 0) BarChart(hours.toList(), (0..23).map { if (it % 3 == 0) "${it}h" else "" }, primary.copy(alpha = .8f), 70.dp, highlight = hours.indices.maxByOrNull { hours[it] } ?: -1)
-                else BarChart(wds.toList(), listOf("L", "M", "M", "J", "V", "S", "D"), primary.copy(alpha = .8f), 70.dp, highlight = wds.indices.maxByOrNull { wds[it] } ?: -1)
+                else BarChart(wds.toList(), listOf(Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY, Calendar.THURSDAY, Calendar.FRIDAY, Calendar.SATURDAY, Calendar.SUNDAY).map { wdInitial(it) }, primary.copy(alpha = .8f), 70.dp, highlight = wds.indices.maxByOrNull { wds[it] } ?: -1)
             }
         }
         // ---- 🏆 Classements ----
@@ -331,16 +339,16 @@ internal fun StatsScreen(calls: List<CallRepository.CallEntry>, contacts: List<C
                 else -> allAggs.values.filter { it.n >= 5 && daysAgo(it.last) >= 60 && it.number.any(Char::isDigit) }.sortedByDescending { it.n }.take(5).map { Triple(it, (daysAgo(it.last) / 730f).coerceIn(0f, 1f), agoText(it.last)) }
             }
             val color = when (rank) { 2 -> Red; 3 -> Amber; else -> primary }
-            SectionCard("🏆 Classements", id = "st_rank") {
-                Segmented(listOf("Top", "Durée", "Ghostés", "Oubliés"), rank, { rank = it }, Modifier.padding(bottom = 6.dp))
-                if (list.isEmpty()) Text("Rien à signaler ici.", fontSize = 12.sp, color = muted(.5f), modifier = Modifier.padding(6.dp))
+            SectionCard(tr("🏆 Classements"), id = "st_rank") {
+                Segmented(listOf(tr("Top"), tr("Durée"), tr("Ghostés"), tr("Oubliés")), rank, { rank = it }, Modifier.padding(bottom = 6.dp))
+                if (list.isEmpty()) Text(tr("Rien à signaler ici."), fontSize = 12.sp, color = muted(.5f), modifier = Modifier.padding(6.dp))
                 list.forEach { (a, frac, right) -> MiniBar(a.display, a.photo, frac, right, color) { onDetail(a.key) } }
             }
         }
         // ---- 🎉 Faits marrants : grille 2 colonnes ----
         if (fun_.isNotEmpty()) item {
             val shown = if (allFacts) fun_ else fun_.take(6)
-            SectionCard("🎉 Faits marrants", id = "st_fun") {
+            SectionCard(tr("🎉 Faits marrants"), id = "st_fun") {
                 shown.chunked(2).forEach { row ->
                     Row(Modifier.fillMaxWidth().padding(bottom = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         row.forEach { f -> FactTile(f, Modifier.weight(1f)) { f.key?.let(onDetail) } }
@@ -348,7 +356,7 @@ internal fun StatsScreen(calls: List<CallRepository.CallEntry>, contacts: List<C
                     }
                 }
                 if (fun_.size > 6) TextButton(onClick = { allFacts = !allFacts }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                    Text(if (allFacts) "Moins" else "Voir les ${fun_.size - 6} autres")
+                    Text(if (allFacts) tr("Moins") else trn(fun_.size - 6, "Voir {0} autre", "Voir les {0} autres"))
                 }
             }
             Spacer(Modifier.height(10.dp))
@@ -359,8 +367,8 @@ internal fun StatsScreen(calls: List<CallRepository.CallEntry>, contacts: List<C
             val perYear = remember(calls) { calls.groupingBy { java.util.Calendar.getInstance().apply { timeInMillis = it.date }.get(java.util.Calendar.YEAR) }.eachCount().toSortedMap() }
             val maxN = perYear.values.maxOrNull() ?: 1
             val first = perYear.keys.firstOrNull()
-            SectionCard("📚 Données comptées", id = "st_cover", defaultCollapsed = true) {
-                Text("${calls.size} appels du journal, du ${java.text.SimpleDateFormat("d MMMM yyyy", java.util.Locale.FRANCE).format(java.util.Date(oldest))} à aujourd'hui. Tous sont pris en compte.", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
+            SectionCard(tr("📚 Données comptées"), id = "st_cover", defaultCollapsed = true) {
+                Text(trn(calls.size, "{0} appel du journal, du {1} à aujourd'hui. Tous sont pris en compte.", "{0} appels du journal, du {1} à aujourd'hui. Tous sont pris en compte.", java.text.DateFormat.getDateInstance(java.text.DateFormat.LONG, I18n.locale).format(java.util.Date(oldest))), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
                 Spacer(Modifier.height(10.dp))
                 perYear.forEach { (y, n) ->
                     Row(Modifier.fillMaxWidth().padding(vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -372,7 +380,7 @@ internal fun StatsScreen(calls: List<CallRepository.CallEntry>, contacts: List<C
                     }
                 }
                 Spacer(Modifier.height(8.dp))
-                Text("Les années absentes ne sont pas dans le journal du téléphone${first?.let { " (il commence en $it)" } ?: ""}. Si tu as une sauvegarde plus ancienne (XML « SMS Backup & Restore »), importe-la dans Réglages › Sauvegardes : les appels manquants y sont ajoutés, puis comptés ici.", fontSize = 12.sp, color = muted(.6f))
+                Text(tr("Les années absentes ne sont pas dans le journal du téléphone{0}. Si tu as une sauvegarde plus ancienne (XML « SMS Backup & Restore »), importe-la dans Réglages › Sauvegardes : les appels manquants y sont ajoutés, puis comptés ici.", first?.let { tr(" (il commence en {0})", it.toString()) } ?: ""), fontSize = 12.sp, color = muted(.6f))
             }
             Spacer(Modifier.height(10.dp))
         }
@@ -458,7 +466,7 @@ internal fun ContactStatsSheet(key: String, calls: List<CallRepository.CallEntry
     val mine = remember(key, calls) { calls.filter { keyOf(it.number).ifEmpty { it.number } == key } }
     val state = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = state, containerColor = MaterialTheme.colorScheme.background) {
-        if (mine.isEmpty()) { Box(Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) { Text("Aucun appel avec ce contact.", color = muted()) }; return@ModalBottomSheet }
+        if (mine.isEmpty()) { Box(Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) { Text(tr("Aucun appel avec ce contact."), color = muted()) }; return@ModalBottomSheet }
         val a = remember(mine) { aggregate(mine)[key] ?: aggregate(mine).values.first() }
         val primary = MaterialTheme.colorScheme.primary
         val stack = remember { mutableStateListOf<Range>() }
@@ -473,18 +481,18 @@ internal fun ContactStatsSheet(key: String, calls: List<CallRepository.CallEntry
                         Text(a.display, fontWeight = FontWeight.Bold, fontSize = 20.sp, color = MaterialTheme.colorScheme.onBackground, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         Text(phoneText(a.number), fontSize = 13.sp, color = muted())
                     }
-                    Box(Modifier.size(50.dp).clip(CircleShape).background(CallGreen).clickable { onCall(a.number) }, contentAlignment = Alignment.Center) { Icon(Icons.Filled.Call, "Appeler", tint = Color.White) }
+                    Box(Modifier.size(50.dp).clip(CircleShape).background(CallGreen).clickable { onCall(a.number) }, contentAlignment = Alignment.Center) { Icon(Icons.Filled.Call, tr("Appeler"), tint = Color.White) }
                 }
-                TileRow(listOf("Appels" to a.n.toString(), "Durée totale" to fmtClock(a.dur), "Moyenne" to fmtDur(if (a.ans > 0) (a.dur / a.ans).toInt() else 0)))
-                TileRow(listOf("Sortants" to a.out.toString(), "Entrants" to a.inc.toString(), "Manqués" to a.miss.toString()), listOf(null, null, Red))
-                TileRow(listOf("Premier appel" to fmtDate(a.first), "Dernier" to agoText(a.last)))
-                TileRow(listOf("Réponds à" to "${pct(a.inc, a.inc + a.miss)} %", "Te répond" to "${pct(a.out - a.outNoAns, a.out)} %", "Plus long" to fmtDur(mine.maxOf { it.duration })))
+                TileRow(listOf(tr("Appels") to a.n.toString(), tr("Durée totale") to fmtClock(a.dur), tr("Moyenne") to fmtDur(if (a.ans > 0) (a.dur / a.ans).toInt() else 0)))
+                TileRow(listOf(tr("Sortants") to a.out.toString(), tr("Entrants") to a.inc.toString(), tr("Manqués") to a.miss.toString()), listOf(null, null, Red))
+                TileRow(listOf(tr("Premier appel") to fmtDate(a.first), tr("Dernier") to agoText(a.last)))
+                TileRow(listOf(tr("Réponds à") to "${pct(a.inc, a.inc + a.miss)} %", tr("Te répond") to "${pct(a.out - a.outNoAns, a.out)} %", tr("Plus long") to fmtDur(mine.maxOf { it.duration })))
                 NotesCard(listOf(a.number), a.display)
                 ContactRecordings(key)
-                SectionCard(range.label, collapsible = false, action = { if (stack.isNotEmpty()) TextButton(onClick = { stack.removeAt(stack.lastIndex) }) { Text("Retour") } }) {
+                SectionCard(range.label, collapsible = false, action = { if (stack.isNotEmpty()) TextButton(onClick = { stack.removeAt(stack.lastIndex) }) { Text(tr("Retour")) } }) {
                     BarChart(counts, bs.map { it.label }, primary, 110.dp, onBar = { i -> drill(bs[i], range.gran)?.let { stack.add(it) } })
                 }
-                Text("Derniers appels", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(vertical = 6.dp))
+                Text(tr("Derniers appels"), fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(vertical = 6.dp))
             }
             items(mine.size.coerceAtMost(25)) { i ->
                 val c = mine[i]

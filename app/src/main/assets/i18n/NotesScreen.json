@@ -1,0 +1,16 @@
+{
+  "Chercher dans les notes, un nom, un numéro…": { "en": "Search notes, a name, a number…", "es": "Buscar en notas, un nombre, un número…", "de": "Notizen, Name oder Nummer suchen…", "it": "Cerca nelle note, un nome, un numero…", "pt": "Pesquisar notas, um nome, um número…" },
+  "Effacer": { "en": "Clear", "es": "Borrar", "de": "Löschen", "it": "Cancella", "pt": "Limpar" },
+  "🕘 Récentes": { "en": "🕘 Recent", "es": "🕘 Recientes", "de": "🕘 Neueste", "it": "🕘 Recenti", "pt": "🕘 Recentes" },
+  "👤 Par contact": { "en": "👤 By contact", "es": "👤 Por contacto", "de": "👤 Nach Kontakt", "it": "👤 Per contatto", "pt": "👤 Por contato" },
+  "{0} note": { "en": "{0} note", "es": "{0} nota", "de": "{0} Notiz", "it": "{0} nota", "pt": "{0} nota" },
+  "{0} notes": { "en": "{0} notes", "es": "{0} notas", "de": "{0} Notizen", "it": "{0} note", "pt": "{0} notas" },
+  "{0} résultat sur {1}": { "en": "{0} result out of {1}", "es": "{0} resultado de {1}", "de": "{0} Ergebnis von {1}", "it": "{0} risultato su {1}", "pt": "{0} resultado de {1}" },
+  "{0} résultats sur {1}": { "en": "{0} results out of {1}", "es": "{0} resultados de {1}", "de": "{0} Ergebnisse von {1}", "it": "{0} risultati su {1}", "pt": "{0} resultados de {1}" },
+  "Aucune note pour l'instant.\nPrends des notes pendant tes appels 📝": { "en": "No notes yet.\nTake notes during your calls 📝", "es": "Aún no hay notas.\nToma notas durante tus llamadas 📝", "de": "Noch keine Notizen.\nMach dir Notizen während deiner Anrufe 📝", "it": "Ancora nessuna nota.\nPrendi appunti durante le chiamate 📝", "pt": "Nenhuma nota ainda.\nFaça anotações durante suas chamadas 📝" },
+  "Rien trouvé pour « {0} ».": { "en": "Nothing found for “{0}”.", "es": "No se encontró nada para «{0}».", "de": "Nichts gefunden für „{0}“.", "it": "Nessun risultato per «{0}».", "pt": "Nada encontrado para “{0}”." },
+  "{0} note · {1}": { "en": "{0} note · {1}", "es": "{0} nota · {1}", "de": "{0} Notiz · {1}", "it": "{0} nota · {1}", "pt": "{0} nota · {1}" },
+  "{0} notes · {1}": { "en": "{0} notes · {1}", "es": "{0} notas · {1}", "de": "{0} Notizen · {1}", "it": "{0} note · {1}", "pt": "{0} notas · {1}" },
+  "Appeler": { "en": "Call", "es": "Llamar", "de": "Anrufen", "it": "Chiama", "pt": "Ligar" },
+  "Supprimer": { "en": "Delete", "es": "Eliminar", "de": "Löschen", "it": "Elimina", "pt": "Excluir" }
+}

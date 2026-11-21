@@ -101,7 +101,7 @@ internal fun LogoShow(onDone: () -> Unit) {
                 }
             ) {
                 Text(
-                    "Di-Allô !", fontFamily = th.title, fontWeight = if (th.title == null) FontWeight.ExtraBold else FontWeight.Normal,
+                    tr("Di-Allô !"), fontFamily = th.title, fontWeight = if (th.title == null) FontWeight.ExtraBold else FontWeight.Normal,
                     fontSize = 30.sp, color = Color(0xFF1B1B1F), modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
                 )
             }

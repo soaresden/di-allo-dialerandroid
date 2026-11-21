@@ -41,7 +41,7 @@ class OngoingCallActivity : ComponentActivity() {
     private var wake: PowerManager.WakeLock? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState); CrashLog.install(this)
+        super.onCreate(savedInstanceState); CrashLog.install(this); I18n.ensure(this)
         setShowWhenLocked(true)
         setTurnScreenOn(true)
         handle(intent)
@@ -136,17 +136,17 @@ private fun CallScreen(onDone: () -> Unit, onProximity: (Boolean) -> Unit) {
     val elapsed = if (connectAt > 0) ((now - connectAt) / 1000).coerceAtLeast(0) else 0
     val clock = "%02d:%02d".format(elapsed / 60, elapsed % 60)
     val stateText = when {
-        over -> if (connectAt > 0) "Appel terminé · $clock" else "Appel terminé"
-        ringing -> if (others.isNotEmpty()) "Double appel…" else "Appel entrant…"
-        state == Call.STATE_DIALING || state == Call.STATE_CONNECTING || state == Call.STATE_NEW || state == Call.STATE_SELECT_PHONE_ACCOUNT -> "Appel en cours…"
+        over -> if (connectAt > 0) tr("Appel terminé · {0}", clock) else tr("Appel terminé")
+        ringing -> if (others.isNotEmpty()) tr("Double appel…") else tr("Appel entrant…")
+        state == Call.STATE_DIALING || state == Call.STATE_CONNECTING || state == Call.STATE_NEW || state == Call.STATE_SELECT_PHONE_ACCOUNT -> tr("Appel en cours…")
         state == Call.STATE_ACTIVE -> clock
-        state == Call.STATE_HOLDING -> "⏸ En attente · $clock"
+        state == Call.STATE_HOLDING -> tr("⏸ En attente · {0}", clock)
         else -> ""
     }
 
     val shown = when {
-        conference -> "Conférence"
-        else -> contact?.first ?: if (number.isBlank()) "Numéro masqué" else displayNumber(number)
+        conference -> tr("Conférence")
+        else -> contact?.first ?: if (number.isBlank()) tr("Numéro masqué") else displayNumber(number)
     }
     var tab by rememberSaveable { mutableIntStateOf(0) }
     var keypad by rememberSaveable { mutableStateOf(false) }
@@ -166,16 +166,16 @@ private fun CallScreen(onDone: () -> Unit, onProximity: (Boolean) -> Unit) {
         Spacer(Modifier.height(10.dp))
         Text(shown, color = cs.onBackground, fontSize = if (ringing) 28.sp else 23.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
         if (number.isNotBlank() && !conference) {
-            val type = listOfNotNull(lineType(number), frRegion(number)).joinToString(" · ")
+            val type = listOfNotNull(lineTypeLabel(number), frRegionLabel(number)).joinToString(" · ")
             Text((if (contact != null) phoneText(number) + " · " else flagOf(number) + " ") + type, color = muted(), fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         Spacer(Modifier.height(4.dp))
         Text(stateText, color = if (state == Call.STATE_ACTIVE && !over) CallGreen else muted(), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
         if (!conference) hist?.let { h ->
-            val info = if (h.isEmpty()) "Premier appel avec ce numéro 👋"
+            val info = if (h.isEmpty()) tr("Premier appel avec ce numéro 👋")
             else {
                 val missed = h.count { it.type == CallLog.Calls.MISSED_TYPE || it.type == CallLog.Calls.REJECTED_TYPE }
-                "${h.size} appel${if (h.size > 1) "s" else ""} · ${fmtDur(h.sumOf { it.dur })} · dernier ${fmtWhen(h.first().date)}" + if (missed > 0) " · $missed manqué${if (missed > 1) "s" else ""}" else ""
+                trn(h.size, "{0} appel", "{0} appels") + " · " + fmtDur(h.sumOf { it.dur }) + " · " + tr("dernier {0}", fmtWhen(h.first().date)) + if (missed > 0) " · " + trn(missed, "{0} manqué", "{0} manqués") else ""
             }
             Text(info, color = muted(.6f), fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
@@ -186,24 +186,24 @@ private fun CallScreen(onDone: () -> Unit, onProximity: (Boolean) -> Unit) {
             notes.firstOrNull()?.let { n ->
                 Surface(color = cs.surface, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.padding(12.dp)) {
-                        Text("📝 Dernière note · ${fmtWhen(n.date)}", fontSize = 12.sp, color = muted(.6f))
+                        Text(tr("📝 Dernière note · {0}", fmtWhen(n.date)), fontSize = 12.sp, color = muted(.6f))
                         Text(n.text, fontSize = 14.sp, color = cs.onSurface, maxLines = 4, overflow = TextOverflow.Ellipsis)
                     }
                 }
             }
             Spacer(Modifier.weight(1f))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                SmallAction(if (silenced) "🔕 Silencieux" else "🔕 Silence", enabled = !silenced) { RingGestures.silence(ctx) }
-                if (number.isNotBlank()) SmallAction("💬 Message") { smsSheet = true }
+                SmallAction(if (silenced) tr("🔕 Silencieux") else tr("🔕 Silence"), enabled = !silenced) { RingGestures.silence(ctx) }
+                if (number.isNotBlank()) SmallAction(tr("💬 Message")) { smsSheet = true }
             }
             Spacer(Modifier.height(22.dp))
             if (others.isEmpty()) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                RoundBtn(Red, Icons.Filled.CallEnd, "Refuser") { ending = true; HyperInCallService.hangup() }
-                RoundBtn(CallGreen, Icons.Filled.Call, "Répondre") { HyperInCallService.answer() }
+                RoundBtn(Red, Icons.Filled.CallEnd, tr("Refuser")) { ending = true; HyperInCallService.hangup() }
+                RoundBtn(CallGreen, Icons.Filled.Call, tr("Répondre")) { HyperInCallService.answer() }
             } else Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.Top) {
-                RoundBtn(Red, Icons.Filled.CallEnd, "Refuser", 62.dp) { HyperInCallService.hangup() }
-                RoundBtn(CallGreen, Icons.Filled.PhonePaused, "Mettre en attente\net répondre", 62.dp) { HyperInCallService.answer() }
-                RoundBtn(Amber, Icons.Filled.PhoneForwarded, "Raccrocher\net répondre", 62.dp) { HyperInCallService.answerEndingOthers() }
+                RoundBtn(Red, Icons.Filled.CallEnd, tr("Refuser"), 62.dp) { HyperInCallService.hangup() }
+                RoundBtn(CallGreen, Icons.Filled.PhonePaused, tr("Mettre en attente\net répondre"), 62.dp) { HyperInCallService.answer() }
+                RoundBtn(Amber, Icons.Filled.PhoneForwarded, tr("Raccrocher\net répondre"), 62.dp) { HyperInCallService.answerEndingOthers() }
             }
             Spacer(Modifier.height(30.dp))
             return@Column
@@ -228,18 +228,18 @@ private fun CallScreen(onDone: () -> Unit, onProximity: (Boolean) -> Unit) {
             val canHold = call?.details?.can(Call.Details.CAPABILITY_HOLD) == true || holding
             Row(Modifier.fillMaxWidth()) {
                 @Suppress("DEPRECATION")
-                Ctrl(Icons.Filled.VolumeUp, "Haut-parleur", speaker, Modifier.weight(1f)) { HyperInCallService.setSpeaker(!speaker) }
-                Ctrl(if (muted) Icons.Filled.MicOff else Icons.Filled.Mic, if (muted) "Coupé" else "Muet", muted, Modifier.weight(1f)) { HyperInCallService.setMuted(!muted) }
-                Ctrl(Icons.Filled.Dialpad, "Clavier", keypad, Modifier.weight(1f)) { keypad = !keypad }
-                Ctrl(Icons.Filled.PersonAdd, "Ajouter", false, Modifier.weight(1f)) {
+                Ctrl(Icons.Filled.VolumeUp, tr("Haut-parleur"), speaker, Modifier.weight(1f)) { HyperInCallService.setSpeaker(!speaker) }
+                Ctrl(if (muted) Icons.Filled.MicOff else Icons.Filled.Mic, if (muted) tr("Coupé") else tr("Muet"), muted, Modifier.weight(1f)) { HyperInCallService.setMuted(!muted) }
+                Ctrl(Icons.Filled.Dialpad, tr("Clavier"), keypad, Modifier.weight(1f)) { keypad = !keypad }
+                Ctrl(Icons.Filled.PersonAdd, tr("Ajouter"), false, Modifier.weight(1f)) {
                     ctx.startActivity(Intent(ctx, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).putExtra("tab", 0))
                 }
             }
             Row(Modifier.fillMaxWidth()) {
-                Ctrl(if (holding) Icons.Filled.PlayArrow else Icons.Filled.Pause, if (holding) "Reprendre" else "Attente", holding, Modifier.weight(1f), enabled = canHold) { HyperInCallService.setHold(!holding) }
+                Ctrl(if (holding) Icons.Filled.PlayArrow else Icons.Filled.Pause, if (holding) tr("Reprendre") else tr("Attente"), holding, Modifier.weight(1f), enabled = canHold) { HyperInCallService.setHold(!holding) }
                 Ctrl(Icons.Filled.Bluetooth, "Bluetooth", bt, Modifier.weight(1f), enabled = btAvail) { HyperInCallService.setBluetooth(!bt) }
-                Ctrl(Icons.Filled.Sensors, "Auto HP", autoOn, Modifier.weight(1f)) { if (autoOn) AutoSpeaker.stop() else AutoSpeaker.start(ctx, force = true) }
-                Ctrl(Icons.Filled.CallMerge, "Fusionner", false, Modifier.weight(1f), enabled = HyperInCallService.canMerge) { HyperInCallService.merge() }
+                Ctrl(Icons.Filled.Sensors, tr("Auto HP"), autoOn, Modifier.weight(1f)) { if (autoOn) AutoSpeaker.stop() else AutoSpeaker.start(ctx, force = true) }
+                Ctrl(Icons.Filled.CallMerge, tr("Fusionner"), false, Modifier.weight(1f), enabled = HyperInCallService.canMerge) { HyperInCallService.merge() }
             }
             RecStrip(shown, number, state == Call.STATE_ACTIVE || state == Call.STATE_HOLDING)
             Spacer(Modifier.height(8.dp))
@@ -249,22 +249,22 @@ private fun CallScreen(onDone: () -> Unit, onProximity: (Boolean) -> Unit) {
         Surface(color = cs.surface, shape = RoundedCornerShape(20.dp), modifier = Modifier.fillMaxWidth().weight(1f)) {
             if (keypad && !over) DtmfPad(dtmf, onKey = { ch -> dtmf = (dtmf + ch).takeLast(24); HyperInCallService.dtmf(ch) }, onClose = { keypad = false })
             else Column(Modifier.padding(10.dp)) {
-                Segmented(listOf("📝 Notes" + if (notes.isNotEmpty()) " (${notes.size})" else "", "🕘 Historique" + (hist?.let { " (${it.size})" } ?: "")), tab, { tab = it })
+                Segmented(listOf(tr("📝 Notes") + if (notes.isNotEmpty()) " (${notes.size})" else "", tr("🕘 Historique") + (hist?.let { " (${it.size})" } ?: "")), tab, { tab = it })
                 Spacer(Modifier.height(8.dp))
                 if (tab == 0) {
-                    if (number.isBlank()) { Text("Numéro masqué : impossible de ranger une note.", fontSize = 13.sp, color = muted()); return@Column }
+                    if (number.isBlank()) { Text(tr("Numéro masqué : impossible de ranger une note."), fontSize = 13.sp, color = muted()); return@Column }
                     OutlinedTextField(
                         draft, { draft = it }, Modifier.fillMaxWidth(),
-                        placeholder = { Text("Note pendant l'appel…") }, minLines = 2, maxLines = 5,
-                        trailingIcon = { if (draft.isNotBlank()) IconButton(onClick = { saveDraft() }) { Icon(Icons.Filled.Save, "Enregistrer", tint = cs.primary) } }
+                        placeholder = { Text(tr("Note pendant l'appel…")) }, minLines = 2, maxLines = 5,
+                        trailingIcon = { if (draft.isNotBlank()) IconButton(onClick = { saveDraft() }) { Icon(Icons.Filled.Save, tr("Enregistrer"), tint = cs.primary) } }
                     )
                     Spacer(Modifier.height(6.dp))
                     NoteList(notes, Modifier.fillMaxWidth().weight(1f)) { id -> NotesRepository.delete(ctx, id); notes = NotesRepository.forNumber(ctx, number) }
                 } else {
                     val h = hist
                     when {
-                        h == null -> Text("Chargement…", fontSize = 13.sp, color = muted())
-                        h.isEmpty() -> Text("Aucun appel précédent avec ce numéro.", fontSize = 13.sp, color = muted())
+                        h == null -> Text(tr("Chargement…"), fontSize = 13.sp, color = muted())
+                        h.isEmpty() -> Text(tr("Aucun appel précédent avec ce numéro."), fontSize = 13.sp, color = muted())
                         else -> LazyColumn(Modifier.fillMaxWidth().weight(1f)) { items(h.take(60)) { HistRow(it) } }
                     }
                 }
@@ -276,9 +276,9 @@ private fun CallScreen(onDone: () -> Unit, onProximity: (Boolean) -> Unit) {
         if (over) fr.soaresden.diallo.rec.CallRecorder.message.value?.let { Text(it, fontSize = 12.5.sp, color = muted(.75f), maxLines = 2, modifier = Modifier.padding(bottom = 8.dp)) }
         if (over) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                OutlinedButton(onClick = { draft = ""; onDone() }, modifier = Modifier.weight(1f)) { Text("Fermer") }
+                OutlinedButton(onClick = { draft = ""; onDone() }, modifier = Modifier.weight(1f)) { Text(tr("Fermer")) }
                 Button(onClick = { saveDraft(); onDone() }, modifier = Modifier.weight(1.6f), enabled = draft.isNotBlank()) {
-                    Icon(Icons.Filled.Save, null, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text("Enregistrer et fermer")
+                    Icon(Icons.Filled.Save, null, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text(tr("Enregistrer et fermer"))
                 }
             }
             Spacer(Modifier.height(8.dp))
@@ -298,9 +298,9 @@ private fun OtherCallRow(c: Call, canSwap: Boolean) {
             Avatar(HyperInCallService.nameOf(c), HyperInCallService.photoOf(c), 34.dp); Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
                 Text(HyperInCallService.nameOf(c), fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = cs.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(when (c.state) { Call.STATE_HOLDING -> "⏸ En attente"; Call.STATE_ACTIVE -> "En ligne"; Call.STATE_DIALING, Call.STATE_CONNECTING -> "Appel…"; else -> "" }, fontSize = 12.sp, color = muted())
+                Text(when (c.state) { Call.STATE_HOLDING -> tr("⏸ En attente"); Call.STATE_ACTIVE -> tr("En ligne"); Call.STATE_DIALING, Call.STATE_CONNECTING -> tr("Appel…"); else -> "" }, fontSize = 12.sp, color = muted())
             }
-            if (canSwap) TextButton(onClick = { HyperInCallService.swap() }) { Icon(Icons.Filled.SwapVert, null, Modifier.size(18.dp)); Spacer(Modifier.width(4.dp)); Text("Basculer") }
+            if (canSwap) TextButton(onClick = { HyperInCallService.swap() }) { Icon(Icons.Filled.SwapVert, null, Modifier.size(18.dp)); Spacer(Modifier.width(4.dp)); Text(tr("Basculer")) }
         }
     }
 }
@@ -312,9 +312,9 @@ private fun ParticipantRow(c: Call) {
         Avatar(HyperInCallService.nameOf(c), HyperInCallService.photoOf(c), 30.dp); Spacer(Modifier.width(10.dp))
         Text(HyperInCallService.nameOf(c), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
         if (c.details?.can(Call.Details.CAPABILITY_SEPARATE_FROM_CONFERENCE) == true)
-            IconButton(onClick = { c.splitFromConference() }, modifier = Modifier.size(36.dp)) { Icon(Icons.Filled.CallSplit, "Parler en privé", tint = MaterialTheme.colorScheme.primary) }
+            IconButton(onClick = { c.splitFromConference() }, modifier = Modifier.size(36.dp)) { Icon(Icons.Filled.CallSplit, tr("Parler en privé"), tint = MaterialTheme.colorScheme.primary) }
         if (c.details?.can(Call.Details.CAPABILITY_DISCONNECT_FROM_CONFERENCE) == true)
-            IconButton(onClick = { c.disconnect() }, modifier = Modifier.size(36.dp)) { Icon(Icons.Filled.CallEnd, "Raccrocher ce participant", tint = Red) }
+            IconButton(onClick = { c.disconnect() }, modifier = Modifier.size(36.dp)) { Icon(Icons.Filled.CallEnd, tr("Raccrocher ce participant"), tint = Red) }
     }
 }
 
@@ -326,15 +326,16 @@ private fun QuickSmsSheet(onDismiss: () -> Unit, onSend: (String) -> Unit) {
     var custom by remember { mutableStateOf("") }
     ModalBottomSheet(onDismissRequest = onDismiss, containerColor = MaterialTheme.colorScheme.background) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(bottom = 24.dp)) {
-            Text("Refuser avec un message", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(bottom = 10.dp))
-            list.forEach { m ->
+            Text(tr("Refuser avec un message"), fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(bottom = 10.dp))
+            list.forEach { raw ->
+                val m = tr(raw)   // réponses par défaut (en français) traduites ; les perso restent telles quelles
                 Surface(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp).clip(RoundedCornerShape(14.dp)).clickable { onSend(m) }) {
                     Text("💬  $m", fontSize = 14.5.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp))
                 }
             }
             OutlinedTextField(
-                custom, { custom = it }, Modifier.fillMaxWidth().padding(top = 4.dp), placeholder = { Text("Message perso…") }, shape = RoundedCornerShape(14.dp), maxLines = 3,
-                trailingIcon = { if (custom.isNotBlank()) IconButton(onClick = { onSend(custom.trim()) }) { Icon(Icons.Filled.Send, "Envoyer", tint = MaterialTheme.colorScheme.primary) } }
+                custom, { custom = it }, Modifier.fillMaxWidth().padding(top = 4.dp), placeholder = { Text(tr("Message perso…")) }, shape = RoundedCornerShape(14.dp), maxLines = 3,
+                trailingIcon = { if (custom.isNotBlank()) IconButton(onClick = { onSend(custom.trim()) }) { Icon(Icons.Filled.Send, tr("Envoyer"), tint = MaterialTheme.colorScheme.primary) } }
             )
         }
     }
@@ -370,7 +371,7 @@ private fun RecStrip(who: String, number: String, live: Boolean) {
                 Spacer(Modifier.width(8.dp))
                 val s = ((now - since) / 1000).coerceAtLeast(0)
                 Text(
-                    when (st) { fr.soaresden.diallo.rec.CallRecorder.State.STARTING -> "Démarrage…"; fr.soaresden.diallo.rec.CallRecorder.State.ON -> "REC %d:%02d · Arrêter".format(s / 60, s % 60); else -> "Enregistrer" },
+                    when (st) { fr.soaresden.diallo.rec.CallRecorder.State.STARTING -> tr("Démarrage…"); fr.soaresden.diallo.rec.CallRecorder.State.ON -> tr("REC {0} · Arrêter", "%d:%02d".format(s / 60, s % 60)); else -> tr("Enregistrer") },
                     color = if (on) Color.White else cs.onSurface, fontSize = 13.sp, fontWeight = FontWeight.SemiBold
                 )
             }
@@ -396,8 +397,8 @@ private fun DtmfPad(typed: String, onKey: (Char) -> Unit, onClose: () -> Unit) {
     val cs = MaterialTheme.colorScheme
     Column(Modifier.fillMaxSize().padding(10.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(typed.ifEmpty { "Tonalités" }, fontSize = 24.sp, fontWeight = FontWeight.Medium, color = if (typed.isEmpty()) muted(.4f) else cs.onSurface, maxLines = 1, modifier = Modifier.weight(1f).padding(start = 6.dp))
-            IconButton(onClick = onClose) { Icon(Icons.Filled.Close, "Fermer le clavier", tint = muted()) }
+            Text(typed.ifEmpty { tr("Tonalités") }, fontSize = 24.sp, fontWeight = FontWeight.Medium, color = if (typed.isEmpty()) muted(.4f) else cs.onSurface, maxLines = 1, modifier = Modifier.weight(1f).padding(start = 6.dp))
+            IconButton(onClick = onClose) { Icon(Icons.Filled.Close, tr("Fermer le clavier"), tint = muted()) }
         }
         Column(Modifier.fillMaxWidth().weight(1f), verticalArrangement = Arrangement.SpaceEvenly) {
             listOf("123", "456", "789", "*0#").forEach { row ->
@@ -417,12 +418,12 @@ private fun DtmfPad(typed: String, onKey: (Char) -> Unit, onClose: () -> Unit) {
 @Composable
 private fun HistRow(h: Hist) {
     val (icon, color, label) = when (h.type) {
-        CallLog.Calls.OUTGOING_TYPE -> Triple(Icons.Filled.PhoneForwarded, OutColor, "Sortant")
-        CallLog.Calls.INCOMING_TYPE -> Triple(Icons.Filled.PhoneCallback, InColor, "Entrant")
-        CallLog.Calls.MISSED_TYPE -> Triple(Icons.Filled.PhoneMissed, Red, "Manqué")
-        CallLog.Calls.REJECTED_TYPE -> Triple(Icons.Filled.PhoneMissed, Red, "Refusé")
-        CallLog.Calls.VOICEMAIL_TYPE -> Triple(Icons.Filled.Voicemail, Amber, "Messagerie")
-        else -> Triple(Icons.Filled.Call, Color.Gray, "Appel")
+        CallLog.Calls.OUTGOING_TYPE -> Triple(Icons.Filled.PhoneForwarded, OutColor, tr("Sortant"))
+        CallLog.Calls.INCOMING_TYPE -> Triple(Icons.Filled.PhoneCallback, InColor, tr("Entrant"))
+        CallLog.Calls.MISSED_TYPE -> Triple(Icons.Filled.PhoneMissed, Red, tr("Manqué"))
+        CallLog.Calls.REJECTED_TYPE -> Triple(Icons.Filled.PhoneMissed, Red, tr("Refusé"))
+        CallLog.Calls.VOICEMAIL_TYPE -> Triple(Icons.Filled.Voicemail, Amber, tr("Messagerie"))
+        else -> Triple(Icons.Filled.Call, Color.Gray, tr("Appel"))
     }
     Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
         Icon(icon, label, tint = color, modifier = Modifier.size(18.dp))

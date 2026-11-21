@@ -1,0 +1,205 @@
+{
+ "Données Di-Allô trouvées": {
+  "en": "Di-Allô data found",
+  "es": "Datos de Di-Allô encontrados",
+  "de": "Di-Allô-Daten gefunden",
+  "it": "Dati di Di-Allô trovati",
+  "pt": "Dados do Di-Allô encontrados"
+ },
+ "Ce dossier contient :": {
+  "en": "This folder contains:",
+  "es": "Esta carpeta contiene:",
+  "de": "Dieser Ordner enthält:",
+  "it": "Questa cartella contiene:",
+  "pt": "Esta pasta contém:"
+ },
+ "{0} note": {
+  "en": "{0} note",
+  "es": "{0} nota",
+  "de": "{0} Notiz",
+  "it": "{0} nota",
+  "pt": "{0} nota"
+ },
+ "{0} notes": {
+  "en": "{0} notes",
+  "es": "{0} notas",
+  "de": "{0} Notizen",
+  "it": "{0} note",
+  "pt": "{0} notas"
+ },
+ "{0} réglage": {
+  "en": "{0} setting",
+  "es": "{0} ajuste",
+  "de": "{0} Einstellung",
+  "it": "{0} impostazione",
+  "pt": "{0} configuração"
+ },
+ "{0} réglages": {
+  "en": "{0} settings",
+  "es": "{0} ajustes",
+  "de": "{0} Einstellungen",
+  "it": "{0} impostazioni",
+  "pt": "{0} configurações"
+ },
+ "(du {0})": {
+  "en": "(from {0})",
+  "es": "(del {0})",
+  "de": "(vom {0})",
+  "it": "(del {0})",
+  "pt": "(de {0})"
+ },
+ "{0} sauvegarde d'appels / SMS": {
+  "en": "{0} call / SMS backup",
+  "es": "{0} copia de llamadas / SMS",
+  "de": "{0} Anruf-/SMS-Sicherung",
+  "it": "{0} backup di chiamate / SMS",
+  "pt": "{0} backup de chamadas / SMS"
+ },
+ "{0} sauvegardes d'appels / SMS": {
+  "en": "{0} call / SMS backups",
+  "es": "{0} copias de llamadas / SMS",
+  "de": "{0} Anruf-/SMS-Sicherungen",
+  "it": "{0} backup di chiamate / SMS",
+  "pt": "{0} backups de chamadas / SMS"
+ },
+ "Restaurer les notes et les réglages ? (les notes actuelles sont gardées)": {
+  "en": "Restore notes and settings? (current notes are kept)",
+  "es": "¿Restaurar las notas y los ajustes? (se conservan las notas actuales)",
+  "de": "Notizen und Einstellungen wiederherstellen? (aktuelle Notizen bleiben erhalten)",
+  "it": "Ripristinare note e impostazioni? (le note attuali vengono mantenute)",
+  "pt": "Restaurar notas e configurações? (as notas atuais são mantidas)"
+ },
+ "Restaurer": {
+  "en": "Restore",
+  "es": "Restaurar",
+  "de": "Wiederherstellen",
+  "it": "Ripristina",
+  "pt": "Restaurar"
+ },
+ "Non, écraser avec l'actuel": {
+  "en": "No, overwrite with current",
+  "es": "No, sobrescribir con lo actual",
+  "de": "Nein, mit aktuellem überschreiben",
+  "it": "No, sovrascrivi con l'attuale",
+  "pt": "Não, substituir pelo atual"
+ },
+ "📁 Dossier de travail": {
+  "en": "📁 Working folder",
+  "es": "📁 Carpeta de trabajo",
+  "de": "📁 Arbeitsordner",
+  "it": "📁 Cartella di lavoro",
+  "pt": "📁 Pasta de trabalho"
+ },
+ "Choisis (ou crée) un dossier sur le téléphone, par exemple « Di-Allo ».": {
+  "en": "Pick (or create) a folder on the phone, for example “Di-Allo”.",
+  "es": "Elige (o crea) una carpeta en el teléfono, por ejemplo «Di-Allo».",
+  "de": "Wähle (oder erstelle) einen Ordner auf dem Telefon, zum Beispiel „Di-Allo“.",
+  "it": "Scegli (o crea) una cartella sul telefono, ad esempio «Di-Allo».",
+  "pt": "Escolha (ou crie) uma pasta no telefone, por exemplo “Di-Allo”."
+ },
+ "Di-Allô y range automatiquement tes notes, tes réglages et une sauvegarde complète des appels et des SMS/MMS.": {
+  "en": "Di-Allô automatically stores your notes, your settings and a full backup of calls and SMS/MMS there.",
+  "es": "Di-Allô guarda ahí automáticamente tus notas, tus ajustes y una copia completa de llamadas y SMS/MMS.",
+  "de": "Di-Allô legt dort automatisch deine Notizen, deine Einstellungen und eine vollständige Sicherung der Anrufe und SMS/MMS ab.",
+  "it": "Di-Allô ci salva automaticamente le tue note, le tue impostazioni e un backup completo di chiamate e SMS/MMS.",
+  "pt": "O Di-Allô guarda ali automaticamente suas notas, suas configurações e um backup completo das chamadas e SMS/MMS."
+ },
+ "Après une réinstallation, rechoisis ce dossier : tout revient.": {
+  "en": "After reinstalling, pick this folder again: everything comes back.",
+  "es": "Tras reinstalar, vuelve a elegir esta carpeta: todo vuelve.",
+  "de": "Nach einer Neuinstallation wähle diesen Ordner erneut: alles ist wieder da.",
+  "it": "Dopo una reinstallazione, riscegli questa cartella: torna tutto.",
+  "pt": "Depois de reinstalar, escolha esta pasta de novo: tudo volta."
+ },
+ "Choisir le dossier": {
+  "en": "Choose folder",
+  "es": "Elegir carpeta",
+  "de": "Ordner wählen",
+  "it": "Scegli cartella",
+  "pt": "Escolher pasta"
+ },
+ "Plus tard": {
+  "en": "Later",
+  "es": "Más tarde",
+  "de": "Später",
+  "it": "Più tardi",
+  "pt": "Mais tarde"
+ },
+ "📁 Dossier & sauvegardes": {
+  "en": "📁 Folder & backups",
+  "es": "📁 Carpeta y copias",
+  "de": "📁 Ordner & Sicherungen",
+  "it": "📁 Cartella e backup",
+  "pt": "📁 Pasta e backups"
+ },
+ "Aucun dossier choisi": {
+  "en": "No folder chosen",
+  "es": "Ninguna carpeta elegida",
+  "de": "Kein Ordner gewählt",
+  "it": "Nessuna cartella scelta",
+  "pt": "Nenhuma pasta escolhida"
+ },
+ "Notes, réglages et sauvegardes y sont rangés": {
+  "en": "Notes, settings and backups are stored there",
+  "es": "Ahí se guardan notas, ajustes y copias",
+  "de": "Notizen, Einstellungen und Sicherungen werden dort abgelegt",
+  "it": "Note, impostazioni e backup vengono salvati qui",
+  "pt": "Notas, configurações e backups ficam guardados ali"
+ },
+ "Choisir": {
+  "en": "Choose",
+  "es": "Elegir",
+  "de": "Wählen",
+  "it": "Scegli",
+  "pt": "Escolher"
+ },
+ "Changer": {
+  "en": "Change",
+  "es": "Cambiar",
+  "de": "Ändern",
+  "it": "Cambia",
+  "pt": "Alterar"
+ },
+ "Sauvegarde automatique": {
+  "en": "Automatic backup",
+  "es": "Copia automática",
+  "de": "Automatische Sicherung",
+  "it": "Backup automatico",
+  "pt": "Backup automático"
+ },
+ "Une fois par jour : journal d'appels complet + SMS + MMS (photos comprises). Les 7 dernières sont gardées.": {
+  "en": "Once a day: full call log + SMS + MMS (photos included). The last 7 are kept.",
+  "es": "Una vez al día: registro de llamadas completo + SMS + MMS (fotos incluidas). Se guardan las 7 últimas.",
+  "de": "Einmal täglich: komplette Anrufliste + SMS + MMS (inkl. Fotos). Die letzten 7 werden behalten.",
+  "it": "Una volta al giorno: registro chiamate completo + SMS + MMS (foto incluse). Vengono tenuti gli ultimi 7.",
+  "pt": "Uma vez por dia: registro de chamadas completo + SMS + MMS (fotos incluídas). Os 7 últimos são mantidos."
+ },
+ "⚠️ Autorise la lecture des SMS pour les sauvegarder aussi.": {
+  "en": "⚠️ Allow reading SMS to back them up too.",
+  "es": "⚠️ Permite leer los SMS para guardarlos también.",
+  "de": "⚠️ Erlaube das Lesen von SMS, um sie auch zu sichern.",
+  "it": "⚠️ Consenti la lettura degli SMS per salvarli anche.",
+  "pt": "⚠️ Permita a leitura de SMS para fazer backup deles também."
+ },
+ "Sauvegarder": {
+  "en": "Back up",
+  "es": "Guardar copia",
+  "de": "Sichern",
+  "it": "Backup",
+  "pt": "Fazer backup"
+ },
+ "Dernière sauvegarde complète : {0}": {
+  "en": "Last full backup: {0}",
+  "es": "Última copia completa: {0}",
+  "de": "Letzte vollständige Sicherung: {0}",
+  "it": "Ultimo backup completo: {0}",
+  "pt": "Último backup completo: {0}"
+ },
+ "« Restaurer » remet les notes et les réglages. Le journal d'appels et les SMS se restaurent dans le tableau ci-dessous.": {
+  "en": "“Restore” brings back notes and settings. The call log and SMS are restored in the table below.",
+  "es": "«Restaurar» recupera las notas y los ajustes. El registro de llamadas y los SMS se restauran en la tabla de abajo.",
+  "de": "„Wiederherstellen“ holt Notizen und Einstellungen zurück. Anrufliste und SMS werden in der Tabelle unten wiederhergestellt.",
+  "it": "«Ripristina» recupera note e impostazioni. Il registro chiamate e gli SMS si ripristinano nella tabella qui sotto.",
+  "pt": "“Restaurar” recupera as notas e as configurações. O registro de chamadas e os SMS são restaurados na tabela abaixo."
+ }
+}

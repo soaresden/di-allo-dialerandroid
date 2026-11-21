@@ -80,7 +80,7 @@ object DataFolder {
         h.postAtTime({ exec.execute { syncNow(app) } }, TOKEN, SystemClock.uptimeMillis() + 1500)
     }
 
-    private fun now() = SimpleDateFormat("dd/MM HH:mm", Locale.FRANCE).format(Date())
+    private fun now() = SimpleDateFormat("dd/MM HH:mm", I18n.locale).format(Date())
 
     /* ---------------- Notes + réglages ---------------- */
 
@@ -89,9 +89,9 @@ object DataFolder {
         return try {
             writeText(ctx, dir, "notes.json", NotesRepository.toJson(NotesRepository.list(ctx)))
             writeText(ctx, dir, "reglages.json", settingsJson(ctx).toString(1))
-            status.value = "✅ Notes et réglages enregistrés · ${now()}"
+            status.value = tr("✅ Notes et réglages enregistrés · {0}", now())
             true
-        } catch (_: Throwable) { status.value = "❌ Impossible d'écrire dans le dossier"; false }
+        } catch (_: Throwable) { status.value = tr("❌ Impossible d'écrire dans le dossier"); false }
     }
 
     private fun writeText(ctx: Context, dir: DocumentFile, name: String, text: String) {
@@ -157,7 +157,7 @@ object DataFolder {
             e.commit()
             restoring = false
         }
-        status.value = "♻️ Restauré : $added note${if (added > 1) "s" else ""}, $n réglages · ${now()}"
+        status.value = trn(added, "♻️ Restauré : {0} note, {1} réglages · {2}", "♻️ Restauré : {0} notes, {1} réglages · {2}", n, now())
         return added to n
     }
 
@@ -206,22 +206,22 @@ object DataFolder {
         val stamp = SimpleDateFormat("yyyyMMddHHmmss", Locale.US).format(Date())
         val parts = ArrayList<String>()
         try {
-            busy.value = "Sauvegarde du journal d'appels…"
+            busy.value = tr("Sauvegarde du journal d'appels…")
             out.createFile("application/octet-stream", "calls-$stamp.xml")?.let { f ->
-                ctx.contentResolver.openOutputStream(f.uri, "wt")?.use { val n = exportCalls(ctx, it); parts.add("$n appels") }
+                ctx.contentResolver.openOutputStream(f.uri, "wt")?.use { val n = exportCalls(ctx, it); parts.add(trn(n, "{0} appel", "{0} appels")) }
             }
             if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED) {
-                busy.value = "Sauvegarde des SMS / MMS…"
+                busy.value = tr("Sauvegarde des SMS / MMS…")
                 out.createFile("application/octet-stream", "sms-$stamp.xml")?.let { f ->
-                    ctx.contentResolver.openOutputStream(f.uri, "wt")?.use { val (s, m) = exportSms(ctx, it); parts.add("$s SMS, $m MMS") }
+                    ctx.contentResolver.openOutputStream(f.uri, "wt")?.use { val (s, m) = exportSms(ctx, it); parts.add(tr("{0} SMS, {1} MMS", s, m)) }
                 }
-            } else parts.add("SMS non autorisés")
+            } else parts.add(tr("SMS non autorisés"))
             rotate(out, "calls-"); rotate(out, "sms-")
             syncNow(ctx)
             prefs(ctx).edit().putLong(LAST, System.currentTimeMillis()).apply()
-            status.value = "✅ Sauvegarde · ${parts.joinToString(" · ")} · ${now()}"
+            status.value = tr("✅ Sauvegarde · {0} · {1}", parts.joinToString(" · "), now())
         } catch (t: Throwable) {
-            status.value = "❌ Sauvegarde échouée : ${t.message ?: t.javaClass.simpleName}"
+            status.value = tr("❌ Sauvegarde échouée : {0}", t.message ?: t.javaClass.simpleName)
         } finally { busy.value = null }
     }
 
@@ -293,7 +293,7 @@ object DataFolder {
                 x.a("locked", s(Telephony.Sms.LOCKED) ?: "0"); x.a("date_sent", s(Telephony.Sms.DATE_SENT) ?: "0"); x.a("sub_id", s("sub_id") ?: "-1")
                 x.a("readable_date", readable(date)); x.a("contact_name", nm[keyOf(addr)] ?: "(Unknown)")
                 x.endTag(null, "sms"); ns++
-                if (ns % 500 == 0) busy.value = "Sauvegarde des SMS… $ns"
+                if (ns % 500 == 0) busy.value = tr("Sauvegarde des SMS… {0}", ns)
             }
         }
         mmsC?.use { c ->
@@ -337,7 +337,7 @@ object DataFolder {
                 addrs.forEach { (ad, t, cs) -> x.startTag(null, "addr"); x.a("address", ad); x.a("type", t); x.a("charset", cs); x.endTag(null, "addr") }
                 x.endTag(null, "addrs")
                 x.endTag(null, "mms"); nm2++
-                if (nm2 % 50 == 0) busy.value = "Sauvegarde des MMS… $nm2"
+                if (nm2 % 50 == 0) busy.value = tr("Sauvegarde des MMS… {0}", nm2)
             }
         }
         x.endTag(null, "smses"); x.endDocument(); x.flush()

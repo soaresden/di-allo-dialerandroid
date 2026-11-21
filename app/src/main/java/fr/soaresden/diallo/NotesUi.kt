@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.sp
 /** Liste défilante des notes (écran d'appel). */
 @Composable
 internal fun NoteList(notes: List<NotesRepository.Note>, modifier: Modifier, onDelete: (Long) -> Unit) {
-    if (notes.isEmpty()) { Text("Aucune note pour l'instant.", fontSize = 12.5.sp, color = muted(.5f), modifier = Modifier.padding(4.dp)); return }
+    if (notes.isEmpty()) { Text(tr("Aucune note pour l'instant."), fontSize = 12.5.sp, color = muted(.5f), modifier = Modifier.padding(4.dp)); return }
     LazyColumn(modifier) { items(notes, key = { it.id }) { NoteRow(it, onDelete) } }
 }
 
@@ -30,7 +30,7 @@ private fun NoteRow(n: NotesRepository.Note, onDelete: (Long) -> Unit) {
             Text(n.text, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
         }
         IconButton(onClick = { if (confirm) onDelete(n.id) else confirm = true }, modifier = Modifier.size(32.dp)) {
-            if (confirm) Text("🗑️", fontSize = 15.sp) else Icon(Icons.Filled.Close, "Supprimer", tint = muted(.4f), modifier = Modifier.size(16.dp))
+            if (confirm) Text("🗑️", fontSize = 15.sp) else Icon(Icons.Filled.Close, tr("Supprimer"), tint = muted(.4f), modifier = Modifier.size(16.dp))
         }
     }
 }
@@ -45,17 +45,17 @@ internal fun NotesCard(numbers: List<String>, name: String?) {
     fun load() = keys.flatMap { NotesRepository.forKey(ctx, it) }.sortedByDescending { it.date }
     var notes by remember(keys) { mutableStateOf(load()) }
     var draft by remember(keys) { mutableStateOf("") }
-    SectionCard("📝 Notes" + if (notes.isNotEmpty()) " (${notes.size})" else "", id = "notes_card") {
+    SectionCard(tr("📝 Notes") + if (notes.isNotEmpty()) " (${notes.size})" else "", id = "notes_card") {
         OutlinedTextField(
             draft, { draft = it }, Modifier.fillMaxWidth(),
-            placeholder = { Text("Ajouter une note…") }, minLines = 1, maxLines = 4,
+            placeholder = { Text(tr("Ajouter une note…")) }, minLines = 1, maxLines = 4,
             trailingIcon = {
                 if (draft.isNotBlank()) IconButton(onClick = { NotesRepository.add(ctx, number, name, draft); draft = ""; notes = load() }) {
-                    Icon(Icons.Filled.Save, "Enregistrer", tint = MaterialTheme.colorScheme.primary)
+                    Icon(Icons.Filled.Save, tr("Enregistrer"), tint = MaterialTheme.colorScheme.primary)
                 }
             }
         )
-        if (notes.isEmpty()) Text("Les notes prises pendant les appels apparaîtront ici.", fontSize = 12.sp, color = muted(.5f), modifier = Modifier.padding(top = 6.dp))
+        if (notes.isEmpty()) Text(tr("Les notes prises pendant les appels apparaîtront ici."), fontSize = 12.sp, color = muted(.5f), modifier = Modifier.padding(top = 6.dp))
         notes.take(30).forEach { NoteRow(it) { id -> NotesRepository.delete(ctx, id); notes = load() } }
     }
 }

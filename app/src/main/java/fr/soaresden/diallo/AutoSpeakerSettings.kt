@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.sp
 import kotlin.math.roundToLong
 
 internal fun autoSpeakerSummary(c: AutoSpeaker.Cfg) =
-    if (!c.on) "Désactivé" else "Activé · " + (if (c.flat) "posé à plat" else "loin de l'oreille") + " · ${"%.1f".format(c.delayMs / 1000.0)} s"
+    if (!c.on) tr("Désactivé") else tr("Activé") + " · " + (if (c.flat) tr("posé à plat") else tr("loin de l'oreille")) + " · ${"%.1f".format(I18n.locale, c.delayMs / 1000.0)} s"
 
 /** Sous-écran des réglages : haut-parleur automatique (ex-appli « Auto Haut-Parleur »). */
 @Composable
@@ -33,53 +33,53 @@ internal fun AutoSpeakerSettings() {
     val rest by AutoSpeaker.resting
 
     Text(
-        "👂 À l'oreille → écouteur.  🖐️ Éloigné → haut-parleur, tout seul.\nC'est intégré à Di-Allô : plus besoin de l'appli Auto Haut-Parleur (désactive son service d'accessibilité pour qu'elles ne se battent pas).",
+        tr("👂 À l'oreille → écouteur.  🖐️ Éloigné → haut-parleur, tout seul.\nC'est intégré à Di-Allô : plus besoin de l'appli Auto Haut-Parleur (désactive son service d'accessibilité pour qu'elles ne se battent pas)."),
         fontSize = 12.5.sp, color = muted(.75f), modifier = Modifier.padding(bottom = 10.dp)
     )
 
     Surface(color = cs.surface, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp)) {
         Row(Modifier.clickable { set(cfg.copy(on = !cfg.on)) }.padding(horizontal = 14.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("Haut-parleur automatique", fontWeight = FontWeight.SemiBold, fontSize = 15.sp, color = cs.onSurface)
-                Text(if (cfg.on) "Actif à chaque appel décroché" else "Tu peux aussi l'activer pendant un appel (bouton « Auto HP »)", fontSize = 12.sp, color = muted())
+                Text(tr("Haut-parleur automatique"), fontWeight = FontWeight.SemiBold, fontSize = 15.sp, color = cs.onSurface)
+                Text(if (cfg.on) tr("Actif à chaque appel décroché") else tr("Tu peux aussi l'activer pendant un appel (bouton « Auto HP »)"), fontSize = 12.sp, color = muted())
             }
             Switch(cfg.on, { set(cfg.copy(on = it)) })
         }
     }
 
-    SectionCard("Quand passer en haut-parleur ?", collapsible = false) {
-        Choice("🖐️ Dès que je l'éloigne de l'oreille", "Même tenu en main ou incliné", !cfg.flat) { set(cfg.copy(flat = false)) }
+    SectionCard(tr("Quand passer en haut-parleur ?"), id = "Quand passer en haut-parleur ?", collapsible = false) {
+        Choice(tr("🖐️ Dès que je l'éloigne de l'oreille"), tr("Même tenu en main ou incliné"), !cfg.flat) { set(cfg.copy(flat = false)) }
         Spacer(Modifier.height(8.dp))
-        Choice("📱 Seulement posé à plat et immobile", "Sur une table, écran vers le haut", cfg.flat) { set(cfg.copy(flat = true)) }
+        Choice(tr("📱 Seulement posé à plat et immobile"), tr("Sur une table, écran vers le haut"), cfg.flat) { set(cfg.copy(flat = true)) }
     }
 
-    SectionCard("Délai avant haut-parleur", collapsible = false, action = { Text("${"%.1f".format(cfg.delayMs / 1000.0)} s", fontWeight = FontWeight.Bold, color = cs.primary) }) {
+    SectionCard(tr("Délai avant haut-parleur"), id = "Délai avant haut-parleur", collapsible = false, action = { Text("${"%.1f".format(I18n.locale, cfg.delayMs / 1000.0)} s", fontWeight = FontWeight.Bold, color = cs.primary) }) {
         Slider(cfg.delayMs.toFloat(), { set(cfg.copy(delayMs = (it / 100f).roundToLong() * 100)) }, valueRange = 200f..3000f, steps = 27)
-        Text("Plus court = plus réactif ; plus long = évite les bascules quand tu bouges un peu.", fontSize = 12.sp, color = muted())
+        Text(tr("Plus court = plus réactif ; plus long = évite les bascules quand tu bouges un peu."), fontSize = 12.sp, color = muted())
     }
 
-    SectionCard("Retour à l'écouteur", collapsible = false) {
+    SectionCard(tr("Retour à l'écouteur"), id = "Retour à l'écouteur", collapsible = false) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("Dès que je le porte à l'oreille", fontSize = 14.sp, color = cs.onSurface)
-                Text("Sinon le haut-parleur reste jusqu'à ce que tu le coupes", fontSize = 12.sp, color = muted())
+                Text(tr("Dès que je le porte à l'oreille"), fontSize = 14.sp, color = cs.onSurface)
+                Text(tr("Sinon le haut-parleur reste jusqu'à ce que tu le coupes"), fontSize = 12.sp, color = muted())
             }
             Switch(cfg.back, { set(cfg.copy(back = it)) })
         }
     }
 
-    SectionCard("🧪 Test en direct", collapsible = false) {
-        Text("Couvre le haut de l'écran avec ta main, pose le téléphone, reprends-le…", fontSize = 12.sp, color = muted(), modifier = Modifier.padding(bottom = 8.dp))
-        TestLine("Proximité", when (near) { true -> "👂 À l'oreille / couvert"; false -> "🖐️ Loin de l'oreille"; null -> "⏳ Capteur…" })
-        TestLine("Position", if (rest) "📱 À plat et immobile" else "🤚 En main / en mouvement")
+    SectionCard(tr("🧪 Test en direct"), id = "🧪 Test en direct", collapsible = false) {
+        Text(tr("Couvre le haut de l'écran avec ta main, pose le téléphone, reprends-le…"), fontSize = 12.sp, color = muted(), modifier = Modifier.padding(bottom = 8.dp))
+        TestLine(tr("Proximité"), when (near) { true -> tr("👂 À l'oreille / couvert"); false -> tr("🖐️ Loin de l'oreille"); null -> tr("⏳ Capteur…") })
+        TestLine(tr("Position"), if (rest) tr("📱 À plat et immobile") else tr("🤚 En main / en mouvement"))
         val result = when {
-            near == true -> "Écouteur"
+            near == true -> tr("Écouteur")
             near == null -> "—"
-            !cfg.flat || rest -> "Haut-parleur (après ${"%.1f".format(cfg.delayMs / 1000.0)} s)"
-            else -> "Écouteur (pas posé à plat)"
+            !cfg.flat || rest -> tr("Haut-parleur (après {0} s)", "%.1f".format(I18n.locale, cfg.delayMs / 1000.0))
+            else -> tr("Écouteur (pas posé à plat)")
         }
         Box(Modifier.fillMaxWidth().padding(top = 6.dp).clip(RoundedCornerShape(12.dp)).background(cs.primaryContainer).padding(10.dp)) {
-            Text("En appel → $result", fontWeight = FontWeight.SemiBold, color = cs.onPrimaryContainer, fontSize = 14.sp)
+            Text(tr("En appel → {0}", result), fontWeight = FontWeight.SemiBold, color = cs.onPrimaryContainer, fontSize = 14.sp)
         }
     }
     Spacer(Modifier.height(16.dp))

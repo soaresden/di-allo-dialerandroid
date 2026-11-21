@@ -11,6 +11,8 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.provider.Settings
 import androidx.compose.runtime.mutableStateOf
+import fr.soaresden.diallo.I18n
+import fr.soaresden.diallo.tr
 import io.github.muntashirakon.adb.AbsAdbConnectionManager
 import io.github.muntashirakon.adb.android.AdbMdns
 import java.io.ByteArrayOutputStream
@@ -85,17 +87,17 @@ object AdbLauncher {
 
     /** Associe Di-Allô au débogage sans fil. [port] facultatif (sinon détecté). Hors fil principal. */
     fun pair(ctx: Context, code: String, port: Int? = null): Boolean {
-        pairing.value = "Association…"
+        pairing.value = tr("Association…")
         return try {
             val p = port ?: discover(ctx, AdbMdns.SERVICE_TYPE_TLS_PAIRING, 10_000)
-                ?: throw IllegalStateException("Écran « Associer avec un code » introuvable : laisse-le ouvert pendant la saisie")
-            if (!manager(ctx).pair("127.0.0.1", p, code.trim())) throw IllegalStateException("Code refusé")
+                ?: throw IllegalStateException(tr("Écran « Associer avec un code » introuvable : laisse-le ouvert pendant la saisie"))
+            if (!manager(ctx).pair("127.0.0.1", p, code.trim())) throw IllegalStateException(tr("Code refusé"))
             CallRecorder.prefs(ctx).edit().putBoolean("paired", true).apply()
-            pairing.value = "✅ Associé. Lancement du service…"
+            pairing.value = tr("✅ Associé. Lancement du service…")
             // juste après l'association, le débogage sans fil met un instant à accepter la connexion
             var ok = false
             for (i in 0 until 4) { Thread.sleep(if (i == 0) 1500L else 3000L); if (CallRecorder.ensureServer(ctx)) { ok = true; break } }
-            pairing.value = if (ok) "✅ Prêt : les appels peuvent être enregistrés" else "Associé, mais lancement impossible : ${lastError ?: "?"}"
+            pairing.value = if (ok) tr("✅ Prêt : les appels peuvent être enregistrés") else tr("Associé, mais lancement impossible : {0}", lastError ?: "?")
             true
         } catch (t: Throwable) {
             pairing.value = "⚠️ " + (t.message ?: t.javaClass.simpleName); false
@@ -106,12 +108,12 @@ object AdbLauncher {
     /** Exécute [cmd] en shell via le débogage sans fil. Hors fil principal. */
     fun run(ctx: Context, cmd: String): Boolean {
         lastError = null
-        if (!paired(ctx)) { lastError = "Enregistrement pas encore configuré (Réglages › Enregistrement)"; return false }
+        if (!paired(ctx)) { lastError = tr("Enregistrement pas encore configuré (Réglages › Enregistrement)"); return false }
         val wasOn = wifiDebugOn(ctx)
         var turnedOn = false
         try {
             if (!wasOn) {
-                if (!canToggle(ctx)) { lastError = "Active le « Débogage sans fil » (Options pour les développeurs)"; return false }
+                if (!canToggle(ctx)) { lastError = tr("Active le « Débogage sans fil » (Options pour les développeurs)"); return false }
                 turnedOn = setWifiDebug(ctx, true)
                 Thread.sleep(1500)
             }
@@ -123,7 +125,7 @@ object AdbLauncher {
                         CallRecorder.prefs(ctx).edit().putInt("adb_port", p).apply()
                         try { m.connect("127.0.0.1", p) } catch (_: Throwable) { false }
                     } ?: false)
-                if (!ok) { lastError = "Débogage sans fil injoignable (Wi-Fi connecté ?)"; return false }
+                if (!ok) { lastError = tr("Débogage sans fil injoignable (Wi-Fi connecté ?)"); return false }
             }
             // une fois pour toutes : de quoi activer/couper le débogage sans fil sans passer par les réglages
             if (!canToggle(ctx)) shell(m, "pm grant ${ctx.packageName} android.permission.WRITE_SECURE_SETTINGS")
@@ -150,15 +152,15 @@ object AdbLauncher {
     private const val CH = "rec_setup"; private const val NID = 4242
     const val ACTION_CODE = "fr.soaresden.diallo.PAIR_CODE"; const val KEY_CODE = "code"
 
-    fun askCode(ctx: Context, text: String = "Dans « Débogage sans fil », touche « Associer l'appareil avec un code », puis tape le code ici.") {
+    fun askCode(ctx: Context, text: String = tr("Dans « Débogage sans fil », touche « Associer l'appareil avec un code », puis tape le code ici.")) {
         val nm = ctx.getSystemService(NotificationManager::class.java)
-        if (nm.getNotificationChannel(CH) == null) nm.createNotificationChannel(NotificationChannel(CH, "Configuration de l'enregistrement", NotificationManager.IMPORTANCE_HIGH))
-        val ri = RemoteInput.Builder(KEY_CODE).setLabel("Code d'association (6 chiffres)").build()
+        if (nm.getNotificationChannel(CH) == null) nm.createNotificationChannel(NotificationChannel(CH, tr("Configuration de l'enregistrement"), NotificationManager.IMPORTANCE_HIGH))
+        val ri = RemoteInput.Builder(KEY_CODE).setLabel(tr("Code d'association (6 chiffres)")).build()
         val pi = PendingIntent.getBroadcast(ctx, 77, Intent(ctx, PairReceiver::class.java).setAction(ACTION_CODE), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
-        val act = android.app.Notification.Action.Builder(null, "Saisir le code", pi).addRemoteInput(ri).build()
+        val act = android.app.Notification.Action.Builder(null, tr("Saisir le code"), pi).addRemoteInput(ri).build()
         val n = android.app.Notification.Builder(ctx, CH)
             .setSmallIcon(android.R.drawable.ic_btn_speak_now)
-            .setContentTitle("Di-Allô · Enregistrement des appels")
+            .setContentTitle(tr("Di-Allô · Enregistrement des appels"))
             .setContentText(text).setStyle(android.app.Notification.BigTextStyle().bigText(text))
             .addAction(act).setOngoing(true).build()
         nm.notify(NID, n)
@@ -167,20 +169,21 @@ object AdbLauncher {
     fun note(ctx: Context, text: String, ongoing: Boolean = false) {
         val nm = ctx.getSystemService(NotificationManager::class.java)
         nm.notify(NID, android.app.Notification.Builder(ctx, CH).setSmallIcon(android.R.drawable.ic_btn_speak_now)
-            .setContentTitle("Di-Allô · Enregistrement des appels").setContentText(text).setStyle(android.app.Notification.BigTextStyle().bigText(text))
+            .setContentTitle(tr("Di-Allô · Enregistrement des appels")).setContentText(text).setStyle(android.app.Notification.BigTextStyle().bigText(text))
             .setOngoing(ongoing).setAutoCancel(true).build())
     }
 
     class PairReceiver : BroadcastReceiver() {
         override fun onReceive(ctx: Context, i: Intent) {
             val code = RemoteInput.getResultsFromIntent(i)?.getCharSequence(KEY_CODE)?.toString()?.filter { it.isDigit() } ?: return
-            note(ctx, "Association en cours…", ongoing = true)
+            I18n.ensure(ctx)
+            note(ctx, tr("Association en cours…"), ongoing = true)
             val res = goAsync()
             Thread {
                 try {
                     pair(ctx.applicationContext, code)
                     val msg = pairing.value ?: ""
-                    if (msg.startsWith("⚠️")) askCode(ctx, "$msg\nRéessaie : « Associer l'appareil avec un code » puis tape le nouveau code.")
+                    if (msg.startsWith("⚠️")) askCode(ctx, msg + "\n" + tr("Réessaie : « Associer l'appareil avec un code » puis tape le nouveau code."))
                     else note(ctx, msg)
                 } finally { res.finish() }
             }.start()

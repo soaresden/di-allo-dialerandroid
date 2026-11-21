@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Di-Allô</title>
+<meta name="description" content="Di-Allô, l'appli Téléphone pour Android qui fait ce que les autres ne font pas : enregistrement d'appels en MP3 sans root, 21 thèmes animés, touches musicales, Wrapped, carte, notes d'appel. Gratuite, sans pub, sans pisteur.">
+<link rel="icon" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Pacifico&family=Bebas+Neue&display=swap">
+<style>
+  :root{
+    --bg:#f6f7fb; --surface:#ffffff; --fg:#14161d; --muted:#5d6472; --line:rgba(20,30,60,.10);
+    --accent:#2f7bf6; --accent2:#2fc45b; --warm:#ff8a3d; --chip:#eef1f7; --shadow:0 10px 30px rgba(20,30,60,.08);
+    --hero1:#5aa9ff; --hero2:#1a47c8;
+  }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+    --bg:#0b0d12; --surface:#141821; --fg:#eef1f7; --muted:#9aa3b2; --line:rgba(255,255,255,.09);
+    --accent:#5a9bff; --accent2:#3fd875; --warm:#ffa45e; --chip:#1c212d; --shadow:0 10px 30px rgba(0,0,0,.4);
+    --hero1:#2f6fe0; --hero2:#0e2a7a; color-scheme:dark;
+  }}
+  :root[data-theme="dark"]{
+    --bg:#0b0d12; --surface:#141821; --fg:#eef1f7; --muted:#9aa3b2; --line:rgba(255,255,255,.09);
+    --accent:#5a9bff; --accent2:#3fd875; --warm:#ffa45e; --chip:#1c212d; --shadow:0 10px 30px rgba(0,0,0,.4);
+    --hero1:#2f6fe0; --hero2:#0e2a7a; color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  a{color:var(--accent)}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 16px}
+  section{padding:64px 0}
+  h2{font-size:clamp(26px,4vw,38px);line-height:1.15;margin:0 0 10px;letter-spacing:-.02em}
+  .lead{color:var(--muted);font-size:18px;max-width:720px;margin:0 0 32px}
+
+  /* HERO */
+  .hero{background:linear-gradient(135deg,var(--hero1),var(--hero2));color:#fff;padding:56px 0 72px;overflow:hidden}
+  .hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
+  .brand{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+  .brand img{width:64px;height:64px;border-radius:18px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+  .brand b{font:400 42px/1 Pacifico,cursive}
+  .brand small{display:block;opacity:.8;font-size:13px;margin-top:6px}
+  .hero h1{font-size:clamp(32px,5vw,54px);line-height:1.05;margin:0 0 16px;letter-spacing:-.03em}
+  .hero p{font-size:19px;opacity:.92;margin:0 0 26px;max-width:560px}
+  .cta{display:flex;flex-wrap:wrap;gap:12px}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:14px 22px;border-radius:999px;font-weight:700;text-decoration:none}
+  .btn.main{background:#fff;color:#1a47c8}
+  .btn.ghost{border:2px solid rgba(255,255,255,.6);color:#fff}
+  .pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
+  .pills span{background:rgba(255,255,255,.16);padding:6px 12px;border-radius:999px;font-size:13.5px;font-weight:600}
+
+  /* phone mockup */
+  .phone{justify-self:center;width:290px;border-radius:42px;padding:12px;background:#0d0f14;box-shadow:0 30px 60px rgba(0,0,0,.35)}
+  .scr{border-radius:32px;overflow:hidden;position:relative;height:560px;background:var(--p-bg);color:var(--p-fg);transition:background .4s,color .4s}
+  .scr .decor{position:absolute;inset:0;pointer-events:none;opacity:.9}
+  .scr .top{position:relative;display:flex;align-items:center;gap:8px;padding:18px 16px 0;font-size:12px}
+  .scr .top img{width:22px;height:22px}
+  .scr .top b{font-family:var(--p-title);font-size:17px;font-weight:400;color:var(--p-acc)}
+  .scr .top i{margin-left:auto;opacity:.6;font-style:normal}
+  .scr .num{position:relative;text-align:center;font:400 40px/1 "Bebas Neue",sans-serif;letter-spacing:.04em;margin:46px 0 6px;min-height:40px}
+  .scr .hint{position:relative;text-align:center;font-size:12px;opacity:.65;margin-bottom:22px}
+  .keys{position:relative;display:grid;grid-template-columns:repeat(3,64px);gap:12px 18px;justify-content:center}
+  .keys button{width:64px;height:64px;border-radius:var(--p-rad);border:1px solid var(--p-border);background:var(--p-key);color:var(--p-fg);
+    font:600 24px/1 Inter,sans-serif;cursor:pointer;box-shadow:var(--p-glow);transition:transform .08s,background .3s}
+  .keys button:active{transform:scale(.92)}
+  .keys button small{display:block;font-size:8.5px;opacity:.6;letter-spacing:.12em;margin-top:2px}
+  .callk{position:relative;display:block;margin:18px auto 0;width:64px;height:64px;border-radius:50%;border:0;background:#2fc45b;color:#fff;font-size:26px}
+  .swatches{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:14px;max-width:300px}
+  .swatches button{width:26px;height:26px;border-radius:50%;border:2px solid rgba(255,255,255,.7);cursor:pointer}
+  .swatches button[aria-pressed="true"]{outline:3px solid #fff;outline-offset:2px}
+  .tname{text-align:center;color:#fff;font-weight:700;margin-top:10px;font-size:14px}
+
+  /* USP */
+  .usp{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:var(--shadow)}
+  .card .ic{font-size:34px;line-height:1;margin-bottom:12px}
+  .card h3{margin:0 0 6px;font-size:18px}
+  .card p{margin:0;color:var(--muted);font-size:15px}
+  .badge{display:inline-block;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--warm);margin-bottom:8px}
+
+  /* comparatif */
+  .tbl{width:100%;border-collapse:collapse;background:var(--surface);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);font-size:15px}
+  .tbl th,.tbl td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:left}
+  .tbl th{background:var(--chip);font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+  .tbl td:not(:first-child),.tbl th:not(:first-child){text-align:center;white-space:nowrap}
+  .yes{color:var(--accent2);font-weight:800}.no{color:var(--muted)}
+  .scrollx{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+  /* features */
+  .feat{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+  .feat .card h3{display:flex;align-items:center;gap:10px}
+  .feat ul{margin:10px 0 0;padding-left:18px;color:var(--muted);font-size:15px}
+  .feat li{margin:4px 0}
+  .feat li b{color:var(--fg)}
+
+  /* thèmes */
+  .themes{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+  .th{border-radius:16px;padding:14px;min-height:92px;display:flex;flex-direction:column;justify-content:space-between;border:1px solid var(--line);cursor:pointer}
+  .th b{font-size:15px}.th span{font-size:12px;opacity:.75}
+  .dots{display:flex;gap:5px}.dots i{width:14px;height:14px;border-radius:50%}
+
+  .priv{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+  .priv div{background:var(--chip);border-radius:16px;padding:16px;font-weight:600}
+  .priv div span{display:block;font-weight:400;color:var(--muted);font-size:14px;margin-top:4px}
+  ol.steps{padding-left:20px;font-size:17px}ol.steps li{margin:8px 0}
+  footer{padding:40px 0 60px;color:var(--muted);font-size:14px;text-align:center;border-top:1px solid var(--line)}
+  .langs{font-size:26px;letter-spacing:6px}
+
+  @media (max-width:860px){
+    .hero .wrap{grid-template-columns:1fr}
+    .phone{width:270px}
+    .keys{grid-template-columns:repeat(3,58px);gap:10px 16px}.keys button,.callk{width:58px;height:58px}
+  }
+  @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <div class="brand"><img src="icon.png" alt=""><div><b>Di-Allô</b><small>by Soaresden</small></div></div>
+      <h1>Le téléphone qui fait ce que les autres ne font pas.</h1>
+      <p>Une appli Téléphone complète pour Android : enregistrement des appels en MP3 sans root, 21 thèmes animés, touches musicales, ton année en stories. Gratuite, sans pub, sans compte, sans pisteur.</p>
+      <div class="cta">
+        <a class="btn main" href="https://github.com/soaresden/di-allo-dialerandroid/releases/latest">⬇️ Télécharger l'APK</a>
+        <a class="btn ghost" href="https://github.com/soaresden/di-allo-dialerandroid">Code source</a>
+      </div>
+      <div class="pills"><span>🎙️ Appels en MP3</span><span>🎨 21 thèmes</span><span>🎹 Touches musicales</span><span>🎁 Wrapped</span><span>🌍 6 langues</span><span>🔒 100 % local</span></div>
+    </div>
+    <div>
+      <div class="phone" aria-label="Aperçu du clavier Di-Allô">
+        <div class="scr" id="scr">
+          <svg class="decor" id="decor" viewBox="0 0 266 560" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+          <div class="top"><img src="icon.png" alt=""><b>Di-Allô</b><i>v2026-11-22</i></div>
+          <div class="num" id="num"></div>
+          <div class="hint" id="hint">Touche les chiffres, ça joue de la musique 🎵</div>
+          <div class="keys" id="keys"></div>
+          <button class="callk" aria-label="Appeler">📞</button>
+        </div>
+      </div>
+      <div class="swatches" id="sw" role="group" aria-label="Choisir un thème"></div>
+      <div class="tname" id="tname"></div>
+    </div>
+  </div>
+</header>
+
+<main>
+<section>
+  <div class="wrap">
+    <h2>Ce qu'on ne trouve (presque) nulle part ailleurs</h2>
+    <p class="lead">Les applis Téléphone se ressemblent toutes. Di-Allô ajoute ce qui manque, sans rien envoyer sur Internet.</p>
+    <div class="usp">
+      <div class="card"><div class="ic">🎙️</div><span class="badge">Exclusif</span><h3>Enregistrement d'appels en MP3</h3><p>Les deux voix, en MP3, sans root et sans Shizuku. Bouton 🔴 pendant l'appel, ou automatique pour tes contacts. Configuration guidée une seule fois par le débogage sans fil.</p></div>
+      <div class="card"><div class="ic">🎨</div><span class="badge">Exclusif</span><h3>21 thèmes avec un vrai caractère</h3><p>Pas juste des couleurs : polices, forme des touches, effets néon ou verre, et décors animés. Plongée avec requin-baleine et tortues, Ocean Drive au coucher du soleil, Terminal, Arcade, Cabaret…</p></div>
+      <div class="card"><div class="ic">🎹</div><span class="badge">Exclusif</span><h3>Un clavier qui joue de la musique</h3><p>Plus de 30 instruments synthétisés (piano, guitare, koto, theremine, chiptune…). Compose une mélodie, garde-la, rejoue-la en karaoké, partage-la en chiffres.</p></div>
+      <div class="card"><div class="ic">🎁</div><span class="badge">Rare</span><h3>Di-Allô Wrapped</h3><p>Ton année au téléphone en stories : la personne la plus appelée, celle que tu ghostes, ton record, ta personnalité d'appelant. À partager en image.</p></div>
+      <div class="card"><div class="ic">📝</div><span class="badge">Rare</span><h3>Notes pendant l'appel</h3><p>Tu prends des notes pendant la conversation, rangées par contact. La dernière s'affiche quand la personne rappelle.</p></div>
+      <div class="card"><div class="ic">🗺️</div><span class="badge">Rare</span><h3>La carte de tes contacts</h3><p>Les adresses de ton carnet sur une carte OpenStreetMap, sans compte ni clé.</p></div>
+      <div class="card"><div class="ic">🤚</div><span class="badge">Rare</span><h3>Gestes et capteurs</h3><p>Porte à l'oreille pour décrocher, retourne pour couper la sonnerie, haut-parleur automatique quand tu poses le téléphone.</p></div>
+      <div class="card"><div class="ic">💾</div><span class="badge">Rare</span><h3>Sauvegarde quotidienne</h3><p>Journal d'appels et SMS/MMS (photos comprises) sauvegardés chaque jour dans ton dossier, au format standard SMS Backup &amp; Restore.</p></div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <h2>En face des applis habituelles</h2>
+    <p class="lead">Ce que propose Di-Allô à côté des applis Téléphone fournies avec les téléphones Android.</p>
+    <div class="scrollx">
+      <table class="tbl">
+        <thead><tr><th>Fonction</th><th>Di-Allô</th><th>Applis habituelles</th></tr></thead>
+        <tbody>
+          <tr><td>Enregistrement des appels en MP3, sans root</td><td class="yes">✓</td><td class="no">selon le pays et la marque</td></tr>
+          <tr><td>Thèmes complets avec décors animés</td><td class="yes">21</td><td class="no">clair / sombre</td></tr>
+          <tr><td>Touches musicales et compositeur de mélodies</td><td class="yes">✓</td><td class="no">—</td></tr>
+          <tr><td>Statistiques détaillées et Wrapped annuel</td><td class="yes">✓</td><td class="no">—</td></tr>
+          <tr><td>Notes d'appel par contact</td><td class="yes">✓</td><td class="no">—</td></tr>
+          <tr><td>Carte des adresses des contacts</td><td class="yes">✓</td><td class="no">—</td></tr>
+          <tr><td>Recherche T9 dans les chiffres du numéro</td><td class="yes">✓</td><td class="no">partielle</td></tr>
+          <tr><td>Numérotation rapide (appui long sur 2…9)</td><td class="yes">✓</td><td class="no">parfois</td></tr>
+          <tr><td>Widget contact 1×1 et widget Favoris réglables</td><td class="yes">✓</td><td class="no">parfois</td></tr>
+          <tr><td>Sauvegarde appels + SMS/MMS automatique</td><td class="yes">✓</td><td class="no">via un compte cloud</td></tr>
+          <tr><td>Sans pub, sans compte, sans pisteur, open source</td><td class="yes">✓</td><td class="no">rarement les quatre</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <h2>Tout ce que fait Di-Allô</h2>
+    <p class="lead">Une vraie appli Téléphone par défaut : elle gère les appels entrants, sortants, la conférence et le double appel.</p>
+    <div class="feat">
+      <div class="card"><h3>⌨️ Clavier</h3><ul>
+        <li><b>Touches musicales</b> : plus de 30 instruments, réglage d'octave</li>
+        <li><b>Mode compositeur</b> : écris, corrige, garde tes mélodies, lecture karaoké, recueil d'airs</li>
+        <li>Recherche <b>T9</b> sur les noms et les chiffres du numéro, avec surlignage</li>
+        <li><b>Numérotation rapide</b> : appui long sur 2…9</li>
+        <li>Touche ⭐ Favoris, messagerie sur 1</li>
+      </ul></div>
+      <div class="card"><h3>📞 Pendant l'appel</h3><ul>
+        <li>Haut-parleur, muet, clavier, attente, Bluetooth</li>
+        <li><b>Double appel</b> et <b>conférence</b> (privé, raccrocher un participant)</li>
+        <li><b>Refuser avec un SMS</b>, réponses rapides personnalisables</li>
+        <li>🎙️ Enregistrement MP3 manuel ou automatique</li>
+        <li>📝 Notes et 🕘 historique avec la personne</li>
+      </ul></div>
+      <div class="card"><h3>🕘 Récents et contacts</h3><ul>
+        <li>Numéros au format international (<b>+33 6 12 34 56 78</b>), mobile ou fixe indiqué</li>
+        <li><b>Sélection multiple</b> pour supprimer des appels</li>
+        <li>Libellés Google, index A–Z, 5 tris dont un tri « intelligent »</li>
+        <li>Drapeau du pays, numéros triés par nombre d'appels</li>
+        <li>📌 Envoyer un contact sur l'écran d'accueil</li>
+      </ul></div>
+      <div class="card"><h3>🎙️ Onglet REC</h3><ul>
+        <li>Tous les enregistrements avec <b>date, heure et durée</b></li>
+        <li>Rangement <b>par contact</b> ou <b>par date</b></li>
+        <li>Lecteur intégré, partage, suppression</li>
+        <li>Fichiers rangés dans <code>Rec/</code> : <code>aaaa-mm-jj-hhmmss-NOM.mp3</code></li>
+      </ul></div>
+      <div class="card"><h3>📊 Stats et Wrapped</h3><ul>
+        <li>Zoom année → mois → jour</li>
+        <li>Origine des numéros : pays, mobile / fixe, régions</li>
+        <li>Habitudes horaires, classements, faits marrants</li>
+        <li>🎁 <b>Wrapped</b> pour chaque année de ton historique</li>
+      </ul></div>
+      <div class="card"><h3>🧩 Accueil et réglages</h3><ul>
+        <li>Widget <b>Favoris</b> (4 ou 8, favoris ou plus appelés, 4 styles)</li>
+        <li>Widget <b>contact 1×1</b> : un appui, un appel</li>
+        <li>🌍 <b>6 langues</b> : français, anglais, espagnol, allemand, italien, portugais</li>
+        <li>Dossier de travail : notes, réglages et sauvegardes synchronisés</li>
+        <li>Animation du logo 😎 (touche-le !)</li>
+      </ul></div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <h2>21 thèmes, 21 ambiances</h2>
+    <p class="lead">Touche un thème pour l'essayer sur le téléphone en haut de la page.</p>
+    <div class="themes" id="themes"></div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <h2>Tes appels restent chez toi</h2>
+    <p class="lead">Di-Allô n'a pas de serveur. Rien ne quitte ton téléphone, sauf les tuiles de la carte.</p>
+    <div class="priv">
+      <div>🚫 Pas de pub<span>Ni bannière, ni vidéo, jamais.</span></div>
+      <div>👤 Pas de compte<span>Tu installes, tu appelles.</span></div>
+      <div>🕵️ Pas de pisteur<span>Aucune analyse, aucun SDK tiers.</span></div>
+      <div>📂 Tes fichiers<span>Notes, enregistrements et sauvegardes dans le dossier que tu choisis.</span></div>
+      <div>🔓 Open source<span>Licence MIT, le code est sur GitHub.</span></div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <h2>Installer</h2>
+    <ol class="steps">
+      <li>Télécharge <b>Di-Allo.apk</b> dans les <a href="https://github.com/soaresden/di-allo-dialerandroid/releases/latest">Releases</a>.</li>
+      <li>Installe-le (autorise l'installation depuis ton navigateur si Android le demande).</li>
+      <li>Ouvre Di-Allô et choisis <b>« Définir comme téléphone par défaut »</b>.</li>
+      <li>Choisis un dossier de travail pour tes notes, enregistrements et sauvegardes.</li>
+    </ol>
+    <p class="lead" style="font-size:15px">Android 10 minimum. Testé sur Xiaomi (HyperOS).</p>
+    <div class="langs" title="Français, English, Español, Deutsch, Italiano, Português">🇫🇷 🇬🇧 🇪🇸 🇩🇪 🇮🇹 🇵🇹</div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    Di-Allô · by <a href="https://github.com/soaresden">Soaresden</a> · licence MIT<br>
+    Logo : Fluent Emoji 3D de Microsoft (MIT) · Polices : Google Fonts (OFL / Apache-2.0) · Cartes : © contributeurs OpenStreetMap
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  // [id, nom, fond, touche, texte, accent, rayon, style, décor, ambiance]
+  var T=[
+    ["clair","Clair","#eef0f3","#ffffff","#13151b","#2fc45b","50%","flat","","Sobre et lumineux"],
+    ["voyage","Carnet de voyage","#f3e9d2","#fbf4e3","#3b2a1a","#a0522d","50%","flat","paper","Papier, encre, aventure"],
+    ["bonbon","Bonbon Pop","#fff0f7","#ffffff","#2a0f22","#ff3d8b","22px","flat","dots","Acidulé et pétillant"],
+    ["guinguette","Guinguette","#fff8f0","#ffffff","#2b1010","#d62828","16px","flat","vichy","Vichy rouge et bal populaire"],
+    ["retro","Rétro 70s","#fbebd3","#fff6e8","#3d2314","#e76f2e","50%","flat","sunburst","Orange, moutarde et soleil"],
+    ["fierte","Fierté","#fbf7ff","#ffffff","#22142e","#8e3fd8","50%","flat","rainbow","Toutes les couleurs"],
+    ["sakura","Sakura","#fdf1f5","#ffffff","#2b1520","#e0527e","50%","flat","petals","Pétales qui tombent"],
+    ["plage","Bord de mer","#eff8fc","#ffffff","#0d2433","#1e88c7","50%","flat","waves","Vagues et embruns"],
+    ["amoled","AMOLED","#000000","#111318","#f3f5f9","#2fc45b","50%","flat","","Noir pur, batterie épargnée"],
+    ["minuit","Minuit","#15171c","#1f2229","#f3f5f9","#4c9aff","50%","flat","","Bleu nuit, tout en douceur"],
+    ["synthwave","Synthwave","#0d0221","#1a0b33","#fbe9ff","#ff2e97","18px","neon","grid","Grille néon des années 80"],
+    ["cabaret","Cabaret","#1c0306","#2c070c","#fcefd9","#e8b54a","50%","flat","curtain","Rideau rouge et dorures"],
+    ["gala","Gala","#0a0a0a","#151412","#f6eed8","#d4af37","50%","outline","deco","Art déco noir et or"],
+    ["arcade","Arcade","#0b0b2b","#15153f","#f0f0ff","#ffd60a","4px","hard","pixels","Pixels et chiptune"],
+    ["terminal","Terminal","#020a04","#07140a","#b8ffc9","#33ff66","4px","neon","scanlines","Écran vert phosphore"],
+    ["pirate","Pirate","#0c1a22","#1c2328","#f2e6cc","#e3b95f","50%","flat","","Cartes au trésor et laiton"],
+    ["galaxie","Galaxie","#07051a","#15113a","#eeeaff","#9d8cff","50%","glass","stars","Étoiles et nébuleuses"],
+    ["plongee","Plongée","#031628","#0a2236","#e3f6fa","#3fd8e8","50%","glass","reef","Requin-baleine, mantas, tortues"],
+    ["oceandrive","Ocean Drive","#140c26","#221437","#fff0f7","#ff3ea5","18px","neon","vice","Palmiers au coucher du soleil"],
+    ["abysses","Abysses","#02101a","#0a2232","#e2f7fa","#2ee6d6","50%","glass","bubbles","Bulles et lueurs des profondeurs"],
+    ["braise","Braise","#120805","#22120b","#ffeedd","#ff7a1a","50%","flat","embers","Braises qui s'envolent"]
+  ];
+  var scr=document.getElementById("scr"),dec=document.getElementById("decor"),num=document.getElementById("num"),
+      keys=document.getElementById("keys"),sw=document.getElementById("sw"),tname=document.getElementById("tname"),grid=document.getElementById("themes");
+  var K=[["1",""],["2","ABC"],["3","DEF"],["4","GHI"],["5","JKL"],["6","MNO"],["7","PQRS"],["8","TUV"],["9","WXYZ"],["*",""],["0","+"],["#",""]];
+  var F={"1":261.6,"2":293.7,"3":329.6,"4":349.2,"5":392,"6":440,"7":493.9,"8":523.3,"9":587.3,"*":659.3,"0":698.5,"#":784};
+  var ac=null;
+  function play(d){
+    try{ if(!ac) ac=new (window.AudioContext||window.webkitAudioContext)();
+      var t=ac.currentTime,g=ac.createGain(); g.connect(ac.destination);
+      g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.35,t+.008); g.gain.exponentialRampToValueAtTime(.0001,t+1.1);
+      [[1,1,"triangle"],[2,.3,"sine"],[3,.1,"sine"]].forEach(function(p){var o=ac.createOscillator(),h=ac.createGain();o.type=p[2];o.frequency.value=F[d]*p[0];h.gain.value=p[1];o.connect(h);h.connect(g);o.start(t);o.stop(t+1.15);});
+    }catch(e){}
+  }
+  K.forEach(function(k){
+    var b=document.createElement("button"); b.innerHTML=k[0]+"<small>"+k[1]+"</small>"; b.setAttribute("aria-label",k[0]);
+    b.addEventListener("click",function(){ play(k[0]); var v=(num.textContent+k[0]).slice(-12); num.textContent=v; });
+    keys.appendChild(b);
+  });
+  num.addEventListener("click",function(){ num.textContent=""; });
+
+  function rnd(i){ var x=Math.sin(i*99.13)*43758.5; return x-Math.floor(x); }
+  function decor(kind,acc){
+    var s="",i,w=266,h=560;
+    if(kind==="grid"){ s+='<rect y="380" width="266" height="180" fill="'+acc+'" opacity=".06"/>'; for(i=0;i<9;i++) s+='<line x1="'+(133+(i-4)*12)+'" y1="380" x2="'+(133+(i-4)*90)+'" y2="560" stroke="'+acc+'" stroke-opacity=".5"/>'; for(i=0;i<6;i++){var y=380+Math.pow(i/5,1.8)*180; s+='<line x1="0" y1="'+y+'" x2="266" y2="'+y+'" stroke="'+acc+'" stroke-opacity=".5"/>';} s+='<circle cx="133" cy="380" r="60" fill="#ffb14a" opacity=".35"/>'; }
+    else if(kind==="stars"){ for(i=0;i<60;i++) s+='<circle cx="'+rnd(i)*w+'" cy="'+rnd(i+70)*h+'" r="'+(rnd(i+140)*1.4+.3)+'" fill="#fff" opacity="'+(rnd(i+9)*.7+.2)+'"/>'; s+='<ellipse cx="200" cy="120" rx="110" ry="60" fill="'+acc+'" opacity=".12"/>'; }
+    else if(kind==="reef"){ s+='<ellipse cx="80" cy="140" rx="60" ry="16" fill="#9fd" opacity=".18"/><path d="M200 230 q30 -30 60 0 q-30 10 -60 0z" fill="#cfe" opacity=".2"/>'; for(i=0;i<14;i++) s+='<circle cx="'+rnd(i)*w+'" cy="'+(h-rnd(i+3)*h)+'" r="'+(rnd(i+5)*4+1)+'" fill="none" stroke="#bff" stroke-opacity=".35"/>'; s+='<path d="M0 520 q30 -50 60 -10 q20 -60 50 -5 q40 -40 70 0 q30 -45 86 -10 V560 H0z" fill="#ff8a65" opacity=".25"/>'; }
+    else if(kind==="vice"){ s+='<circle cx="133" cy="430" r="80" fill="#ff8a3d" opacity=".45"/><rect y="430" width="266" height="130" fill="#2de2c8" opacity=".12"/>'; s+='<path d="M40 560 q10 -120 4 -190 M44 370 q-40 -10 -60 10 M44 370 q30 -25 60 -5 M44 370 q-20 -30 -45 -30 M44 370 q15 -35 40 -35" stroke="#000" stroke-opacity=".55" stroke-width="5" fill="none"/>'; }
+    else if(kind==="scanlines"){ for(i=0;i<h;i+=4) s+='<line x1="0" y1="'+i+'" x2="266" y2="'+i+'" stroke="'+acc+'" stroke-opacity=".07"/>'; }
+    else if(kind==="bubbles"){ for(i=0;i<22;i++) s+='<circle cx="'+rnd(i)*w+'" cy="'+rnd(i+30)*h+'" r="'+(rnd(i+60)*9+2)+'" fill="none" stroke="'+acc+'" stroke-opacity=".35"/>'; }
+    else if(kind==="embers"){ for(i=0;i<30;i++) s+='<circle cx="'+rnd(i)*w+'" cy="'+rnd(i+30)*h+'" r="'+(rnd(i+60)*2+.6)+'" fill="'+acc+'" opacity="'+(rnd(i+2)*.7+.2)+'"/>'; }
+    else if(kind==="petals"){ for(i=0;i<18;i++) s+='<ellipse cx="'+rnd(i)*w+'" cy="'+rnd(i+30)*h+'" rx="5" ry="3" fill="'+acc+'" opacity=".3" transform="rotate('+rnd(i+7)*180+' '+rnd(i)*w+' '+rnd(i+30)*h+')"/>'; }
+    else if(kind==="waves"){ for(i=0;i<4;i++) s+='<path d="M0 '+(440+i*28)+' q33 -14 66 0 t66 0 t66 0 t68 0" stroke="'+acc+'" stroke-opacity=".3" stroke-width="3" fill="none"/>'; }
+    else if(kind==="dots"){ for(i=0;i<40;i++) s+='<circle cx="'+(i%6)*50+'" cy="'+Math.floor(i/6)*85+'" r="4" fill="'+acc+'" opacity=".14"/>'; }
+    else if(kind==="vichy"){ for(i=0;i<14;i++){ s+='<rect x="'+i*20+'" width="10" height="560" fill="'+acc+'" opacity=".06"/><rect y="'+i*40+'" width="266" height="10" fill="'+acc+'" opacity=".06"/>'; } }
+    else if(kind==="sunburst"){ for(i=0;i<16;i++){var a=i/16*Math.PI*2; s+='<path d="M133 600 L'+(133+Math.cos(a)*700)+' '+(600+Math.sin(a)*700)+' L'+(133+Math.cos(a+.15)*700)+' '+(600+Math.sin(a+.15)*700)+'z" fill="'+acc+'" opacity=".07"/>';} }
+    else if(kind==="rainbow"){ ["#e40303","#ff8c00","#ffed00","#008026","#004dff","#750787"].forEach(function(c,j){ s+='<rect y="'+(500+j*10)+'" width="266" height="10" fill="'+c+'" opacity=".35"/>'; }); }
+    else if(kind==="pixels"){ for(i=0;i<26;i++) s+='<rect x="'+Math.floor(rnd(i)*26)*10+'" y="'+Math.floor(rnd(i+40)*56)*10+'" width="10" height="10" fill="'+acc+'" opacity=".2"/>'; }
+    else if(kind==="curtain"){ for(i=0;i<5;i++) s+='<path d="M'+i*14+' 0 q8 280 0 560" stroke="#b01020" stroke-width="12" opacity=".5" fill="none"/><path d="M'+(266-i*14)+' 0 q-8 280 0 560" stroke="#b01020" stroke-width="12" opacity=".5" fill="none"/>'; }
+    else if(kind==="deco"){ for(i=0;i<6;i++) s+='<path d="M133 0 L'+(133-i*40)+' 90 M133 0 L'+(133+i*40)+' 90" stroke="'+acc+'" stroke-opacity=".3"/>'; s+='<rect x="10" y="10" width="246" height="540" fill="none" stroke="'+acc+'" stroke-opacity=".35"/>'; }
+    else if(kind==="paper"){ for(i=0;i<20;i++) s+='<line x1="0" y1="'+(90+i*24)+'" x2="266" y2="'+(90+i*24)+'" stroke="'+acc+'" stroke-opacity=".08"/>'; }
+    dec.innerHTML=s;
+  }
+  function apply(t){
+    var st=scr.style, glass=t[7]==="glass", neon=t[7]==="neon";
+    st.setProperty("--p-bg",t[2]); st.setProperty("--p-fg",t[4]); st.setProperty("--p-acc",t[5]); st.setProperty("--p-rad",t[6]);
+    st.setProperty("--p-key", glass ? "rgba(255,255,255,.12)" : (t[7]==="outline"||neon ? "transparent" : t[3]));
+    st.setProperty("--p-border", neon||t[7]==="outline" ? t[5] : (t[7]==="hard" ? t[5] : "transparent"));
+    st.setProperty("--p-glow", neon ? "0 0 12px "+t[5]+"88" : (t[7]==="hard" ? "3px 3px 0 "+t[5] : "0 1px 3px rgba(0,0,0,.12)"));
+    st.setProperty("--p-title", "Pacifico, cursive");
+    decor(t[8],t[5]); tname.textContent=t[1]+" · "+t[9];
+    [].forEach.call(sw.children,function(b){ b.setAttribute("aria-pressed", b.dataset.id===t[0] ? "true":"false"); });
+  }
+  T.forEach(function(t){
+    var b=document.createElement("button"); b.dataset.id=t[0]; b.title=t[1]; b.setAttribute("aria-label",t[1]);
+    b.style.background="linear-gradient(135deg,"+t[2]+" 50%,"+t[5]+" 50%)"; b.addEventListener("click",function(){apply(t);}); sw.appendChild(b);
+    var c=document.createElement("div"); c.className="th"; c.style.background=t[2]; c.style.color=t[4]; c.tabIndex=0;
+    c.innerHTML='<div class="dots"><i style="background:'+t[5]+'"></i><i style="background:'+t[3]+';border:1px solid '+t[5]+'55"></i></div><div><b>'+t[1]+'</b><br><span>'+t[9]+'</span></div>';
+    function go(){ apply(t); window.scrollTo({top:0,behavior:"smooth"}); }
+    c.addEventListener("click",go); c.addEventListener("keydown",function(e){ if(e.key==="Enter") go(); });
+    grid.appendChild(c);
+  });
+  apply(T[17]);
+})();
+</script>
+</body>
+</html>

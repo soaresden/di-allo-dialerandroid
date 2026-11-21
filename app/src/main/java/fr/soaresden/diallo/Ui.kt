@@ -95,14 +95,14 @@ internal fun rememberCollapsed(id: String, default: Boolean = false): MutableSta
 @Composable
 internal fun Chevron(collapsed: Boolean, tint: Color = muted(.5f)) {
     val rot by animateFloatAsState(if (collapsed) -90f else 0f, label = "chev")
-    Icon(Icons.Filled.ExpandMore, if (collapsed) "Déplier" else "Replier", tint = tint, modifier = Modifier.size(22.dp).rotate(rot))
+    Icon(Icons.Filled.ExpandMore, if (collapsed) tr("Déplier") else tr("Replier"), tint = tint, modifier = Modifier.size(22.dp).rotate(rot))
 }
 
 /** Carte à titre ; touche le titre pour la replier / déplier. */
 @Composable
 internal fun SectionCard(
     title: String, action: (@Composable () -> Unit)? = null, collapsible: Boolean = true,
-    id: String = title, defaultCollapsed: Boolean = false, content: @Composable ColumnScope.() -> Unit
+    id: String = I18n.key(title), defaultCollapsed: Boolean = false, content: @Composable ColumnScope.() -> Unit
 ) {
     var collapsed by rememberCollapsed("card_$id", defaultCollapsed)
     val folded = collapsible && collapsed
@@ -158,7 +158,7 @@ internal fun BarChart(values: List<Int>, labels: List<String>, color: Color, hei
     val max = (values.maxOrNull() ?: 1).coerceAtLeast(1)
     val track = MaterialTheme.colorScheme.surfaceVariant
     Column(Modifier.fillMaxWidth()) {
-        Text("max $max", fontSize = 10.sp, color = muted(.45f), modifier = Modifier.align(Alignment.End))
+        Text(tr("max {0}", max), fontSize = 10.sp, color = muted(.45f), modifier = Modifier.align(Alignment.End))
         Canvas(Modifier.fillMaxWidth().height(height).then(if (onBar != null && values.isNotEmpty()) Modifier.pointerInput(values) {
             detectTapGestures { o -> val i = (o.x / (size.width.toFloat() / values.size)).toInt().coerceIn(0, values.size - 1); onBar(i) }
         } else Modifier)) {
@@ -184,12 +184,12 @@ internal fun keyOf(n: String): String { val d = n.filter { it.isDigit() }; retur
 internal fun fmtDur(s: Int): String { val h = s / 3600; val m = (s % 3600) / 60; val r = s % 60; return when { h > 0 -> "${h}h${m.toString().padStart(2, '0')}"; m == 0 -> "$r s"; else -> "$m:${r.toString().padStart(2, '0')}" } }
 internal fun fmtClock(s: Long): String {
     val d = s / 86400; val h = (s % 86400) / 3600; val m = (s % 3600) / 60
-    return when { d > 0 -> "${d}j ${h}h"; h > 0 -> "${h}h${m.toString().padStart(2, '0')}"; else -> "${m} min" }
+    return when { d > 0 -> tr("{0}j {1}h", d, h); h > 0 -> "${h}h${m.toString().padStart(2, '0')}"; else -> "${m} min" }
 }
 internal fun daysAgo(ts: Long): Int = ((System.currentTimeMillis() - ts) / 86_400_000L).toInt()
-internal fun agoText(ts: Long): String { val d = daysAgo(ts); return when { d <= 0 -> "aujourd'hui"; d == 1 -> "hier"; d < 30 -> "$d j"; d < 365 -> "${d / 30} mois"; else -> "${d / 365} an${if (d / 365 > 1) "s" else ""}" } }
+internal fun agoText(ts: Long): String { val d = daysAgo(ts); return when { d <= 0 -> tr("aujourd'hui"); d == 1 -> tr("hier"); d < 30 -> tr("{0} j", d); d < 365 -> tr("{0} mois", d / 30); else -> trn(d / 365, "{0} an", "{0} ans") } }
 private val MONTHS = listOf("janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc.")
-internal fun monthName(m: Int) = MONTHS[m.coerceIn(0, 11)]
+internal fun monthName(m: Int) = tr(MONTHS[m.coerceIn(0, 11)])
 internal fun fmtDate(ts: Long): String { val d = Calendar.getInstance().apply { timeInMillis = ts }; return "${d.get(Calendar.DAY_OF_MONTH)} ${monthName(d.get(Calendar.MONTH))} ${d.get(Calendar.YEAR)}" }
 internal fun fmtWhen(ts: Long): String {
     val now = Calendar.getInstance(); val d = Calendar.getInstance().apply { timeInMillis = ts }
@@ -197,7 +197,7 @@ internal fun fmtWhen(ts: Long): String {
     val sameDay = now.get(Calendar.YEAR) == d.get(Calendar.YEAR) && now.get(Calendar.DAY_OF_YEAR) == d.get(Calendar.DAY_OF_YEAR)
     now.add(Calendar.DAY_OF_YEAR, -1)
     val yest = now.get(Calendar.YEAR) == d.get(Calendar.YEAR) && now.get(Calendar.DAY_OF_YEAR) == d.get(Calendar.DAY_OF_YEAR)
-    return when { sameDay -> hm; yest -> "Hier $hm"; else -> "%02d/%02d/%02d".format(d.get(Calendar.DAY_OF_MONTH), d.get(Calendar.MONTH) + 1, d.get(Calendar.YEAR) % 100) }
+    return when { sameDay -> hm; yest -> tr("Hier {0}", hm); else -> "%02d/%02d/%02d".format(d.get(Calendar.DAY_OF_MONTH), d.get(Calendar.MONTH) + 1, d.get(Calendar.YEAR) % 100) }
 }
 
 /** Mise en forme lisible : 06 12 34 56 78 / +33 6 12 34 56 78. */
