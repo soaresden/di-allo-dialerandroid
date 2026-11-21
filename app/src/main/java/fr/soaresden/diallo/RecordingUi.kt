@@ -61,6 +61,9 @@ internal fun RecBadge(callId: Long, title: String) {
 @Composable
 private fun RecRow(r: Recordings.Rec, showWho: Boolean) {
     val cs = MaterialTheme.colorScheme
+    val ctx = LocalContext.current
+    LaunchedEffect(r.uri) { if (Recordings.durationOf(r) == null) withContext(Dispatchers.IO) { Recordings.loadDuration(ctx.applicationContext, r) } }
+    val dur = Recordings.durationOf(r)
     Row(
         Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).clickable { Recordings.open.value = r to r.who }.padding(vertical = 7.dp, horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -70,8 +73,11 @@ private fun RecRow(r: Recordings.Rec, showWho: Boolean) {
         }
         Spacer(Modifier.width(10.dp))
         Column(Modifier.weight(1f)) {
-            Text(if (showWho) r.who else fmtWhen(r.time), fontSize = 13.5.sp, fontWeight = FontWeight.Medium, color = cs.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Text((if (showWho) fmtWhen(r.time) + " · " else "") + Recordings.fmtSize(r.size) + " · " + r.name.substringAfterLast('.').uppercase(), fontSize = 11.5.sp, color = muted())
+            Text(if (showWho) r.who else Recordings.fmtDate(r.time), fontSize = 13.5.sp, fontWeight = FontWeight.Medium, color = cs.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(
+                listOfNotNull(if (showWho) Recordings.fmtDate(r.time) else null, dur?.let { "⏱ " + Recordings.fmtDur(it) }, Recordings.fmtSize(r.size).takeIf { it.isNotEmpty() }, r.name.substringAfterLast('.').uppercase()).joinToString(" · "),
+                fontSize = 11.5.sp, color = muted(), maxLines = 1, overflow = TextOverflow.Ellipsis
+            )
         }
         IconButton(onClick = { Recordings.askDelete.value = r }, modifier = Modifier.size(36.dp)) {
             Icon(Icons.Filled.DeleteOutline, "Supprimer", tint = muted(.5f), modifier = Modifier.size(19.dp))
@@ -144,7 +150,7 @@ internal fun RecScreen(contacts: List<CallRepository.Contact>, onCall: (String) 
                         Avatar(name, c?.photoUri, 38.dp); Spacer(Modifier.width(10.dp))
                         Column(Modifier.weight(1f)) {
                             Text(name, fontWeight = FontWeight.SemiBold, fontSize = 14.5.sp, color = cs.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Text("${list.size} enregistrement${if (list.size > 1) "s" else ""} · dernier ${fmtWhen(r0.time)}", fontSize = 11.5.sp, color = muted())
+                            Text("${list.size} enregistrement${if (list.size > 1) "s" else ""} · dernier ${Recordings.fmtDate(r0.time)}", fontSize = 11.5.sp, color = muted())
                         }
                         r0.number?.let { n ->
                             Box(Modifier.size(34.dp).clip(CircleShape).background(CallGreen).clickable { onCall(n) }, contentAlignment = Alignment.Center) {
@@ -171,7 +177,7 @@ internal fun RecordingPlayer() {
         AlertDialog(
             onDismissRequest = { Recordings.askDelete.value = null },
             title = { Text("Supprimer l'enregistrement ?") },
-            text = { Text("${r.who} · ${fmtWhen(r.time)}\nLe fichier sera effacé du dossier Rec.") },
+            text = { Text("${r.who} · ${Recordings.fmtDate(r.time)}\nLe fichier sera effacé du dossier Rec.") },
             confirmButton = {
                 Button(onClick = {
                     Recordings.askDelete.value = null
@@ -208,7 +214,7 @@ internal fun RecordingPlayer() {
     ModalBottomSheet(onDismissRequest = { Recordings.open.value = null }, containerColor = cs.surface) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(bottom = 28.dp)) {
             Text("🎙️ $title", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = cs.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Text(fmtWhen(rec.time) + (Recordings.fmtSize(rec.size).takeIf { it.isNotEmpty() }?.let { " · $it" } ?: "") + (rec.number?.let { " · " + phoneText(it) } ?: ""), fontSize = 12.5.sp, color = muted())
+            Text(Recordings.fmtDate(rec.time) + (Recordings.durationOf(rec)?.let { " · ⏱ " + Recordings.fmtDur(it) } ?: "") + (Recordings.fmtSize(rec.size).takeIf { it.isNotEmpty() }?.let { " · $it" } ?: "") + (rec.number?.let { " · " + phoneText(it) } ?: ""), fontSize = 12.5.sp, color = muted())
             Text("Rec/" + rec.name, fontSize = 11.sp, color = muted(.45f), maxLines = 1, overflow = TextOverflow.Ellipsis)
             Spacer(Modifier.height(14.dp))
             if (error != null) Text(error!!, color = Red, fontSize = 13.sp)

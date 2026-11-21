@@ -202,6 +202,32 @@ object Recordings {
         return true
     }
 
+    /** Date et heure complètes : « sam. 21 nov. 2026 · 23:42 ». */
+    fun fmtDate(t: Long): String = SimpleDateFormat("EEE d MMM yyyy · HH:mm", Locale.FRANCE).format(java.util.Date(t))
+
+    /** Durées lues dans les fichiers (ms), gardées en mémoire et dans les préférences (nom + taille → durée). */
+    val durations = androidx.compose.runtime.mutableStateMapOf<String, Long>()
+    private fun durKey(r: Rec) = r.name + "|" + r.size
+
+    /** Durée d'un enregistrement (lecture du fichier au besoin, hors fil principal). */
+    fun loadDuration(ctx: Context, r: Rec): Long? {
+        val k = durKey(r)
+        durations[k]?.let { return it }
+        val p = ctx.getSharedPreferences("recdur", Context.MODE_PRIVATE)
+        val saved = p.getLong(k, -1L)
+        if (saved >= 0) { durations[k] = saved; return saved }
+        val ms = try {
+            val m = android.media.MediaMetadataRetriever()
+            try { m.setDataSource(ctx, r.uri); m.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull() } finally { m.release() }
+        } catch (_: Throwable) { null } ?: return null
+        p.edit().putLong(k, ms).apply()
+        durations[k] = ms
+        return ms
+    }
+    fun durationOf(r: Rec): Long? = durations[durKey(r)]
+
+    fun fmtDur(ms: Long): String { val s = ms / 1000; return if (s < 60) "$s s" else "${s / 60} min ${"%02d".format(s % 60)} s" }
+
     fun forKey(key: String): List<Rec> = all.value.filter { it.key == key }
 
     fun fmtSize(b: Long): String = when {
