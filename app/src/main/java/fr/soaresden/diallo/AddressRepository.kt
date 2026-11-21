@@ -14,7 +14,7 @@ object AddressRepository {
     data class Raw(val contactId: Long, val name: String, val photo: String?, val address: String, val type: String?)
     data class Place(val raw: Raw, val lat: Double, val lon: Double)
 
-    private fun cache(ctx: Context) = ctx.getSharedPreferences("geocache", Context.MODE_PRIVATE)
+    private fun cache(ctx: Context) = ctx.getSharedPreferences("geocache2", Context.MODE_PRIVATE)
     private fun norm(a: String) = a.replace(Regex("\\s+"), " ").trim().lowercase()
 
     fun rawAddresses(ctx: Context): List<Raw> {
@@ -55,12 +55,40 @@ object AddressRepository {
         return places to todo
     }
 
-    /** Géocode une adresse (appel réseau, à faire hors thread UI). */
+    private val CP = Regex("""(?<!\d)(\d{5})(?!\d)""")
+
+    /**
+     * Le résultat est-il assez précis et cohérent ? Rejette les réponses « France » / région seule
+     * (point au milieu du pays) et celles dont le code postal n'est pas dans le même département.
+     */
+    private fun plausible(a: android.location.Address, cp: String?): Boolean {
+        if (a.locality == null && a.postalCode == null && a.thoroughfare == null && a.subLocality == null) return false
+        if (cp != null) {
+            val got = a.postalCode
+            if (got != null) return got.take(2) == cp.take(2)
+            // pas de code postal dans la réponse : au moins une ville
+            return a.locality != null
+        }
+        return true
+    }
+
     @Suppress("DEPRECATION")
+    private fun ask(g: Geocoder, q: String, cp: String?): android.location.Address? =
+        g.getFromLocationName(q, 5)?.firstOrNull { plausible(it, cp) }
+
+    /** Géocode une adresse (appel réseau, à faire hors thread UI). Sans résultat fiable : la ville, puis le code postal. */
     fun geocode(ctx: Context, r: Raw): Place? {
         val pref = cache(ctx)
+        val cp = CP.findAll(r.address).lastOrNull()?.value
         val res = try {
-            if (!Geocoder.isPresent()) null else Geocoder(ctx, Locale.FRANCE).getFromLocationName(r.address, 1)?.firstOrNull()
+            if (!Geocoder.isPresent()) null else {
+                val g = Geocoder(ctx, Locale.FRANCE)
+                ask(g, r.address, cp) ?: cp?.let { code ->
+                    // « 60800 Crépy-en-Valois » : ce qui suit le code postal est la ville
+                    val town = r.address.substringAfter(code).trim(' ', ',').substringBefore(',').trim()
+                    (if (town.length >= 2) ask(g, "$code $town, France", code) else null) ?: ask(g, "$code, France", code)
+                }
+            }
         } catch (_: Throwable) { return null }               // erreur réseau : on réessaiera plus tard
         return if (res != null) {
             pref.edit().putString(norm(r.address), "${res.latitude},${res.longitude}").apply()

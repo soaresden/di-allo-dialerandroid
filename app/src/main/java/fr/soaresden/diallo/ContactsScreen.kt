@@ -166,7 +166,7 @@ internal fun ContactsScreen(contacts: List<CallRepository.Contact>, groups: List
                                 Avatar(c.display, c.photoUri); Spacer(Modifier.width(12.dp))
                                 Column(Modifier.weight(1f)) {
                                     Text(c.display, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis, color = MaterialTheme.colorScheme.onBackground)
-                                    Text(flagOf(c.number) + " " + (c.label?.let { "$it · " } ?: "") + displayNumber(c.number) + (if (nums.size > 1) "  +${nums.size - 1} n°" else "") + (if (!alpha) nums.maxOf { it.last }.let { l -> if (l > 0) "  ·  " + agoText(l) else "" } else ""), fontSize = 12.5.sp, color = muted(), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                    Text(flagOf(c.number) + " " + (c.label?.let { "$it · " } ?: "") + displayNumber(c.number) + (lineLabel(c.number)?.let { "  " + it.substringBefore(" ") } ?: "") + (if (nums.size > 1) "  +${nums.size - 1} n°" else "") + (if (!alpha) nums.maxOf { it.last }.let { l -> if (l > 0) "  ·  " + agoText(l) else "" } else ""), fontSize = 12.5.sp, color = muted(), maxLines = 1, overflow = TextOverflow.Ellipsis)
                                     val gs = nums.flatMap { it.groups }.distinct()
                                     if (gs.isNotEmpty()) Text(gs.joinToString(" · "), fontSize = 11.sp, color = MaterialTheme.colorScheme.primary.copy(alpha = .85f), maxLines = 1, overflow = TextOverflow.Ellipsis)
                                 }
@@ -234,7 +234,7 @@ internal fun ContactsScreen(contacts: List<CallRepository.Contact>, groups: List
                         Text(flagOf(n.number), fontSize = 22.sp); Spacer(Modifier.width(10.dp))
                         Column(Modifier.weight(1f)) {
                             Text(displayNumber(n.number), fontWeight = FontWeight.SemiBold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onBackground)
-                            Text((n.label ?: "Numéro") + " · " + lineType(n.number) + (if (n.calls > 0) " · ${n.calls} appel${if (n.calls > 1) "s" else ""}" else " · jamais appelé"), fontSize = 12.sp, color = muted())
+                            Text((n.label ?: "Numéro") + " · " + (lineLabel(n.number) ?: lineType(n.number)) + (if (n.calls > 0) " · ${n.calls} appel${if (n.calls > 1) "s" else ""}" else " · jamais appelé"), fontSize = 12.sp, color = muted())
                         }
                         Box(Modifier.size(40.dp).clip(CircleShape).background(CallGreen), contentAlignment = Alignment.Center) { Icon(Icons.Filled.Call, "Appeler", tint = androidx.compose.ui.graphics.Color.White, modifier = Modifier.size(20.dp)) }
                     }

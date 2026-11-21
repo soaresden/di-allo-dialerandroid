@@ -67,6 +67,30 @@ object Synth {
         Instr("cornemuse", "Cornemuse", partials = listOf(p(1.0,.5,Wave.SAW), p(1.5,.3,Wave.SAW), p(2.0,.18,Wave.SQR), p(.5,.25,Wave.SAW)), attack=.04, decay=.85, vibRate=4.5, vibDepth=.009, emoji="🐑"),
         Instr("synthe", "Synthé", partials = listOf(p(1.0,.3,Wave.SAW), p(1.003,.3,Wave.SAW), p(.997,.3,Wave.SAW), p(2.0,.12,Wave.SAW)), attack=.01, decay=.62, emoji="🎛️"),
         Instr("8bit", "8-bit", partials = listOf(p(1.0,1.0,Wave.SQR)), attack=.003, decay=.28, emoji="👾"),
+        // --- claviers ---
+        Instr("rhodes", "Piano électrique", partials = listOf(p(1.0,1.0,Wave.SINE), p(2.0,.25,Wave.SINE), p(7.0,.06,Wave.SINE)), attack=.004, decay=1.4, vibRate=5.5, vibDepth=.003, emoji="🌙"),
+        Instr("clavecin", "Clavecin", partials = listOf(p(1.0,.5,Wave.SAW), p(2.0,.25,Wave.SQR), p(3.0,.1,Wave.SAW)), attack=.002, decay=.9, emoji="🏰"),
+        Instr("accordeon", "Accordéon", partials = listOf(p(1.0,.4,Wave.SAW), p(1.004,.35,Wave.SAW), p(2.0,.15,Wave.SQR)), attack=.03, decay=.8, vibRate=6.0, vibDepth=.004, emoji="🪗"),
+        // --- percussions mélodiques ---
+        Instr("vibra", "Vibraphone", partials = listOf(p(1.0,1.0,Wave.SINE), p(4.0,.25,Wave.SINE)), attack=.004, decay=1.6, vibRate=6.0, vibDepth=.006, emoji="✨"),
+        Instr("glock", "Glockenspiel", partials = listOf(p(1.0,1.0,Wave.SINE), p(2.76,.4,Wave.SINE)), attack=.002, decay=.9, octave=2.0, emoji="⭐"),
+        Instr("boite", "Boîte à musique", partials = listOf(p(1.0,1.0,Wave.SINE), p(2.0,.3,Wave.SINE), p(5.4,.15,Wave.SINE)), attack=.002, decay=.9, octave=2.0, emoji="🎠"),
+        Instr("steel", "Steel drum", partials = listOf(p(1.0,1.0,Wave.SINE), p(2.0,.6,Wave.SINE), p(3.0,.2,Wave.SINE), p(4.1,.15,Wave.SINE)), attack=.003, decay=.9, emoji="🏝️"),
+        // --- cordes ---
+        Instr("ukulele", "Ukulélé", kind = Kind.GUITAR, decay = .8, octave = 2.0, emoji="🌺"),
+        Instr("basse", "Basse", partials = listOf(p(1.0,1.0,Wave.TRI), p(2.0,.3,Wave.SINE)), attack=.005, decay=.8, octave=.25, emoji="🔊"),
+        Instr("contrebasse", "Contrebasse", kind = Kind.BOWED, decay = 1.2, vibRate = 4.5, octave = .25, body = .5, emoji="🎵"),
+        Instr("sitar", "Sitar", partials = listOf(p(1.0,.6,Wave.SAW), p(2.01,.3,Wave.SAW), p(3.02,.2,Wave.SAW)), attack=.003, decay=1.4, vibRate=3.0, vibDepth=.004, emoji="🪷"),
+        Instr("koto", "Koto", partials = listOf(p(1.0,1.0,Wave.TRI), p(2.0,.3,Wave.SAW)), attack=.002, decay=.9, emoji="🎎"),
+        // --- vents ---
+        Instr("trompette", "Trompette", partials = listOf(p(1.0,.6,Wave.SAW), p(2.0,.35,Wave.SAW), p(3.0,.2,Wave.SAW)), attack=.03, decay=.6, vibRate=5.5, vibDepth=.006, emoji="🎺"),
+        Instr("sax", "Saxophone", partials = listOf(p(1.0,.6,Wave.SAW), p(2.0,.3,Wave.SQR), p(3.0,.15,Wave.SAW)), attack=.04, decay=.8, vibRate=5.0, vibDepth=.01, emoji="🎷"),
+        Instr("clarinette", "Clarinette", partials = listOf(p(1.0,.6,Wave.SQR), p(3.0,.2,Wave.SINE)), attack=.04, decay=.7, vibRate=4.5, vibDepth=.006, emoji="🎶"),
+        Instr("sifflet", "Sifflement", partials = listOf(p(1.0,1.0,Wave.SINE)), attack=.04, decay=.5, vibRate=5.5, vibDepth=.012, octave=2.0, emoji="😗"),
+        // --- électro / fun ---
+        Instr("theremine", "Thérémine", partials = listOf(p(1.0,1.0,Wave.SINE), p(2.0,.1,Wave.SINE)), attack=.08, decay=.9, vibRate=6.5, vibDepth=.02, emoji="👽"),
+        Instr("pad", "Nappe", partials = listOf(p(1.0,.3,Wave.TRI), p(1.006,.3,Wave.TRI), p(.994,.3,Wave.TRI), p(2.0,.1,Wave.SINE)), attack=.15, decay=1.2, emoji="🌫️"),
+        Instr("chip", "Console", partials = listOf(p(1.0,.7,Wave.SQR), p(2.0,.2,Wave.TRI)), attack=.002, decay=.18, octave=2.0, emoji="🕹️"),
         Instr("batterie", "Batterie", kind = Kind.DRUM, emoji="🥁"),
         Instr("tonalite", "Tonalité", kind = Kind.DTMF, emoji="☎️")
     )
@@ -90,9 +114,9 @@ object Synth {
         when (instr.kind) {
             Kind.DRUM -> renderDrum(key)
             Kind.DTMF -> renderDtmf(key)
-            Kind.GUITAR -> renderGuitar(freqOf[key] ?: 440.0)
+            Kind.GUITAR -> renderGuitar((freqOf[key] ?: 440.0) * instr.octave)
             Kind.BOWED -> renderBowed((freqOf[key] ?: 440.0) * instr.octave, instr)
-            Kind.MELODIC -> renderMelodic(freqOf[key] ?: 440.0, instr)
+            Kind.MELODIC -> renderMelodic((freqOf[key] ?: 440.0) * instr.octave, instr)
         }
     }
 

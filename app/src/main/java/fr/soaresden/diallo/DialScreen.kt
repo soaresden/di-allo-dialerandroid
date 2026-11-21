@@ -19,6 +19,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -183,8 +187,9 @@ internal fun DialScreen(
             Column(Modifier.fillMaxSize().padding(horizontal = 24.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     if (value.isEmpty()) "" else prettyNumber(value),
-                    fontSize = when { value.length <= 10 -> 38.sp; value.length <= 14 -> 31.sp; else -> 25.sp },
-                    fontWeight = FontWeight.Light, letterSpacing = 1.5.sp, textAlign = TextAlign.Center,
+                    fontSize = (when { value.length <= 10 -> 38f; value.length <= 14 -> 31f; else -> 25f } * LocalHTheme.current.numScale.coerceIn(.7f, 1.15f)).sp,
+                    fontWeight = if (LocalHTheme.current.num != null) FontWeight.Normal else FontWeight.Light, letterSpacing = 1.5.sp, textAlign = TextAlign.Center,
+                    fontFamily = LocalHTheme.current.num, style = androidx.compose.ui.text.TextStyle(shadow = LocalHTheme.current.glowShadow()),
                     color = MaterialTheme.colorScheme.onBackground, maxLines = 1, overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -219,7 +224,7 @@ internal fun DialScreen(
                 }
                 // Rangée d'appel : [favoris] [appeler] [effacer]
                 if (recording) Row(horizontalArrangement = Arrangement.spacedBy(gapH), verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.size(key).clip(CircleShape).background(MaterialTheme.colorScheme.surface.copy(alpha = .9f))
+                    Box(Modifier.size(key).themedKey(LocalHTheme.current, LocalHTheme.current.keyShapeOf(), 0f)
                         .clickable { Melodies.space(); view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP) }, contentAlignment = Alignment.Center) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text("␣", fontSize = (key.value * 0.36f).sp, color = MaterialTheme.colorScheme.onSurface)
@@ -227,8 +232,8 @@ internal fun DialScreen(
                         }
                     }
                     val hasDraft = Melodies.recTokens.isNotEmpty()
-                    Box(Modifier.size(key).shadow(if (hasDraft) 8.dp else 0.dp, CircleShape, ambientColor = MaterialTheme.colorScheme.primary, spotColor = MaterialTheme.colorScheme.primary)
-                        .clip(CircleShape).background(if (hasDraft) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant)
+                    Box(Modifier.size(key).shadow(if (hasDraft) 8.dp else 0.dp, LocalHTheme.current.keyShapeOf(), ambientColor = MaterialTheme.colorScheme.primary, spotColor = MaterialTheme.colorScheme.primary)
+                        .clip(LocalHTheme.current.keyShapeOf()).background(if (hasDraft) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant)
                         .clickable(enabled = hasDraft) { saveDraft() }, contentAlignment = Alignment.Center) {
                         Icon(Icons.Filled.Save, "Garder la composition", tint = if (hasDraft) MaterialTheme.colorScheme.onPrimary else muted(.3f), modifier = Modifier.size(key * 0.4f))
                     }
@@ -241,7 +246,7 @@ internal fun DialScreen(
                     Box(Modifier.size(key).clip(CircleShape).clickable { showFav = true; view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP) }, contentAlignment = Alignment.Center) {
                         Icon(Icons.Filled.Star, "Favoris", tint = Color(0xFFF5B301), modifier = Modifier.size(key * 0.38f))
                     }
-                    Box(Modifier.size(key).shadow(8.dp, CircleShape, ambientColor = CallGreen, spotColor = CallGreen).clip(CircleShape).background(CallGreen)
+                    Box(Modifier.size(key).shadow(8.dp, LocalHTheme.current.keyShapeOf(), ambientColor = CallGreen, spotColor = CallGreen).clip(LocalHTheme.current.keyShapeOf()).background(CallGreen)
                         .clickable { if (value.isNotEmpty()) onConfirm(value) }, contentAlignment = Alignment.Center) {
                         Icon(Icons.Filled.Call, "Appeler", tint = Color.White, modifier = Modifier.size(key * 0.4f))
                     }
@@ -266,8 +271,9 @@ private fun DialKey(k: K, size: Dp, pulse: Int = 0, onDown: () -> Unit, onLong: 
     val wave = remember { Animatable(1f) }     // onde qui part du doigt
     var touch by remember { mutableStateOf(Offset.Unspecified) }
     val cs = MaterialTheme.colorScheme
+    val th = LocalHTheme.current
     val accent = cs.primary
-    val base = cs.surface.copy(alpha = .9f)
+    val shape = th.keyShapeOf()
     // Une mélodie joue cette touche : même animation qu'un appui
     LaunchedEffect(pulse) {
         if (pulse == 0) return@LaunchedEffect
@@ -280,9 +286,9 @@ private fun DialKey(k: K, size: Dp, pulse: Int = 0, onDown: () -> Unit, onLong: 
     Box(
         Modifier.size(size)
             .graphicsLayer { scaleX = press.value; scaleY = press.value }
-            .clip(CircleShape).background(base)
+            .themedKey(th, shape, glow.value)
             .drawBehind {
-                if (glow.value > 0f) drawCircle(accent.copy(alpha = .30f * glow.value))
+                if (glow.value > 0f) drawRect(accent.copy(alpha = .30f * glow.value))
                 if (wave.value < 1f) {
                     val c = if (touch.isSpecified) touch else center
                     drawCircle(accent.copy(alpha = .38f * (1f - wave.value)), radius = this.size.width * (.18f + 1.1f * wave.value), center = c)
@@ -306,10 +312,15 @@ private fun DialKey(k: K, size: Dp, pulse: Int = 0, onDown: () -> Unit, onLong: 
             },
         contentAlignment = Alignment.Center
     ) {
-        val digit = lerp(cs.onSurface, accent, glow.value)
+        val rest = if (th.keyStyle == KeyStyle.NEON) lerp(cs.onSurface, accent, .45f) else cs.onSurface
+        val digit = lerp(rest, accent, glow.value)
+        val plain = k.d == "*" || k.d == "#"
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                k.d, fontSize = (size.value * if (k.d == "*") 0.5f else 0.4f).sp, fontWeight = if (glow.value > .5f) FontWeight.Normal else FontWeight.Light,
+                k.d, fontSize = (size.value * (if (k.d == "*") 0.5f else 0.4f) * (if (plain) 1f else th.numScale)).sp,
+                fontWeight = if (th.num != null && !plain) FontWeight.Normal else if (glow.value > .5f) FontWeight.Normal else FontWeight.Light,
+                fontFamily = if (plain) null else th.num,
+                style = androidx.compose.ui.text.TextStyle(shadow = th.glowShadow()),
                 color = digit, modifier = Modifier.offset(y = if (k.d == "*") 4.dp else 0.dp)
             )
             when (k.l) {
@@ -347,7 +358,8 @@ private fun BackspaceKey(size: Dp, visible: Boolean, onClick: () -> Unit, onLong
 
 @Composable
 private fun SmallTitle(t: String) {
-    Text(t, fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(start = 14.dp, top = 6.dp, bottom = 2.dp))
+    val th = LocalHTheme.current
+    Text(t, fontSize = (11.5f * th.headScale).sp, fontWeight = FontWeight.Bold, fontFamily = th.head, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(start = 14.dp, top = 6.dp, bottom = 2.dp))
 }
 
 @Composable
@@ -386,11 +398,8 @@ internal fun nationalDigits(n: String): String {
     }
 }
 
-/** Affichage : les numéros français en 06 12 34 56 78, les autres tels quels (formatés). */
-internal fun displayNumber(n: String): String {
-    val t = n.trim()
-    return if (t.startsWith("+33") || t.filter { it.isDigit() }.startsWith("0033")) prettyNumber(nationalDigits(n)) else prettyNumber(n)
-}
+/** Affichage au format international : +33 6 12 34 56 78. */
+internal fun displayNumber(n: String): String = intlNumber(n)
 
 /** Surligne dans le nom la partie qui correspond à la saisie T9. */
 private fun highlightName(name: String, t9: String, q: String, st: SpanStyle): AnnotatedString {
@@ -439,5 +448,46 @@ private fun RecDisplay(h: Dp) {
             color = if (text.isEmpty()) muted(.35f) else MaterialTheme.colorScheme.onBackground,
             maxLines = 1, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(top = 2.dp)
         )
+    }
+}
+
+/** Habille une touche du cadran selon le thème : plein, verre, néon, contour, BD, tampon. */
+internal fun Modifier.themedKey(th: HTheme, shape: androidx.compose.ui.graphics.Shape, lit: Float): Modifier {
+    val ink = th.border ?: th.text
+    val glowColor = th.primary
+    return when (th.keyStyle) {
+        KeyStyle.FILLED -> this.clip(shape).background(th.surface.copy(alpha = .9f))
+        KeyStyle.GLASS -> this.clip(shape)
+            .background(th.surface.copy(alpha = if (th.dark) .38f else .55f))
+            .background(androidx.compose.ui.graphics.Brush.verticalGradient(listOf(Color.White.copy(alpha = if (th.dark) .16f else .5f), Color.White.copy(alpha = .02f))))
+            .border(1.dp, if (th.dark) Color.White.copy(alpha = .22f) else th.text.copy(alpha = .10f), shape)
+        KeyStyle.NEON -> this
+            .drawBehind {
+                val o = shape.createOutline(size, layoutDirection, this)
+                val k = .55f + .45f * lit
+                drawOutline(o, glowColor.copy(alpha = .07f * k), style = androidx.compose.ui.graphics.drawscope.Stroke(14.dp.toPx()))
+                drawOutline(o, glowColor.copy(alpha = .14f * k), style = androidx.compose.ui.graphics.drawscope.Stroke(7.dp.toPx()))
+            }
+            .clip(shape).background(th.surface.copy(alpha = .35f))
+            .border(1.8.dp, glowColor.copy(alpha = .9f), shape)
+        KeyStyle.OUTLINE -> this.clip(shape).background(th.surface.copy(alpha = if (th.dark) .22f else .4f)).border(1.2.dp, th.border ?: th.text.copy(alpha = .28f), shape)
+        KeyStyle.HARD -> this
+            .drawBehind {
+                val o = shape.createOutline(size, layoutDirection, this)
+                val off = 4.dp.toPx() * (1f - lit * .7f)
+                translate(off, off) { drawOutline(o, ink) }
+            }
+            .clip(shape).background(th.surface)
+            .border(2.dp, ink, shape)
+        KeyStyle.STAMP -> this.clip(shape).background(th.surface.copy(alpha = .78f))
+            .drawBehind {
+                val o = shape.createOutline(size, layoutDirection, this)
+                val inset = 3.dp.toPx()
+                inset(inset) {
+                    drawOutline(shape.createOutline(this.size, layoutDirection, this), ink.copy(alpha = .75f),
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(1.5.dp.toPx(), pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 4.dp.toPx()))))
+                }
+                drawOutline(o, ink.copy(alpha = .25f), style = androidx.compose.ui.graphics.drawscope.Stroke(1.dp.toPx()))
+            }
     }
 }

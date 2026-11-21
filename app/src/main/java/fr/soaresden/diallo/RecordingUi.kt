@@ -23,6 +23,11 @@ import androidx.compose.material.icons.filled.Replay10
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -68,6 +73,9 @@ private fun RecRow(r: Recordings.Rec, showWho: Boolean) {
             Text(if (showWho) r.who else fmtWhen(r.time), fontSize = 13.5.sp, fontWeight = FontWeight.Medium, color = cs.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
             Text((if (showWho) fmtWhen(r.time) + " · " else "") + Recordings.fmtSize(r.size) + " · " + r.name.substringAfterLast('.').uppercase(), fontSize = 11.5.sp, color = muted())
         }
+        IconButton(onClick = { Recordings.askDelete.value = r }, modifier = Modifier.size(36.dp)) {
+            Icon(Icons.Filled.DeleteOutline, "Supprimer", tint = muted(.5f), modifier = Modifier.size(19.dp))
+        }
     }
 }
 
@@ -94,11 +102,15 @@ internal fun RecScreen(contacts: List<CallRepository.Contact>, onCall: (String) 
     val byKey = remember(contacts) { contacts.associateBy { keyOf(it.number) } }
     var q by rememberSaveable { mutableStateOf("") }
     val open = remember { mutableStateMapOf<String, Boolean>() }
-    val groups = remember(all, q) {
+    val ctx = LocalContext.current
+    var byDate by remember { mutableStateOf(prefs(ctx).getBoolean("rec_by_date", false)) }
+    val shown = remember(all, q) {
         val t = q.trim()
         all.filter { t.isEmpty() || it.who.contains(t, true) || (it.number?.filter { c -> c.isDigit() }?.contains(t.filter { c -> c.isDigit() }.ifEmpty { "§" }) == true) }
-            .groupBy { it.key }.entries.sortedByDescending { e -> e.value.maxOf { it.time } }
+            .sortedByDescending { it.time }
     }
+    // par contact : le correspondant du dernier enregistrement en haut (se recale si on supprime)
+    val groups = remember(shown) { shown.groupBy { it.key }.entries.sortedByDescending { e -> e.value.maxOf { it.time } } }
     val cs = MaterialTheme.colorScheme
     Column(Modifier.fillMaxSize().padding(horizontal = 14.dp)) {
         OutlinedTextField(
@@ -106,6 +118,7 @@ internal fun RecScreen(contacts: List<CallRepository.Contact>, onCall: (String) 
             shape = RoundedCornerShape(16.dp), leadingIcon = { Icon(Icons.Filled.Search, null) },
             trailingIcon = { if (q.isNotEmpty()) IconButton(onClick = { q = "" }) { Icon(Icons.Filled.Close, "Effacer") } }
         )
+        Segmented(listOf("Par contact", "Par date"), if (byDate) 1 else 0, { byDate = it == 1; prefs(ctx).edit().putBoolean("rec_by_date", byDate).apply() }, Modifier.fillMaxWidth().padding(top = 8.dp))
         Row(Modifier.fillMaxWidth().padding(vertical = 6.dp, horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             Text("${all.size} enregistrement${if (all.size > 1) "s" else ""} · ${groups.size} correspondant${if (groups.size > 1) "s" else ""}", fontSize = 12.sp, color = muted(.55f), modifier = Modifier.weight(1f))
             if (busy) CircularProgressIndicator(Modifier.size(14.dp), strokeWidth = 2.dp)
@@ -114,6 +127,9 @@ internal fun RecScreen(contacts: List<CallRepository.Contact>, onCall: (String) 
         status?.let { Text(it, fontSize = 12.sp, color = cs.primary, modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)) }
         if (all.isEmpty()) {
             Empty(if (busy) "Lecture des enregistrements…" else "Aucun enregistrement.\nPendant un appel, touche 🔴 Enregistrer (à activer dans Réglages › Pendant l'appel › Enregistrement).")
+        } else if (byDate) LazyColumn(Modifier.fillMaxSize()) {
+            items(shown, key = { "d_${it.name}" }) { r -> RecRow(r, showWho = true) }
+            item { Spacer(Modifier.height(20.dp)) }
         } else LazyColumn(Modifier.fillMaxSize()) {
             groups.forEach { (k, list) ->
                 val r0 = list.first()
@@ -150,9 +166,23 @@ internal fun RecScreen(contacts: List<CallRepository.Contact>, onCall: (String) 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun RecordingPlayer() {
+    val ctx = LocalContext.current
+    Recordings.askDelete.value?.let { r ->
+        AlertDialog(
+            onDismissRequest = { Recordings.askDelete.value = null },
+            title = { Text("Supprimer l'enregistrement ?") },
+            text = { Text("${r.who} · ${fmtWhen(r.time)}\nLe fichier sera effacé du dossier Rec.") },
+            confirmButton = {
+                Button(onClick = {
+                    Recordings.askDelete.value = null
+                    if (!Recordings.delete(ctx, r)) android.widget.Toast.makeText(ctx, "Suppression impossible", android.widget.Toast.LENGTH_SHORT).show()
+                }, colors = ButtonDefaults.buttonColors(containerColor = Red, contentColor = Color.White)) { Text("Supprimer") }
+            },
+            dismissButton = { TextButton(onClick = { Recordings.askDelete.value = null }) { Text("Annuler") } }
+        )
+    }
     val open by Recordings.open
     val (rec, title) = open ?: return
-    val ctx = LocalContext.current
     val cs = MaterialTheme.colorScheme
     var player by remember(rec.uri) { mutableStateOf<MediaPlayer?>(null) }
     var error by remember(rec.uri) { mutableStateOf<String?>(null) }
@@ -209,6 +239,7 @@ internal fun RecordingPlayer() {
                 val s = Intent(Intent.ACTION_SEND).setType(ctx.contentResolver.getType(rec.uri) ?: "audio/*").putExtra(Intent.EXTRA_STREAM, rec.uri).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 try { ctx.startActivity(Intent.createChooser(s, "Partager l'enregistrement")) } catch (_: Throwable) { }
             }, modifier = Modifier.fillMaxWidth()) { Text("📤 Partager") }
+            TextButton(onClick = { Recordings.askDelete.value = rec }, modifier = Modifier.fillMaxWidth()) { Text("🗑️ Supprimer", color = Red) }
         }
     }
 }

@@ -106,13 +106,17 @@ internal fun SectionCard(
 ) {
     var collapsed by rememberCollapsed("card_$id", defaultCollapsed)
     val folded = collapsible && collapsed
-    Surface(Modifier.fillMaxWidth().padding(bottom = 12.dp), color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(18.dp)) {
+    val th = LocalHTheme.current
+    Surface(
+        Modifier.fillMaxWidth().padding(bottom = 12.dp), color = MaterialTheme.colorScheme.surface.copy(alpha = th.cardAlpha), shape = th.cardShape(),
+        border = th.border?.let { androidx.compose.foundation.BorderStroke(if (th.keyStyle == KeyStyle.HARD) 2.dp else 1.dp, it) }
+    ) {
         Column(Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
             Row(
                 Modifier.fillMaxWidth().heightIn(min = 30.dp).clip(RoundedCornerShape(8.dp)).then(if (collapsible) Modifier.clickable { collapsed = !collapsed } else Modifier),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(title, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.weight(1f))
+                Text(title, fontWeight = if (th.head != null) FontWeight.Normal else FontWeight.Bold, fontSize = (14f * th.headScale).sp, fontFamily = th.head, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.weight(1f))
                 if (!folded) action?.invoke()
                 if (collapsible) { Spacer(Modifier.width(4.dp)); Chevron(folded) }
             }

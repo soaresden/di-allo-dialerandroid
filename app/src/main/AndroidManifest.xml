@@ -42,6 +42,7 @@
         <!-- Écran principal + déclaration en tant qu'application Téléphone -->
         <activity
             android:name=".MainActivity"
+            android:screenOrientation="portrait"
             android:exported="true"
             android:launchMode="singleTask"
             android:theme="@style/Theme.Diallo">
@@ -71,6 +72,7 @@
         <!-- Écran d'appel en cours -->
         <activity
             android:name=".OngoingCallActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:taskAffinity="fr.soaresden.diallo.incall"
             android:autoRemoveFromRecents="true"
@@ -149,6 +151,7 @@
         </service>
         <activity
             android:name=".ComposeSmsActivity"
+            android:screenOrientation="portrait"
             android:exported="true"
             android:theme="@style/Theme.Diallo">
             <intent-filter>

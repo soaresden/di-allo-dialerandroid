@@ -41,7 +41,7 @@ import androidx.compose.foundation.verticalScroll
 
 internal val RecRed = Color(0xFFE5484D)
 
-private fun instrLabel(id: String) = Synth.instruments.firstOrNull { it.id == id }?.let { "${it.emoji} ${it.name}" } ?: "🎵"
+internal fun instrLabel(id: String) = Synth.instruments.firstOrNull { it.id == id }?.let { "${it.emoji} ${it.name}" } ?: "🎵"
 
 private fun copyText(ctx: Context, t: String) {
     (ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText("Mélodie", t))
@@ -195,67 +195,6 @@ internal fun KaraokeDisplay(h: Dp) {
             Box(Modifier.fillMaxHeight().fillMaxWidth(progress).background(cs.primary))
         }
     }
-}
-
-/**
- * Garder une composition, ou modifier une mélodie existante ([existing]) :
- * nom, touches modifiables, rythme joué (d'origine) ou régulier.
- */
-@Composable
-internal fun MelodyEditDialog(played: List<Melodies.Note>, typed: String, existing: Melodies.Melody? = null, onDone: () -> Unit) {
-    val ctx = LocalContext.current
-    var name by remember { mutableStateOf(existing?.name ?: Melodies.nextName(ctx)) }
-    var text by remember { mutableStateOf(typed) }
-    val instr = remember { existing?.instr ?: Synth.currentId }
-    val playing by Melodies.playingId
-    val med = remember { played.zipWithNext { a, b -> b.t - a.t }.filter { it > 40 }.sorted().let { it.getOrNull(it.size / 2) ?: 300 }.coerceIn(120, 700) }
-    var step by remember { mutableFloatStateOf(med.toFloat()) }
-    val changed = text.trim() != typed.trim()
-    var asPlayed by remember { mutableStateOf(true) }
-    val useRhythm = asPlayed && !changed
-    val notes = if (useRhythm) played else remember(text, step) { Melodies.fromText(text, step.toInt()) }
-    val dur = (notes.lastOrNull()?.t ?: 0) + 400
-    val previewId = if (existing != null) -3L else -1L
-    AlertDialog(
-        onDismissRequest = { },
-        title = { Text(if (existing != null) "✏️ Modifier la mélodie" else "🎵 Garder la composition ?") },
-        text = {
-            Column(Modifier.verticalScroll(rememberScrollState())) {
-                OutlinedTextField(name, { name = it }, label = { Text("Nom") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                Spacer(Modifier.height(8.dp))
-                OutlinedTextField(
-                    text, { v -> text = v.replace("\r", "").filter { it.toString() in Melodies.VALID || it == ' ' || it == '\n' } },
-                    label = { Text("Touches (modifiables)") },
-                    textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Monospace, fontSize = 17.sp),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone), maxLines = 7, modifier = Modifier.fillMaxWidth()
-                )
-                Text("${notes.size} notes · ${fmtMelodyDur(dur)} · ${instrLabel(instr)}", fontSize = 12.sp, color = muted(), modifier = Modifier.padding(top = 4.dp))
-                Spacer(Modifier.height(8.dp))
-                Segmented(listOf(if (existing != null) "🎵 Rythme d'origine" else "🎵 Rythme joué", "📏 Régulier"), if (useRhythm) 0 else 1, { asPlayed = it == 0 })
-                if (changed) Text("Touches modifiées : rythme régulier (espace ou retour à la ligne = pause).", fontSize = 11.5.sp, color = muted(.55f), modifier = Modifier.padding(top = 4.dp))
-                if (!useRhythm) {
-                    Text("Tempo : ${(60000 / step).toInt()} notes / min", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.padding(top = 6.dp))
-                    Slider(step, { step = it }, valueRange = 120f..700f)
-                }
-                TextButton(enabled = notes.isNotEmpty(), onClick = { if (playing == previewId) Melodies.stop() else Melodies.play(previewId, name, instr, notes) }) {
-                    Icon(if (playing == previewId) Icons.Filled.Stop else Icons.Filled.PlayArrow, null, Modifier.size(18.dp)); Spacer(Modifier.width(4.dp))
-                    Text(if (playing == previewId) "Arrêter" else "Écouter")
-                }
-            }
-        },
-        confirmButton = {
-            Button(enabled = notes.isNotEmpty(), onClick = {
-                Melodies.stop()
-                if (existing != null) Melodies.update(ctx, existing.copy(name = name.trim().ifBlank { existing.name }, notes = notes))
-                else Melodies.add(ctx, name, instr, notes)
-                Toast.makeText(ctx, if (existing != null) "Mélodie modifiée ✏️" else "Mélodie enregistrée 🎼", Toast.LENGTH_SHORT).show()
-                onDone()
-            }) { Text(if (existing != null) "Enregistrer" else "Garder") }
-        },
-        dismissButton = {
-            TextButton(onClick = { Melodies.stop(); onDone() }) { if (existing != null) Text("Annuler") else Text("Jeter", color = RecRed) }
-        }
-    )
 }
 
 /** Créer une mélodie en tapant les chiffres : « 624 624 68756752132 », espace = pause. */

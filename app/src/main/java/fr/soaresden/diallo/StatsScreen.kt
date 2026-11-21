@@ -353,6 +353,29 @@ internal fun StatsScreen(calls: List<CallRepository.CallEntry>, contacts: List<C
             }
             Spacer(Modifier.height(10.dp))
         }
+
+        // ---- 📚 Ce qui est compté : tout le journal, année par année ----
+        item {
+            val perYear = remember(calls) { calls.groupingBy { java.util.Calendar.getInstance().apply { timeInMillis = it.date }.get(java.util.Calendar.YEAR) }.eachCount().toSortedMap() }
+            val maxN = perYear.values.maxOrNull() ?: 1
+            val first = perYear.keys.firstOrNull()
+            SectionCard("📚 Données comptées", id = "st_cover", defaultCollapsed = true) {
+                Text("${calls.size} appels du journal, du ${java.text.SimpleDateFormat("d MMMM yyyy", java.util.Locale.FRANCE).format(java.util.Date(oldest))} à aujourd'hui. Tous sont pris en compte.", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
+                Spacer(Modifier.height(10.dp))
+                perYear.forEach { (y, n) ->
+                    Row(Modifier.fillMaxWidth().padding(vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Text("$y", fontSize = 12.sp, color = muted(.7f), modifier = Modifier.width(40.dp))
+                        Box(Modifier.weight(1f).height(10.dp)) {
+                            Box(Modifier.fillMaxHeight().fillMaxWidth((n.toFloat() / maxN).coerceAtLeast(.01f)).clip(RoundedCornerShape(5.dp)).background(primary.copy(alpha = .75f)))
+                        }
+                        Text("$n", fontSize = 12.sp, color = muted(.7f), textAlign = TextAlign.End, modifier = Modifier.width(52.dp))
+                    }
+                }
+                Spacer(Modifier.height(8.dp))
+                Text("Les années absentes ne sont pas dans le journal du téléphone${first?.let { " (il commence en $it)" } ?: ""}. Si tu as une sauvegarde plus ancienne (XML « SMS Backup & Restore »), importe-la dans Réglages › Sauvegardes : les appels manquants y sont ajoutés, puis comptés ici.", fontSize = 12.sp, color = muted(.6f))
+            }
+            Spacer(Modifier.height(10.dp))
+        }
     }
 }
 

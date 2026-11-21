@@ -153,7 +153,11 @@ private fun Root(theme: String, onTheme: (String) -> Unit) {
                 tabs.forEach { (i, label, icon) ->
                     NavigationBarItem(
                         selected = tab == i, onClick = { tab = i }, icon = { Icon(icon, label) }, label = { Text(label, fontSize = 10.sp, maxLines = 1) },
-                        colors = NavigationBarItemDefaults.colors(indicatorColor = MaterialTheme.colorScheme.primaryContainer, selectedIconColor = MaterialTheme.colorScheme.primary, selectedTextColor = MaterialTheme.colorScheme.primary)
+                        colors = NavigationBarItemDefaults.colors(
+                            indicatorColor = MaterialTheme.colorScheme.primaryContainer, selectedIconColor = MaterialTheme.colorScheme.primary, selectedTextColor = MaterialTheme.colorScheme.primary,
+                            // thèmes sombres : icônes non sélectionnées bien lisibles
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurface.copy(alpha = .82f), unselectedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = .82f)
+                        )
                     )
                 }
             }
@@ -181,8 +185,12 @@ private fun Root(theme: String, onTheme: (String) -> Unit) {
 @Composable
 private fun Header() {
     Row(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-        androidx.compose.foundation.Image(androidx.compose.ui.res.painterResource(R.drawable.logo_hand), null, Modifier.size(24.dp)); Spacer(Modifier.width(8.dp))
-        Text("Di-Allô", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onBackground)
+        var show by remember { mutableStateOf(false) }
+        if (show) LogoShow { show = false }
+        androidx.compose.foundation.Image(androidx.compose.ui.res.painterResource(R.drawable.logo_hand), "Di-Allô", Modifier.size(30.dp).clip(CircleShape).clickable { show = true }); Spacer(Modifier.width(8.dp))
+        val th = LocalHTheme.current
+        Text("Di-Allô", fontWeight = if (th.title != null) FontWeight.Normal else FontWeight.Bold, fontSize = (19f * th.headScale.coerceIn(.75f, 1.2f)).sp, fontFamily = th.title,
+            style = androidx.compose.ui.text.TextStyle(shadow = th.glowShadow()), color = if (th.title != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground)
         Text(" by Soaresden", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = muted(.45f), modifier = Modifier.padding(top = 4.dp))
     }
 }

@@ -220,15 +220,18 @@ object Melodies {
 
     fun play(m: Melody) = play(m.id, m.name, m.instr, m.notes)
 
-    fun play(id: Long, name: String, instr: String, notes: List<Note>) {
+    /** Joue [notes] à partir de la note [from] (pour reprendre au milieu d'un air). */
+    fun play(id: Long, name: String, instr: String, notes: List<Note>, from: Int = 0) {
         stop()
         if (notes.isEmpty()) return
+        val first = from.coerceIn(0, notes.lastIndex)
         Synth.prepare(instr); Synth.warmUp()
-        playingId.value = id; playingName.value = name; playingNotes.value = notes; playingIndex.intValue = -1
+        playingId.value = id; playingName.value = name; playingNotes.value = notes; playingIndex.intValue = first - 1
         job = scope.launch {
             delay(120)                                               // laisse le temps de préparer les sons
-            val start = System.currentTimeMillis()
-            for ((i, n) in notes.withIndex()) {
+            val start = System.currentTimeMillis() - notes[first].t
+            for (i in first until notes.size) {
+                val n = notes[i]
                 val wait = start + n.t - System.currentTimeMillis()
                 if (wait > 0) delay(wait)
                 playingIndex.intValue = i

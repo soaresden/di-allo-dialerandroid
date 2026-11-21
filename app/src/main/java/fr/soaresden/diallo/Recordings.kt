@@ -183,6 +183,25 @@ object Recordings {
         } finally { busy.value = false }
     }
 
+    /** Enregistrement dont on demande la suppression (fenêtre de confirmation). */
+    val askDelete = mutableStateOf<Rec?>(null)
+
+    /** Supprime le fichier de Rec/ (et sa ligne dans l'index). */
+    fun delete(ctx: Context, r: Rec): Boolean {
+        val ok = try { DocumentsContract.deleteDocument(ctx.contentResolver, r.uri) } catch (_: Throwable) { false }
+        if (!ok) return false
+        all.value = all.value.filter { it.uri != r.uri }
+        byCall.value = byCall.value.filterValues { it.uri != r.uri }
+        if (open.value?.first?.uri == r.uri) open.value = null
+        try {
+            recDir(ctx)?.let { (tree, recId) ->
+                val doc = children(ctx, tree, recId).firstOrNull { it.name == INDEX }
+                if (doc != null) { val index = loadIndex(ctx, tree, doc); if (index.remove(r.name) != null) saveIndex(ctx, tree, recId, doc, index) }
+            }
+        } catch (_: Throwable) { }
+        return true
+    }
+
     fun forKey(key: String): List<Rec> = all.value.filter { it.key == key }
 
     fun fmtSize(b: Long): String = when {

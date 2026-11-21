@@ -81,7 +81,7 @@ fun countryOf(n: String): Country? {
 fun flagOf(n: String): String = countryOf(n)?.flag ?: if (n.any { it.isDigit() }) "📞" else "🕵️"
 
 /** Texte affiché pour un numéro : drapeau + format lisible. */
-fun phoneText(n: String): String = flagOf(n) + " " + displayNumber(n)
+fun phoneText(n: String): String = flagOf(n) + " " + displayNumber(n) + (lineLabel(n)?.let { " · " + it.substringBefore(" ·") } ?: "")
 
 /** Type de ligne (pour les numéros français). */
 fun lineType(n: String): String {
@@ -105,4 +105,50 @@ fun frRegion(n: String): String? {
     if (c.iso != "FR") return if (c.iso in DOM_NAMES.keys) "Outre-mer" else null
     val nat = nationalDigits(n)
     return when (nat.take(2)) { "01" -> "Île-de-France"; "02" -> "Nord-Ouest"; "03" -> "Nord-Est"; "04" -> "Sud-Est"; "05" -> "Sud-Ouest"; else -> null }
+}
+
+/** Outre-mer composé en national → indicatif international. */
+private val DOM_CC = mapOf("RE" to "262", "YT" to "262", "GP" to "590", "MQ" to "596", "GF" to "594")
+
+/**
+ * Format international : +33 6 12 34 56 78, +262 692 12 34 56, +44 79 11 12 34 56…
+ * Les numéros courts (3631, 112) et masqués restent tels quels.
+ */
+fun intlNumber(n: String): String {
+    val t = n.trim()
+    if (t.any { it.isLetter() }) return t
+    val d = t.filter { it.isDigit() }
+    if (d.length <= 6) return d.ifEmpty { t }
+    val intl = intlDigits(t)
+    val (cc, rest) = when {
+        intl != null -> {
+            val len = (3 downTo 1).firstOrNull { CODES.containsKey(intl.take(it)) && intl.length > it } ?: return "+" + intl.chunked(3).joinToString(" ")
+            intl.take(len) to intl.drop(len)
+        }
+        else -> {
+            val dom = DOM_PREFIX.firstOrNull { d.startsWith(it.first) }
+            when {
+                dom != null -> DOM_CC.getValue(dom.second) to d.drop(1)
+                d.startsWith("0") && d.length == 10 -> "33" to d.drop(1)
+                else -> return d.chunked(2).joinToString(" ")
+            }
+        }
+    }
+    val body = when {
+        cc == "33" && rest.length == 9 -> rest.take(1) + " " + rest.drop(1).chunked(2).joinToString(" ")
+        cc in DOM_CC.values && rest.length == 9 -> rest.take(3) + " " + rest.drop(3).chunked(2).joinToString(" ")
+        cc == "1" && rest.length == 10 -> rest.take(3) + " " + rest.substring(3, 6) + " " + rest.drop(6)
+        else -> rest.chunked(2).joinToString(" ")
+    }
+    return "+$cc $body"
+}
+
+/** Mobile ou fixe (et région pour la France) : « 📱 Mobile », « ☎️ Fixe · Île-de-France »… null si on ne sait pas. */
+fun lineLabel(n: String): String? = when (lineType(n)) {
+    "Mobile" -> "📱 Mobile"
+    "Fixe" -> "☎️ Fixe" + (frRegion(n)?.let { " · $it" } ?: "")
+    "Box / VoIP" -> "🌐 Box / VoIP"
+    "Numéro spécial" -> "💶 N° spécial"
+    "Court / service" -> "🔢 Service"
+    else -> null
 }

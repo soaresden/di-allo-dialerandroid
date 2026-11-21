@@ -114,7 +114,7 @@ private val GRADS = listOf(
 internal fun WrappedScreen(calls: List<CallRepository.CallEntry>, contacts: List<CallRepository.Contact>, onClose: () -> Unit) {
     val ctx = LocalContext.current
     BackHandler { onClose() }
-    val years = remember(calls) { calls.map { Calendar.getInstance().apply { timeInMillis = it.date }.get(Calendar.YEAR) }.distinct().sortedDescending().take(6) }
+    val years = remember(calls) { calls.map { Calendar.getInstance().apply { timeInMillis = it.date }.get(Calendar.YEAR) }.distinct().sortedDescending() }
     var year by remember { mutableIntStateOf(years.firstOrNull() ?: Calendar.getInstance().get(Calendar.YEAR)) }
     val w by produceState<Wrap?>(null, year, calls) { value = null; value = withContext(Dispatchers.Default) { computeWrap(calls, contacts, year) } }
     var i by remember { mutableIntStateOf(0) }
@@ -177,10 +177,13 @@ private fun Slide(s: Int, w: Wrap, years: List<Int>, year: Int, onYear: (Int) ->
         0 -> {
             Emoji("🎁"); Line("Di-Allô Wrapped", 22.sp, .85f, true); Spacer(gap)
             Big("Ton année ${w.year}\nau téléphone", 44.sp); Spacer(Modifier.height(28.dp))
-            if (years.size > 1) Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                years.take(5).forEach { y ->
+            // toutes les années du journal, sur plusieurs lignes au besoin
+            @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+            if (years.size > 1) androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                years.forEach { y ->
                     Text(
                         "$y", color = if (y == year) Color(0xFF7C3AED) else Color.White, fontWeight = FontWeight.Bold,
+                        maxLines = 1, softWrap = false,
                         modifier = Modifier.clip(RoundedCornerShape(50)).background(if (y == year) Color.White else Color.White.copy(alpha = .18f)).clickable { onYear(y) }.padding(horizontal = 14.dp, vertical = 8.dp)
                     )
                 }

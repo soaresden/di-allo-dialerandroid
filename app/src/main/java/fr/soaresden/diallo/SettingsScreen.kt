@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronRight
@@ -58,31 +59,32 @@ internal fun SettingsScreen(
     when (sub) {
         "theme" -> SubScreen("Thème", onBack = { sub = null }) {
             val all = listOf<HTheme?>(null) + THEMES
-            all.chunked(3).forEach { row ->
+            all.chunked(2).forEach { row ->
                 Row(Modifier.fillMaxWidth().padding(bottom = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     row.forEach { t -> ThemeSwatch(t, selected = (t?.id ?: "auto") == themeId, modifier = Modifier.weight(1f)) { onTheme(t?.id ?: "auto") } }
-                    repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
+                    repeat(2 - row.size) { Spacer(Modifier.weight(1f)) }
                 }
             }
         }
         "sound" -> SubScreen("Son des touches", onBack = { sub = null }) {
             Text("Touche un instrument pour l'écouter et le choisir.", fontSize = 12.5.sp, color = muted(), modifier = Modifier.padding(bottom = 10.dp))
-            Synth.instruments.chunked(3).forEach { row ->
-                Row(Modifier.fillMaxWidth().padding(bottom = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            // grille compacte : 4 par ligne
+            Synth.instruments.chunked(4).forEach { row ->
+                Row(Modifier.fillMaxWidth().padding(bottom = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     row.forEach { i ->
                         val sel = inst == i.id
                         Column(
-                            Modifier.weight(1f).clip(RoundedCornerShape(14.dp))
+                            Modifier.weight(1f).clip(RoundedCornerShape(12.dp))
                                 .background(if (sel) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface)
                                 .clickable { inst = i.id; Synth.setInstrument(i.id); saveInst(ctx, i.id); Synth.play("5") }
-                                .padding(vertical = 12.dp),
+                                .padding(vertical = 7.dp, horizontal = 2.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(i.emoji, fontSize = 26.sp)
-                            Text(i.name, fontSize = 12.sp, fontWeight = if (sel) FontWeight.Bold else FontWeight.Medium, color = if (sel) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Text(i.emoji, fontSize = 20.sp)
+                            Text(i.name, fontSize = 10.5.sp, lineHeight = 12.sp, fontWeight = if (sel) FontWeight.Bold else FontWeight.Medium, color = if (sel) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface, maxLines = 2, textAlign = TextAlign.Center, overflow = TextOverflow.Ellipsis)
                         }
                     }
-                    repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
+                    repeat(4 - row.size) { Spacer(Modifier.weight(1f)) }
                 }
             }
         }
@@ -151,7 +153,7 @@ internal fun SettingsScreen(
                 Text("by Soaresden · github.com/soaresden/di-allo-dialerandroid", fontSize = 12.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium); Spacer(Modifier.height(6.dp))
                 Text("Dialer avec clavier musical.", fontSize = 12.5.sp, color = muted()); Spacer(Modifier.height(6.dp))
                 Text("🎙️ Enregistrement des appels en MP3 via le débogage sans fil (Réglages › Pendant l'appel).", fontSize = 12.sp, color = muted()); Spacer(Modifier.height(6.dp))
-                Text("Bibliothèques : libadb-android (Apache-2.0), Conscrypt (Apache-2.0), jump3r / LAME (LGPL), osmdroid (Apache-2.0), Coil (Apache-2.0).", fontSize = 11.5.sp, color = muted(.55f))
+                Text("Bibliothèques : libadb-android (Apache-2.0), Conscrypt (Apache-2.0), jump3r / LAME (LGPL), osmdroid (Apache-2.0), Coil (Apache-2.0). Emoji 3D Fluent (Microsoft, MIT). Polices Google Fonts (SIL OFL / Apache-2.0).", fontSize = 11.5.sp, color = muted(.55f))
             }
             Spacer(Modifier.height(16.dp))
         }
@@ -186,17 +188,37 @@ private fun NavRow(title: String, value: String, leading: @Composable () -> Unit
 @Composable
 private fun ThemeSwatch(t: HTheme?, selected: Boolean, modifier: Modifier, onClick: () -> Unit) {
     val shown = t ?: resolveTheme("auto", androidx.compose.foundation.isSystemInDarkTheme())
+    val outline = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
     Column(
-        modifier.clip(RoundedCornerShape(14.dp))
-            .border(if (selected) 2.5.dp else 1.dp, if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(14.dp))
+        modifier.clip(RoundedCornerShape(16.dp))
+            .border(if (selected) 2.5.dp else 1.dp, outline, RoundedCornerShape(16.dp))
             .clickable { onClick() }
     ) {
-        Box(Modifier.fillMaxWidth().height(54.dp).background(shown.brush())) {
-            Box(Modifier.padding(8.dp).fillMaxWidth(.7f).height(10.dp).clip(RoundedCornerShape(5.dp)).background(shown.surface).align(Alignment.TopStart))
-            Box(Modifier.padding(8.dp).size(20.dp).clip(CircleShape).background(shown.primary).align(Alignment.BottomEnd))
-            if (t == null) Text("AUTO", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = shown.text, modifier = Modifier.align(Alignment.BottomStart).padding(8.dp))
+        // aperçu : fond + décor, une touche dans le style du thème, le nom dans sa police
+        Box(Modifier.fillMaxWidth().height(96.dp).background(shown.brush())) {
+            DecorLayer(shown, Modifier.matchParentSize(), animate = false)
+            Text(
+                if (t == null) "Auto" else "Di-Allô", fontFamily = shown.title, fontSize = (15f * shown.headScale.coerceIn(.7f, 1.2f)).sp,
+                fontWeight = if (shown.title == null) FontWeight.Bold else FontWeight.Normal, color = if (shown.title != null) shown.primary else shown.text,
+                style = androidx.compose.ui.text.TextStyle(shadow = shown.glowShadow()), maxLines = 1,
+                modifier = Modifier.align(Alignment.TopStart).padding(start = 8.dp, top = 6.dp)
+            )
+            Row(Modifier.align(Alignment.BottomCenter).padding(bottom = 8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                listOf("1", "2").forEach { d ->
+                    Box(Modifier.size(30.dp).themedKey(shown, shown.keyShapeOf(), 0f), contentAlignment = Alignment.Center) {
+                        Text(d, fontFamily = shown.num, fontSize = (14f * shown.numScale).sp, color = if (shown.keyStyle == KeyStyle.NEON) shown.primary else shown.text,
+                            style = androidx.compose.ui.text.TextStyle(shadow = shown.glowShadow()))
+                    }
+                }
+                Box(Modifier.size(30.dp).clip(shown.keyShapeOf()).background(CallGreen), contentAlignment = Alignment.Center) {
+                    Icon(Icons.Filled.Call, null, tint = Color.White, modifier = Modifier.size(15.dp))
+                }
+            }
         }
-        Text(t?.name ?: "Auto", fontSize = 11.5.sp, fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium, color = MaterialTheme.colorScheme.onSurface, textAlign = TextAlign.Center, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(vertical = 6.dp))
+        Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(horizontal = 6.dp, vertical = 5.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(t?.name ?: "Auto", fontSize = 11.5.sp, fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium, color = MaterialTheme.colorScheme.onSurface, textAlign = TextAlign.Center, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(if (t == null) "Clair ou AMOLED selon le système" else shown.tag, fontSize = 9.5.sp, lineHeight = 11.sp, color = muted(.55f), textAlign = TextAlign.Center, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        }
     }
 }
 

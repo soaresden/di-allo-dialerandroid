@@ -48,7 +48,7 @@
 - 🎁 **Di-Allô Wrapped** : ton année au téléphone en stories, à partager en image
 
 ### 🎨 Et aussi
-- 23 thèmes colorés
+- 21 thèmes à forte personnalité : polices, décors animés (Plongée avec requin-baleine, mantas et tortues ; Ocean Drive au coucher du soleil ; Synthwave, Cabaret, Arcade, Terminal…), forme et style des touches
 - Widget d'écran d'accueil **Favoris** : un appui, un appel
 - 📁 **Dossier de travail** : notes et réglages synchronisés automatiquement, et **sauvegarde quotidienne complète** du journal d'appels et des SMS/MMS (photos comprises) au format *SMS Backup & Restore*. Restauration intégrée.
 
@@ -99,7 +99,8 @@ Stack : Kotlin, Jetpack Compose (Material 3), Telecom `InCallService`, osmdroid,
 ---
 
 ## 🙏 Crédits
-- Main « Call me » : [Fluent Emoji](https://github.com/microsoft/fluentui-emoji) de Microsoft (licence MIT)
+- Logo et animation du logo : [Fluent Emoji](https://github.com/microsoft/fluentui-emoji) 3D de Microsoft (licence MIT)
+- Polices des thèmes : [Google Fonts](https://github.com/google/fonts) (SIL Open Font License / Apache-2.0)
 - Cartes : © les contributeurs d'[OpenStreetMap](https://www.openstreetmap.org/copyright), via [osmdroid](https://github.com/osmdroid/osmdroid)
 
 ## 📄 Licence
