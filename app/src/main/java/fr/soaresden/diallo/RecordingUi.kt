@@ -267,7 +267,7 @@ internal fun RecordingSettings() {
     )
     if (workdir == null) Text("⚠️ Choisis d'abord un dossier de travail (Réglages › Sauvegardes) : Rec/ y sera créé.", fontSize = 12.5.sp, color = Amber, modifier = Modifier.padding(bottom = 10.dp))
     fr.soaresden.diallo.rec.RecorderCard()
-    SectionCard("Dossier Rec", collapsible = false) {
+    SectionCard("Dossier Rec") {
         Text("📁 ${workdir ?: "?"}/Rec", fontWeight = FontWeight.SemiBold, color = cs.onSurface)
         Text("${all.size} enregistrement${if (all.size > 1) "s" else ""} · ${linked.size} relié${if (linked.size > 1) "s" else ""} à un appel", fontSize = 13.sp, color = cs.primary, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 2.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {

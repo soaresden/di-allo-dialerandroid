@@ -93,7 +93,7 @@ internal fun SettingsScreen(
         "qsms" -> SubScreen("Réponses rapides", onBack = { sub = null }) { QuickReplySettings() }
         "rec" -> SubScreen("Enregistrement des appels", onBack = { sub = null }) { RecordingSettings() }
         "backup" -> SubScreen("Sauvegardes", onBack = { sub = null }) {
-            SectionCard("Données", collapsible = false) {
+            SectionCard("Données") {
                 val fv by DataFolder.folderVersion
                 val folder = remember(fv, sub) { DataFolder.name(ctx) }
                 val last = remember(fv, sub) { DataFolder.lastBackup(ctx) }
@@ -106,7 +106,7 @@ internal fun SettingsScreen(
             Spacer(Modifier.height(16.dp))
         }
         else -> Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 14.dp)) {
-            SectionCard("Apparence & son", collapsible = false) {
+            SectionCard("Apparence & son") {
                 val t = THEMES.firstOrNull { it.id == themeId }
                 NavRow("Thème", t?.name ?: "Auto (suit le système)", leading = {
                     val sh = t ?: resolveTheme("auto", androidx.compose.foundation.isSystemInDarkTheme())
@@ -117,7 +117,7 @@ internal fun SettingsScreen(
                     Box(Modifier.size(34.dp).clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.surfaceVariant), contentAlignment = Alignment.Center) { Text(i?.emoji ?: "🎵", fontSize = 18.sp) }
                 }) { sub = "sound" }
             }
-            SectionCard("Pendant l'appel", collapsible = false) {
+            SectionCard("Pendant l'appel") {
                 val ac = remember(sub) { AutoSpeaker.cfg(ctx) }
                 NavRow("Haut-parleur auto", autoSpeakerSummary(ac), leading = {
                     Box(Modifier.size(34.dp).clip(RoundedCornerShape(10.dp)).background(if (ac.on) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant), contentAlignment = Alignment.Center) { Text("🔊", fontSize = 18.sp) }
@@ -300,7 +300,7 @@ private fun BackupSection(ctx: Context, isDefault: Boolean, onRefresh: () -> Uni
     var showAll by remember { mutableStateOf(false) }
     val rows = remember(saved) { pairBackups(saved) }
 
-    SectionCard("♻️ Restaurer appels & SMS", collapsible = false) {
+    SectionCard("♻️ Restaurer appels & SMS") {
         Text("Choisis une sauvegarde : Di-Allô la compare avec le téléphone et ne rajoute que ce qui manque.", fontSize = 12.5.sp, color = muted(.7f))
         Spacer(Modifier.height(10.dp))
         if (rows.isEmpty()) Text(if (DataFolder.uri(ctx) == null) "Choisis un dossier de travail (au-dessus) pour avoir des sauvegardes automatiques." else "Pas encore de sauvegarde dans le dossier : touche « Sauvegarder » au-dessus.", fontSize = 12.5.sp, color = muted(.6f))

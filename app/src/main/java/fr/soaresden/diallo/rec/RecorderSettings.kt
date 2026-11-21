@@ -83,7 +83,7 @@ internal fun RecorderCard() {
     val wiz by RecHealth.wizard
     LaunchedEffect(enabled, wiz) { withContext(Dispatchers.IO) { RecHealth.check(ctx.applicationContext) } }
 
-    SectionCard("🎙️ Enregistreur Di-Allô", collapsible = false) {
+    SectionCard("🎙️ Enregistreur Di-Allô") {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text("Enregistrer les appels", fontWeight = FontWeight.SemiBold, color = cs.onSurface)

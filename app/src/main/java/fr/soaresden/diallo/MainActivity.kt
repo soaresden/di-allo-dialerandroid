@@ -165,7 +165,7 @@ private fun Root(theme: String, onTheme: (String) -> Unit) {
     ) { pad ->
         Column(Modifier.padding(pad).fillMaxSize()) {
             CallBanner()
-            if (tab != 0) Header()
+            Header()
             if (!isDefault) Banner(MaterialTheme.colorScheme.primaryContainer, "Définir Di-Allô comme téléphone par défaut", "Activer") { requestDefault() }
             if (!granted) Banner(MaterialTheme.colorScheme.surfaceVariant, "Autoriser le journal d'appels et les contacts", "Autoriser") { permLauncher.launch(PERMS) }
             recProblem?.let { Banner(MaterialTheme.colorScheme.surfaceVariant, it, "Régler") { fr.soaresden.diallo.rec.RecHealth.wizard.value = true } }
@@ -192,6 +192,9 @@ private fun Header() {
         Text("Di-Allô", fontWeight = if (th.title != null) FontWeight.Normal else FontWeight.Bold, fontSize = (19f * th.headScale.coerceIn(.75f, 1.2f)).sp, fontFamily = th.title,
             style = androidx.compose.ui.text.TextStyle(shadow = th.glowShadow()), color = if (th.title != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground)
         Text(" by Soaresden", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = muted(.45f), modifier = Modifier.padding(top = 4.dp))
+        Spacer(Modifier.weight(1f))
+        val ctx = LocalContext.current
+        Text("v" + remember { appVersion(ctx) }, fontSize = 11.sp, color = muted(.45f), modifier = Modifier.padding(top = 4.dp))
     }
 }
 
