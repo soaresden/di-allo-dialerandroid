@@ -55,8 +55,8 @@ class HyperInCallService : InCallService() {
     override fun onDestroy() { AutoSpeaker.stop(); RingGestures.stop(); CallNotifier.cancel(this); if (instance === this) instance = null; super.onDestroy() }
 
     override fun onCallAdded(call: Call) {
-        if (calls.isEmpty()) AutoSpeaker.stop()
-        calls.add(call)
+        if (Companion.calls.isEmpty()) AutoSpeaker.stop()
+        Companion.calls.add(call)
         call.registerCallback(callback)
         val number = numberOf(call)
         refresh()
@@ -72,9 +72,9 @@ class HyperInCallService : InCallService() {
 
     override fun onCallRemoved(call: Call) {
         call.unregisterCallback(callback)
-        calls.remove(call)
+        Companion.calls.remove(call)
         RingGestures.onCallEnded(this, call, everActive.remove(call))
-        if (calls.isEmpty()) {
+        if (Companion.calls.isEmpty()) {
             current.value = null; callState.intValue = Call.STATE_DISCONNECTED; version.intValue++
             AutoSpeaker.stop(); RingGestures.stop(); CallNotifier.cancel(this)
         } else refresh()

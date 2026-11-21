@@ -177,6 +177,9 @@ object DataFolder {
     }
 
     /** Range un fichier dans un sous-dossier du dossier de travail (ex. Wrapped). */
+    /** Sous-dossier du dossier de travail (créé au besoin), ex. Rec. */
+    fun subDir(ctx: Context, sub: String): DocumentFile? = tree(ctx)?.let { d -> try { d.findFile(sub) ?: d.createDirectory(sub) } catch (_: Throwable) { null } }
+
     fun saveBytes(ctx: Context, sub: String, name: String, bytes: ByteArray): Boolean {
         val dir = tree(ctx) ?: return false
         return try {

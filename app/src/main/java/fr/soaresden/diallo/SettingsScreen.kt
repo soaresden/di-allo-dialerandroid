@@ -38,6 +38,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+/** Demande d'ouverture d'un sous-écran des réglages depuis un autre onglet. */
+internal val settingsSub = mutableStateOf<String?>(null)
+
 @Composable
 internal fun SettingsScreen(
     themeId: String, onTheme: (String) -> Unit, granted: Boolean, onGrant: () -> Unit,
@@ -47,7 +50,9 @@ internal fun SettingsScreen(
     var inst by remember { mutableStateOf(Synth.currentId) }
     var smsDefault by remember { mutableStateOf(isDefaultSms(ctx)) }
     LaunchedEffect(callCount) { smsDefault = isDefaultSms(ctx) }
-    var sub by rememberSaveable { mutableStateOf<String?>(null) }   // sous-écran : "theme" / "sound" / "autospk" / "gestures" / "qsms"
+    var sub by rememberSaveable { mutableStateOf<String?>(null) }   // sous-écran : "theme" / "sound" / "autospk" / "gestures" / "qsms" / "rec"
+    val askSub by settingsSub
+    LaunchedEffect(askSub) { askSub?.let { sub = it; settingsSub.value = null } }
     BackHandler(enabled = sub != null) { sub = null }
 
     when (sub) {
@@ -84,6 +89,7 @@ internal fun SettingsScreen(
         "autospk" -> SubScreen("Haut-parleur auto", onBack = { sub = null }) { AutoSpeakerSettings() }
         "gestures" -> SubScreen("Gestes", onBack = { sub = null }) { GestureSettings() }
         "qsms" -> SubScreen("Réponses rapides", onBack = { sub = null }) { QuickReplySettings() }
+        "rec" -> SubScreen("Enregistrement des appels", onBack = { sub = null }) { RecordingSettings() }
         "backup" -> SubScreen("Sauvegardes", onBack = { sub = null }) {
             SectionCard("Données", collapsible = false) {
                 val fv by DataFolder.folderVersion
@@ -122,6 +128,15 @@ internal fun SettingsScreen(
                 NavRow("Réponses rapides par SMS", "$qn messages pour refuser un appel", leading = {
                     Box(Modifier.size(34.dp).clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.surfaceVariant), contentAlignment = Alignment.Center) { Text("💬", fontSize = 18.sp) }
                 }) { sub = "qsms" }
+                val recN = Recordings.all.value.size
+                val recSrc = remember(sub, Recordings.folderVersion.value) { Recordings.sources(ctx).size }
+                NavRow("Enregistrement des appels", when {
+                    recSrc > 0 || recN > 0 -> "Dossier Rec · $recN enregistrement${if (recN > 1) "s" else ""}"
+                    Recordings.callVaultInstalled(ctx) -> "CallVault installé · ajoute son dossier"
+                    else -> "Avec CallVault (appli libre, à part)"
+                }, leading = {
+                    Box(Modifier.size(34.dp).clip(RoundedCornerShape(10.dp)).background(if (recSrc > 0) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant), contentAlignment = Alignment.Center) { Text("🎙️", fontSize = 18.sp) }
+                }) { sub = "rec" }
             }
             SectionCard("Téléphone") {
                 SettingRow("Application Téléphone par défaut", if (isDefault) "Di-Allô" else "Non défini", if (isDefault) null else "Définir", onSetDefault); Spacer(Modifier.height(8.dp))
@@ -139,7 +154,7 @@ internal fun SettingsScreen(
                 Text("Di-Allô — version ${appVersion(ctx)}", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onBackground)
                 Text("by Soaresden · github.com/soaresden/di-allo-dialerandroid", fontSize = 12.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium); Spacer(Modifier.height(6.dp))
                 Text("Dialer avec clavier musical.", fontSize = 12.5.sp, color = muted()); Spacer(Modifier.height(6.dp))
-                Text("⚠️ L'enregistrement d'appel n'est pas possible : réservé aux apps système (constructeur).", fontSize = 12.sp, color = muted())
+                Text("🎙️ L'enregistrement des appels passe par CallVault (Réglages › Pendant l'appel) : Android le réserve aux applis système.", fontSize = 12.sp, color = muted())
             }
             Spacer(Modifier.height(16.dp))
         }

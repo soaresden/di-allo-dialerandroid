@@ -457,6 +457,7 @@ internal fun ContactStatsSheet(key: String, calls: List<CallRepository.CallEntry
                 TileRow(listOf("Premier appel" to fmtDate(a.first), "Dernier" to agoText(a.last)))
                 TileRow(listOf("Réponds à" to "${pct(a.inc, a.inc + a.miss)} %", "Te répond" to "${pct(a.out - a.outNoAns, a.out)} %", "Plus long" to fmtDur(mine.maxOf { it.duration })))
                 NotesCard(listOf(a.number), a.display)
+                ContactRecordings(key)
                 SectionCard(range.label, collapsible = false, action = { if (stack.isNotEmpty()) TextButton(onClick = { stack.removeAt(stack.lastIndex) }) { Text("Retour") } }) {
                     BarChart(counts, bs.map { it.label }, primary, 110.dp, onBar = { i -> drill(bs[i], range.gran)?.let { stack.add(it) } })
                 }
@@ -464,9 +465,10 @@ internal fun ContactStatsSheet(key: String, calls: List<CallRepository.CallEntry
             }
             items(mine.size.coerceAtMost(25)) { i ->
                 val c = mine[i]
-                Row(Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
+                Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text(c.dirLabel, fontSize = 13.sp, color = if (isMissed(c.type)) Red else MaterialTheme.colorScheme.onBackground, modifier = Modifier.weight(1f))
                     Text(if (c.duration > 0) fmtDur(c.duration) else "—", fontSize = 13.sp, color = muted(), modifier = Modifier.width(70.dp))
+                    RecBadge(c.id, a.display)
                     Text(fmtWhen(c.date), fontSize = 13.sp, color = muted())
                 }
             }

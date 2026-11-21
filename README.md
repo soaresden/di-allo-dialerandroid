@@ -24,6 +24,7 @@
 - **Double appel** : mettre en attente et répondre, raccrocher et répondre, basculer entre les deux
 - **Conférence** : fusionner, parler en privé à un participant, raccrocher un participant
 - **Refuser avec un SMS** (réponses rapides personnalisables)
+- 🎙️ **Enregistrements d'appels** avec [CallVault](https://github.com/madkongo/CallVault) (appli libre installée à part) : Di-Allô les range dans `Rec/` de ton dossier (`aaaa-mm-jj-hhmmss-NOM`), y déplace aussi tes anciens enregistrements Xiaomi, les relie aux appels (🎙️ dans Récents), les liste par contact dans l'onglet **REC** et sur la fiche du contact
 - 📝 **Notes pendant l'appel**, rangées par contact. La dernière note s'affiche quand la personne rappelle.
 - 🕘 **Historique** des appels avec la personne, directement dans l'écran d'appel
 - Écran éteint contre la joue (capteur de proximité)
@@ -76,7 +77,7 @@ Aucune donnée ne quitte le téléphone : pas de compte, pas de pub, pas de pist
 ---
 
 ## ⚠️ Limites (Android, pas Di-Allô)
-- **Enregistrement d'appel** : impossible pour une appli non système depuis Android 10.
+- **Enregistrement d'appel** : interdit aux applis Téléphone non système depuis Android 10, d'où CallVault à côté (via ADB/Shizuku).
 - Le haut-parleur auto et les gestes ne concernent que les appels téléphoniques, pas WhatsApp, Teams, etc.
 - Restaurer des SMS demande que Di-Allô soit **temporairement** l'appli SMS par défaut. L'appli te guide et te ramène ensuite à Google Messages.
 

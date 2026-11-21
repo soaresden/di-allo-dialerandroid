@@ -128,15 +128,26 @@ private fun Root(theme: String, onTheme: (String) -> Unit) {
     }
     if (wrapped) { WrappedScreen(data.calls, data.contacts) { wrapped = false }; return }
     detail?.let { k -> ContactStatsSheet(k, data.calls, onCall = { detail = null; pending = it }, onDismiss = { detail = null }) }
+    // enregistrements d'appels (CallVault) : relus à chaque rechargement du journal
+    val recFolder by Recordings.folderVersion
+    LaunchedEffect(data.calls, recFolder) { if (data.calls.isNotEmpty()) withContext(Dispatchers.IO) { Recordings.refresh(ctx, data) } }
+    val recAll by Recordings.all
+    val showRec = remember(recFolder, recAll) { recAll.isNotEmpty() || Recordings.sources(ctx).isNotEmpty() }
+    RecordingPlayer()
 
     Scaffold(
         containerColor = Color.Transparent,
         bottomBar = {
             NavigationBar(containerColor = MaterialTheme.colorScheme.surface, tonalElevation = 0.dp) {
-                val tabs = listOf("Clavier" to Icons.Filled.Dialpad, "Récents" to Icons.Filled.Schedule, "Contacts" to Icons.Filled.Person, "Notes" to Icons.Filled.EditNote, "Stats" to Icons.Filled.BarChart, "Réglages" to Icons.Filled.Settings)
-                tabs.forEachIndexed { i, t ->
+                // id d'onglet stable (le widget ouvre 2, l'appel en cours 0) ; REC = 6, affiché avant Réglages s'il sert
+                val tabs = listOfNotNull(
+                    Triple(0, "Clavier", Icons.Filled.Dialpad), Triple(1, "Récents", Icons.Filled.Schedule), Triple(2, "Contacts", Icons.Filled.Person),
+                    Triple(3, "Notes", Icons.Filled.EditNote), Triple(4, "Stats", Icons.Filled.BarChart),
+                    if (showRec) Triple(6, "REC", Icons.Filled.Mic) else null, Triple(5, "Réglages", Icons.Filled.Settings)
+                )
+                tabs.forEach { (i, label, icon) ->
                     NavigationBarItem(
-                        selected = tab == i, onClick = { tab = i }, icon = { Icon(t.second, t.first) }, label = { Text(t.first, fontSize = 10.sp) },
+                        selected = tab == i, onClick = { tab = i }, icon = { Icon(icon, label) }, label = { Text(label, fontSize = 10.sp, maxLines = 1) },
                         colors = NavigationBarItemDefaults.colors(indicatorColor = MaterialTheme.colorScheme.primaryContainer, selectedIconColor = MaterialTheme.colorScheme.primary, selectedTextColor = MaterialTheme.colorScheme.primary)
                     )
                 }
@@ -154,6 +165,7 @@ private fun Root(theme: String, onTheme: (String) -> Unit) {
                 2 -> ContactsScreen(data.contacts, data.groups, confirm) { detail = it }
                 3 -> NotesScreen(data.contacts, confirm) { detail = it }
                 4 -> StatsScreen(data.calls, data.contacts, onWrapped = { wrapped = true }) { detail = it }
+                6 -> RecScreen(data.contacts, confirm) { settingsSub.value = "rec"; tab = 5 }
                 else -> SettingsScreen(theme, onTheme, granted, { permLauncher.launch(PERMS) }, isDefault, { requestDefault() }, data.calls.size, { refresh++ })
             }
         }
@@ -256,6 +268,7 @@ private fun RecentsList(calls: List<CallRepository.CallEntry>, onConfirm: (Strin
                 Box {
                 DropdownMenu(menu, { menu = false }) {
                     DropdownMenuItem(text = { Text("📊 Fiche de ${row.display}") }, onClick = { menu = false; onDetail(keyOf(row.number).ifEmpty { row.number }) })
+                    Recordings.byCall.value[row.id]?.let { r -> DropdownMenuItem(text = { Text("🎙️ Écouter l'enregistrement") }, onClick = { menu = false; Recordings.open.value = r to row.display }) }
                     DropdownMenuItem(text = { Text("🗑️ Supprimer cet appel", color = Red) }, enabled = row.id >= 0, onClick = {
                         menu = false
                         gone.add(row.id)
@@ -276,6 +289,7 @@ private fun RecentsList(calls: List<CallRepository.CallEntry>, onConfirm: (Strin
                             Text(flagOf(row.number) + " " + row.dirLabel + if (row.duration > 0) " · " + fmtDur(row.duration) else "", fontSize = 13.sp, color = muted())
                         }
                     }
+                    RecBadge(row.id, row.display)
                     Text(fmtWhen(row.date), fontSize = 12.sp, color = muted())
                 }
                 }
