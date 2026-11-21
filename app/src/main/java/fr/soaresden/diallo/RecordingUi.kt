@@ -113,7 +113,7 @@ internal fun RecScreen(contacts: List<CallRepository.Contact>, onCall: (String) 
         }
         status?.let { Text(it, fontSize = 12.sp, color = cs.primary, modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)) }
         if (all.isEmpty()) {
-            Empty(if (busy) "Lecture des enregistrements…" else "Aucun enregistrement.\nAjoute CallVault et tes anciens enregistrements dans Réglages › Pendant l'appel › Enregistrement 🎙️")
+            Empty(if (busy) "Lecture des enregistrements…" else "Aucun enregistrement.\nPendant un appel, touche 🔴 Enregistrer (à activer dans Réglages › Pendant l'appel › Enregistrement).")
         } else LazyColumn(Modifier.fillMaxSize()) {
             groups.forEach { (k, list) ->
                 val r0 = list.first()
@@ -213,23 +213,17 @@ internal fun RecordingPlayer() {
     }
 }
 
-/** Réglages › Enregistrement des appels : CallVault, sources, dossier Rec. */
+/** Réglages › Enregistrement des appels : l'enregistreur et le dossier Rec. */
 @Composable
 internal fun RecordingSettings() {
     val ctx = LocalContext.current
     val cs = MaterialTheme.colorScheme
     val fv by Recordings.folderVersion
-    val srcs = remember(fv) { Recordings.sources(ctx) }
-    var installed by remember { mutableStateOf(Recordings.callVaultInstalled(ctx)) }
     val all by Recordings.all
     val linked by Recordings.byCall
     val busy by Recordings.busy
-    val status by Recordings.status
     var go by remember { mutableIntStateOf(0) }
     val workdir = remember(fv) { DataFolder.name(ctx) }
-    LaunchedEffect(fv) { installed = Recordings.callVaultInstalled(ctx) }
-    val pickCv = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { u: Uri? -> if (u != null) { Recordings.addSource(ctx, u, move = false); go++ } }
-    val pickOld = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { u: Uri? -> if (u != null) { Recordings.addSource(ctx, u, move = true); go++ } }
     LaunchedEffect(go) {
         if (go == 0) return@LaunchedEffect
         val data = withContext(Dispatchers.IO) { CallRepository.load(ctx) }
@@ -237,47 +231,18 @@ internal fun RecordingSettings() {
     }
 
     Text(
-        "Android interdit aux applis Téléphone d'enregistrer les appels. CallVault (libre, sans root) le fait à côté via ADB ou Shizuku. " +
-            "Di-Allô range tout dans ton dossier, sous Rec/ (aaaa-mm-jj-hhmmss-NOM), et l'affiche avec les appels (🎙️) et dans l'onglet REC.",
+        "Les enregistrements sont rangés dans ton dossier, sous Rec/ (aaaa-mm-jj-hhmmss-NOM.mp3), et s'affichent avec les appels (🎙️), sur la fiche du contact et dans l'onglet REC.",
         fontSize = 12.5.sp, color = muted(.75f), modifier = Modifier.padding(bottom = 12.dp)
     )
     if (workdir == null) Text("⚠️ Choisis d'abord un dossier de travail (Réglages › Sauvegardes) : Rec/ y sera créé.", fontSize = 12.5.sp, color = Amber, modifier = Modifier.padding(bottom = 10.dp))
-    SectionCard("1 · CallVault", collapsible = false) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Text(if (installed) "✅ Installé" else "Pas installé", fontWeight = FontWeight.SemiBold, color = if (installed) cs.primary else Amber)
-                Text("Enregistre les deux côtés de l'appel", fontSize = 12.sp, color = muted())
-            }
-            Button(onClick = { Recordings.openCallVault(ctx) }) { Text(if (installed) "Ouvrir" else "Télécharger") }
-        }
-        Text("Dans CallVault : format AAC (.m4a, lisible partout) et « fichier de détails (.json) » activé pour un lien exact avec l'appel.", fontSize = 11.5.sp, color = muted(.6f), modifier = Modifier.padding(top = 8.dp))
-    }
-    SectionCard("2 · Sources", collapsible = false) {
-        if (srcs.isEmpty()) Text("Aucune source pour l'instant.", fontSize = 12.5.sp, color = muted(.6f))
-        srcs.forEach { s ->
-            Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text(if (s.move) "📦" else "🎙️", fontSize = 18.sp); Spacer(Modifier.width(10.dp))
-                Column(Modifier.weight(1f)) {
-                    Text(Recordings.sourceName(ctx, s.uri), fontWeight = FontWeight.Medium, fontSize = 14.sp, color = cs.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text(if (s.move) "Déplacés dans Rec (libère la place)" else "Copiés dans Rec (l'original reste)", fontSize = 11.5.sp, color = muted())
-                }
-                IconButton(onClick = { Recordings.removeSource(ctx, s.uri) }) { Icon(Icons.Filled.Close, "Retirer", tint = muted(.5f)) }
-            }
-        }
-        Spacer(Modifier.height(6.dp))
-        OutlinedButton(onClick = { pickCv.launch(null) }, modifier = Modifier.fillMaxWidth()) { Text("+ Dossier de CallVault") }
-        OutlinedButton(onClick = { pickOld.launch(Recordings.hint("MIUI/sound_recorder/call_rec")) }, modifier = Modifier.fillMaxWidth()) { Text("+ Anciens enregistrements (Xiaomi…)") }
-        Text("Xiaomi les rangeait dans MIUI/call_rec et MIUI/sound_recorder/call_rec : ajoute les deux.", fontSize = 11.5.sp, color = muted(.55f), modifier = Modifier.padding(top = 4.dp))
-    }
-    SectionCard("3 · Dossier Rec", collapsible = false) {
+    fr.soaresden.diallo.rec.RecorderCard()
+    SectionCard("Dossier Rec", collapsible = false) {
         Text("📁 ${workdir ?: "?"}/Rec", fontWeight = FontWeight.SemiBold, color = cs.onSurface)
         Text("${all.size} enregistrement${if (all.size > 1) "s" else ""} · ${linked.size} relié${if (linked.size > 1) "s" else ""} à un appel", fontSize = 13.sp, color = cs.primary, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 2.dp))
-        status?.let { Text(it, fontSize = 12.sp, color = muted(.7f), modifier = Modifier.padding(top = 2.dp)) }
         Row(verticalAlignment = Alignment.CenterVertically) {
-            TextButton(onClick = { go++ }, enabled = !busy && srcs.isNotEmpty()) { Text(if (busy) "Import en cours…" else "🔄 Importer maintenant") }
+            TextButton(onClick = { go++ }, enabled = !busy) { Text(if (busy) "Lecture…" else "🔄 Relire le dossier") }
             if (busy) CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
         }
-        Text("Les nouveaux enregistrements sont importés tout seuls à chaque ouverture de Di-Allô.", fontSize = 11.5.sp, color = muted(.55f))
     }
     Text("⚖️ Enregistrer un appel pour soi est toléré ; le diffuser sans l'accord de l'autre personne est interdit. Préviens ton correspondant.", fontSize = 11.5.sp, color = muted(.5f), textAlign = TextAlign.Start, modifier = Modifier.padding(top = 4.dp, bottom = 16.dp))
 }

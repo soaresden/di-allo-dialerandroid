@@ -241,6 +241,7 @@ private fun CallScreen(onDone: () -> Unit, onProximity: (Boolean) -> Unit) {
                 Ctrl(Icons.Filled.Sensors, "Auto HP", autoOn, Modifier.weight(1f)) { if (autoOn) AutoSpeaker.stop() else AutoSpeaker.start(ctx, force = true) }
                 Ctrl(Icons.Filled.CallMerge, "Fusionner", false, Modifier.weight(1f), enabled = HyperInCallService.canMerge) { HyperInCallService.merge() }
             }
+            RecStrip(shown, number, state == Call.STATE_ACTIVE || state == Call.STATE_HOLDING)
             Spacer(Modifier.height(8.dp))
         }
 
@@ -272,6 +273,7 @@ private fun CallScreen(onDone: () -> Unit, onProximity: (Boolean) -> Unit) {
         Spacer(Modifier.height(12.dp))
 
         // ---- Bas : raccrocher / fermer
+        if (over) fr.soaresden.diallo.rec.CallRecorder.message.value?.let { Text(it, fontSize = 12.5.sp, color = muted(.75f), maxLines = 2, modifier = Modifier.padding(bottom = 8.dp)) }
         if (over) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 OutlinedButton(onClick = { draft = ""; onDone() }, modifier = Modifier.weight(1f)) { Text("Fermer") }
@@ -343,6 +345,38 @@ private fun SmallAction(label: String, enabled: Boolean = true, onClick: () -> U
     Surface(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(50), modifier = Modifier.clip(RoundedCornerShape(50)).clickable(enabled = enabled) { onClick() }) {
         Text(label, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = if (enabled) MaterialTheme.colorScheme.onSurface else muted(.5f), modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp))
     }
+}
+
+/** Bandeau d'enregistrement : 🔴 Enregistrer / ⏹ 01:23. */
+@Composable
+private fun RecStrip(who: String, number: String, live: Boolean) {
+    val ctx = LocalContext.current
+    val rec = fr.soaresden.diallo.rec.CallRecorder
+    if (!remember { rec.enabled(ctx) }) return
+    val st by rec.state
+    val since by rec.since
+    val msg by rec.message
+    var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(st) { while (st == fr.soaresden.diallo.rec.CallRecorder.State.ON) { now = System.currentTimeMillis(); delay(500) } }
+    val cs = MaterialTheme.colorScheme
+    val on = st != fr.soaresden.diallo.rec.CallRecorder.State.IDLE
+    Row(Modifier.fillMaxWidth().padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+        Surface(
+            onClick = { rec.toggle(ctx, who, number.ifBlank { null }) }, enabled = live || on,
+            shape = RoundedCornerShape(50), color = if (on) Red else cs.surfaceVariant
+        ) {
+            Row(Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.size(10.dp).clip(if (on) RoundedCornerShape(2.dp) else CircleShape).background(if (on) Color.White else Red))
+                Spacer(Modifier.width(8.dp))
+                val s = ((now - since) / 1000).coerceAtLeast(0)
+                Text(
+                    when (st) { fr.soaresden.diallo.rec.CallRecorder.State.STARTING -> "Démarrage…"; fr.soaresden.diallo.rec.CallRecorder.State.ON -> "REC %d:%02d · Arrêter".format(s / 60, s % 60); else -> "Enregistrer" },
+                    color = if (on) Color.White else cs.onSurface, fontSize = 13.sp, fontWeight = FontWeight.SemiBold
+                )
+            }
+        }
+    }
+    if (st == fr.soaresden.diallo.rec.CallRecorder.State.IDLE) msg?.let { Text(it, fontSize = 11.5.sp, color = muted(.7f), maxLines = 2, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(top = 2.dp)) }
 }
 
 @Composable

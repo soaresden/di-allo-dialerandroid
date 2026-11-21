@@ -30,6 +30,7 @@ android {
         targetSdk = 34
         versionCode = verCode
         versionName = verName
+        ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
     }
 
     buildTypes {
@@ -71,4 +72,7 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.6.0")
     implementation("androidx.documentfile:documentfile:1.0.1")   // dossier de travail (SAF)
     implementation("org.osmdroid:osmdroid-android:6.1.20")   // carte OpenStreetMap (sans clé)
+    implementation("com.github.MuntashirAkon:libadb-android:3.1.1")   // débogage sans fil → enregistrement d'appels (Apache-2.0)
+    implementation("org.conscrypt:conscrypt-android:2.5.3")
+    implementation("de.sciss:jump3r:1.0.5")   // encodeur MP3 (LAME en Java, LGPL)
 }

@@ -63,7 +63,9 @@ internal fun MelodyLibrary(modifier: Modifier = Modifier) {
     var bookClosed by rememberCollapsed("songbook", true)
     val cs = MaterialTheme.colorScheme
 
-    LazyColumn(modifier, contentPadding = PaddingValues(vertical = 6.dp)) {
+    Box(modifier) {
+    val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+    LazyColumn(Modifier.fillMaxSize(), state = listState, contentPadding = PaddingValues(vertical = 6.dp)) {
         item {
             Row(Modifier.fillMaxWidth().padding(start = 14.dp, end = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
@@ -140,6 +142,8 @@ internal fun MelodyLibrary(modifier: Modifier = Modifier) {
             }
         }
         item { Text(Melodies.LEGEND, fontSize = 10.5.sp, color = muted(.4f), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(10.dp)) }
+    }
+    LazyScrollbar(listState, Modifier.align(Alignment.CenterEnd).padding(vertical = 10.dp))
     }
 
     if (fromText) MelodyFromTextDialog { fromText = false }

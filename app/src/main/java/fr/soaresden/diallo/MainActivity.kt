@@ -128,12 +128,17 @@ private fun Root(theme: String, onTheme: (String) -> Unit) {
     }
     if (wrapped) { WrappedScreen(data.calls, data.contacts) { wrapped = false }; return }
     detail?.let { k -> ContactStatsSheet(k, data.calls, onCall = { detail = null; pending = it }, onDismiss = { detail = null }) }
-    // enregistrements d'appels (CallVault) : relus à chaque rechargement du journal
+    // enregistrements d'appels (dossier Rec) : relus à chaque rechargement du journal
     val recFolder by Recordings.folderVersion
     LaunchedEffect(data.calls, recFolder) { if (data.calls.isNotEmpty()) withContext(Dispatchers.IO) { Recordings.refresh(ctx, data) } }
     val recAll by Recordings.all
-    val showRec = remember(recFolder, recAll) { recAll.isNotEmpty() || Recordings.sources(ctx).isNotEmpty() }
+    val showRec = remember(recFolder, recAll) { recAll.isNotEmpty() || fr.soaresden.diallo.rec.CallRecorder.enabled(ctx) }
     RecordingPlayer()
+    // enregistreur intégré : tout est-il en règle ? (relance le service au besoin)
+    val recProblem by fr.soaresden.diallo.rec.RecHealth.problem
+    val recWizard by fr.soaresden.diallo.rec.RecHealth.wizard
+    LaunchedEffect(Unit) { withContext(Dispatchers.IO) { fr.soaresden.diallo.rec.RecHealth.check(ctx.applicationContext) } }
+    if (recWizard) fr.soaresden.diallo.rec.RecSetupWizard { fr.soaresden.diallo.rec.RecHealth.wizard.value = false; withContextRecCheck(ctx) }
 
     Scaffold(
         containerColor = Color.Transparent,
@@ -159,6 +164,7 @@ private fun Root(theme: String, onTheme: (String) -> Unit) {
             if (tab != 0) Header()
             if (!isDefault) Banner(MaterialTheme.colorScheme.primaryContainer, "Définir Di-Allô comme téléphone par défaut", "Activer") { requestDefault() }
             if (!granted) Banner(MaterialTheme.colorScheme.surfaceVariant, "Autoriser le journal d'appels et les contacts", "Autoriser") { permLauncher.launch(PERMS) }
+            recProblem?.let { Banner(MaterialTheme.colorScheme.surfaceVariant, it, "Régler") { fr.soaresden.diallo.rec.RecHealth.wizard.value = true } }
             when (tab) {
                 0 -> DialScreen(confirm, { callVoicemail(ctx) }, data.contacts, frequent)
                 1 -> RecentsList(data.calls, confirm, onDeleted = { refresh++ }) { detail = it }
@@ -305,3 +311,6 @@ private fun hasPerms(c: Context): Boolean = ContextCompat.checkSelfPermission(c,
 private fun isDefaultDialer(c: Context): Boolean = c.getSystemService(RoleManager::class.java)?.isRoleHeld(RoleManager.ROLE_DIALER) == true
 private fun placeCall(c: Context, number: String) { try { val a = if (ContextCompat.checkSelfPermission(c, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) Intent.ACTION_CALL else Intent.ACTION_DIAL; c.startActivity(Intent(a, Uri.parse("tel:" + Uri.encode(number))).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) } catch (_: Throwable) {} }
 private fun callVoicemail(c: Context) { try { val a = if (ContextCompat.checkSelfPermission(c, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) Intent.ACTION_CALL else Intent.ACTION_DIAL; c.startActivity(Intent(a, Uri.fromParts("voicemail", "", null)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) } catch (_: Throwable) {} }
+
+/** Revérifie l'enregistreur après l'assistant (hors fil principal). */
+private fun withContextRecCheck(ctx: android.content.Context) { Thread { fr.soaresden.diallo.rec.RecHealth.check(ctx.applicationContext) }.start() }

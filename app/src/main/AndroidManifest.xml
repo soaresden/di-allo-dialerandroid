@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Permissions d'un vrai dialer. L'enregistrement d'appel n'est PAS possible
-         pour une app non-système sur Android 10+ : aucune permission ne l'autorise. -->
+    <!-- Permissions d'un vrai dialer. L'enregistrement d'appel passe par un petit service
+         lancé en shell via le débogage sans fil (voir rec/AdbLauncher.kt). -->
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
     <uses-permission android:name="android.permission.WRITE_CALL_LOG" />
@@ -24,6 +25,11 @@
     <!-- Carte des contacts : tuiles OpenStreetMap + géocodage des adresses -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- accordée par Di-Allô lui-même via ADB : activer/couper le débogage sans fil pour lancer l'enregistreur -->
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" tools:ignore="ProtectedPermissions" />
 
     <application
         android:allowBackup="true"
@@ -92,6 +98,10 @@
 
         <!-- Boutons de la notification d'appel (raccrocher, haut-parleur) -->
         <receiver android:name=".CallActionReceiver" android:exported="false" />
+        <receiver android:name=".rec.AdbLauncher$PairReceiver" android:exported="false" />
+        <receiver android:name=".rec.BootReceiver" android:exported="true">
+            <intent-filter><action android:name="android.intent.action.BOOT_COMPLETED" /></intent-filter>
+        </receiver>
 
         <!-- Service requis pour gérer les appels en tant que dialer par défaut -->
         <service

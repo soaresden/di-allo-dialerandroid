@@ -150,7 +150,10 @@ internal fun DialScreen(
                 color = MaterialTheme.colorScheme.surface.copy(alpha = .92f), shape = RoundedCornerShape(20.dp)
             ) {
                 if (recording) MelodyLibrary(Modifier.fillMaxSize())
-                else LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(vertical = 6.dp)) {
+                else Box(Modifier.fillMaxSize()) {
+                val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+                LaunchedEffect(value.isEmpty()) { listState.scrollToItem(0) }
+                LazyColumn(Modifier.fillMaxSize(), state = listState, contentPadding = PaddingValues(vertical = 6.dp)) {
                     when {
                         value.isEmpty() -> {
                             if (freqRows.isNotEmpty()) {
@@ -168,6 +171,8 @@ internal fun DialScreen(
                             items(suggestions.size) { i -> CompactRow(suggestions[i], onConfirm, typed) }
                         }
                     }
+                }
+                LazyScrollbar(listState, Modifier.align(Alignment.CenterEnd).padding(vertical = 10.dp))
                 }
             }
 

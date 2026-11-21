@@ -23,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 class HyperInCallService : InCallService() {
 
     private val everActive = HashSet<Call>()
+    private val recAsked = HashSet<Call>()   // appels déjà passés par l'enregistrement automatique
 
     private val callback = object : Call.Callback() {
         override fun onStateChanged(call: Call, state: Int) = refresh()
@@ -48,14 +49,28 @@ class HyperInCallService : InCallService() {
         if (top.any { it.state == Call.STATE_RINGING }) RingGestures.start(this) else RingGestures.stop()
         if (live.any { it.state == Call.STATE_ACTIVE }) { if (!AutoSpeaker.active.value) AutoSpeaker.start(this) }
         if (live.isEmpty()) AutoSpeaker.stop()
+        autoRecord(live)
         CallNotifier.update(this)
+    }
+
+    /** Enregistrement : démarre tout seul selon le mode choisi, s'arrête quand il n'y a plus d'appel. */
+    private fun autoRecord(live: List<Call>) {
+        if (live.isEmpty()) { recAsked.clear(); if (fr.soaresden.diallo.rec.CallRecorder.isOn) fr.soaresden.diallo.rec.CallRecorder.stop(); return }
+        val rec = fr.soaresden.diallo.rec.CallRecorder
+        if (!rec.enabled(this) || rec.isOn) return
+        val a = live.firstOrNull { it.state == Call.STATE_ACTIVE && it.parent == null && it !in recAsked } ?: return
+        recAsked.add(a)
+        val num = numberOf(a)
+        val known = names[num]
+        val go = when (rec.mode(this)) { rec.ALL -> true; rec.CONTACTS -> known != null; else -> false }
+        if (go) rec.start(this, known?.first ?: num.ifBlank { "Numéro masqué" }, num.ifBlank { null })
     }
 
     override fun onCreate() { super.onCreate(); CrashLog.install(this); instance = this; DataFolder.init(this) }
     override fun onDestroy() { AutoSpeaker.stop(); RingGestures.stop(); CallNotifier.cancel(this); if (instance === this) instance = null; super.onDestroy() }
 
     override fun onCallAdded(call: Call) {
-        if (Companion.calls.isEmpty()) AutoSpeaker.stop()
+        if (Companion.calls.isEmpty()) { AutoSpeaker.stop(); fr.soaresden.diallo.rec.CallRecorder.message.value = null }
         Companion.calls.add(call)
         call.registerCallback(callback)
         val number = numberOf(call)

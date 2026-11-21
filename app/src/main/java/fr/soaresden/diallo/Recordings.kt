@@ -12,18 +12,10 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 /**
- * Enregistrements d'appels, rangés dans le dossier de travail : DiAllo/Rec/aaaa-mm-jj-hhmmss-NOM.ext
- *
- * Di-Allô n'enregistre pas lui-même (Android le réserve aux applis système) : il importe les fichiers
- * d'autres enregistreurs (« sources ») :
- *  - CallVault (copie : CallVault garde les siens) ;
- *  - les anciens enregistrements Xiaomi « Nom(numéro)_aaaammjjhhmmss.mp3 » (déplacés : ça libère la place).
- * Puis il relie chaque fichier à son appel (date + correspondant).
+ * Enregistrements d'appels, rangés dans le dossier de travail : DiAllo/Rec/aaaa-mm-jj-hhmmss-NOM.mp3
+ * (faits par l'enregistreur intégré, voir rec/CallRecorder.kt). Chaque fichier est relié à son appel.
  */
 object Recordings {
-    const val CALLVAULT = "com.baba.callvault"
-    const val CALLVAULT_URL = "https://github.com/madkongo/CallVault/releases/latest"
-    private const val SOURCES = "rec_sources"
     private const val INDEX = ".diallo-index.json"          // nom du fichier → numéro (le nom ne garde que le contact)
     private val AUDIO = setOf("ogg", "opus", "m4a", "mp3", "wav", "amr", "aac", "3gp", "flac", "oga")
 
@@ -32,7 +24,6 @@ object Recordings {
         /** Clé de regroupement par correspondant (comme les notes). */
         val key: String get() = number?.let { keyOf(it) }?.takeIf { it.isNotEmpty() } ?: "nom:${who.lowercase()}"
     }
-    data class Source(val uri: Uri, val move: Boolean)
 
     val folderVersion = mutableIntStateOf(0)
     val all = mutableStateOf<List<Rec>>(emptyList())
@@ -40,40 +31,6 @@ object Recordings {
     val open = mutableStateOf<Pair<Rec, String>?>(null)
     val status = mutableStateOf<String?>(null)
     val busy = mutableStateOf(false)
-
-    // ---------- Sources ----------
-    fun sources(ctx: Context): List<Source> = try {
-        val a = JSONArray(prefs(ctx).getString(SOURCES, "[]"))
-        (0 until a.length()).map { val o = a.getJSONObject(it); Source(Uri.parse(o.getString("u")), o.optBoolean("move")) }
-            .filter { s -> ctx.contentResolver.persistedUriPermissions.any { it.uri == s.uri && it.isReadPermission } }
-    } catch (_: Throwable) { emptyList() }
-
-    private fun saveSources(ctx: Context, list: List<Source>) {
-        val a = JSONArray(); list.forEach { a.put(JSONObject().put("u", it.uri.toString()).put("move", it.move)) }
-        prefs(ctx).edit().putString(SOURCES, a.toString()).apply()
-        folderVersion.intValue++
-    }
-
-    fun addSource(ctx: Context, u: Uri, move: Boolean) {
-        try { ctx.contentResolver.takePersistableUriPermission(u, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION) }
-        catch (_: Throwable) { try { ctx.contentResolver.takePersistableUriPermission(u, Intent.FLAG_GRANT_READ_URI_PERMISSION) } catch (_: Throwable) { } }
-        saveSources(ctx, sources(ctx).filter { it.uri != u } + Source(u, move))
-    }
-    fun removeSource(ctx: Context, u: Uri) = saveSources(ctx, sources(ctx).filter { it.uri != u })
-
-    fun sourceName(ctx: Context, u: Uri): String =
-        try { androidx.documentfile.provider.DocumentFile.fromTreeUri(ctx, u)?.name } catch (_: Throwable) { null } ?: u.lastPathSegment ?: "?"
-
-    /** Ouvre le sélecteur directement sur un dossier du téléphone (ex. MIUI/sound_recorder/call_rec). */
-    fun hint(path: String): Uri = DocumentsContract.buildDocumentUri("com.android.externalstorage.documents", "primary:$path")
-
-    fun callVaultInstalled(ctx: Context): Boolean =
-        try { ctx.packageManager.getPackageInfo(CALLVAULT, 0); true } catch (_: Throwable) { false }
-
-    fun openCallVault(ctx: Context) {
-        val i = ctx.packageManager.getLaunchIntentForPackage(CALLVAULT) ?: Intent(Intent.ACTION_VIEW, Uri.parse(CALLVAULT_URL))
-        try { ctx.startActivity(i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) } catch (_: Throwable) { }
-    }
 
     // ---------- Accès aux dossiers ----------
     private class Doc(val id: String, val name: String, val mime: String?, val modified: Long, val size: Long)
@@ -135,61 +92,24 @@ object Recordings {
 
     private fun safe(s: String): String = s.replace(Regex("""[/\\:*?"<>|\p{Cntrl}]"""), " ").replace(Regex("\\s+"), " ").trim().take(60).ifBlank { "Inconnu" }
 
-    // ---------- Import ----------
-    /**
-     * Copie (ou déplace) dans DiAllo/Rec ce qui n'y est pas encore. Retourne le nombre de fichiers ajoutés.
-     * [nameOf] : numéro → nom du contact.
-     */
-    fun importNew(ctx: Context, nameOf: (String) -> String?): Int {
-        val (tree, recId) = recDir(ctx) ?: return 0
-        val srcs = sources(ctx); if (srcs.isEmpty()) return 0
-        val existing = children(ctx, tree, recId).associateBy { it.name }
-        val index = loadIndex(ctx, tree, existing[INDEX])
-        var added = 0; var dirty = false
-        val fmt = SimpleDateFormat("yyyy-MM-dd-HHmmss", Locale.US)
-        for (src in srcs) {
-            val rootId = try { DocumentsContract.getTreeDocumentId(src.uri) } catch (_: Throwable) { continue }
-            fun walk(id: String, depth: Int) {
-                val kids = children(ctx, src.uri, id)
-                val sidecars = kids.filter { it.name.endsWith(".json", true) }.associateBy { it.name.substringBeforeLast('.') }
-                for (d in kids) {
-                    if (d.mime == DocumentsContract.Document.MIME_TYPE_DIR) { if (depth < 2) walk(d.id, depth + 1); continue }
-                    val ext = d.name.substringAfterLast('.', "").lowercase()
-                    if (ext !in AUDIO) continue
-                    // date + numéro : fichier de détails (CallVault, format BCR) sinon le nom
-                    var time: Long? = null; var num: String? = null
-                    sidecars[d.name.substringBeforeLast('.')]?.let { s ->
-                        try {
-                            val o = JSONObject(readText(ctx, DocumentsContract.buildDocumentUriUsingTree(src.uri, s.id)) ?: "{}")
-                            time = o.optLong("timestamp_unix_ms", 0L).takeIf { it > 0 }
-                            num = o.optJSONArray("calls")?.optJSONObject(0)?.optString("phone_number")?.takeIf { it.isNotBlank() && it != "null" }
-                        } catch (_: Throwable) { }
-                    }
-                    val p = parseName(d.name)
-                    val t = time ?: p.first ?: d.modified
-                    val n = num ?: p.second
-                    val who = n?.let { nameOf(it) } ?: p.third ?: n?.let { displayNumber(it) } ?: "Inconnu"
-                    val dest = fmt.format(java.util.Date(t)) + "-" + safe(who) + "." + ext
-                    val srcUri = DocumentsContract.buildDocumentUriUsingTree(src.uri, d.id)
-                    val have = existing[dest]
-                    if (have == null) {
-                        val target = try { DocumentsContract.createDocument(ctx.contentResolver, DocumentsContract.buildDocumentUriUsingTree(tree, recId), "application/octet-stream", dest) } catch (_: Throwable) { null } ?: continue
-                        val ok = try {
-                            ctx.contentResolver.openInputStream(srcUri)?.use { inp -> ctx.contentResolver.openOutputStream(target, "w")?.use { out -> inp.copyTo(out, 64 * 1024) } } != null
-                        } catch (_: Throwable) { false }
-                        if (!ok) { try { DocumentsContract.deleteDocument(ctx.contentResolver, target) } catch (_: Throwable) { }; continue }
-                        added++
-                        if (n != null) { index[dest] = n; dirty = true }
-                        status.value = "Import… $added fichier${if (added > 1) "s" else ""}"
-                    }
-                    // anciens enregistrements : une fois la copie faite (taille identique), on libère la place
-                    if (src.move && (have == null || have.size == d.size)) try { DocumentsContract.deleteDocument(ctx.contentResolver, srcUri) } catch (_: Throwable) { }
-                }
-            }
-            walk(rootId, 0)
+    /** Range un enregistrement fait par Di-Allô dans Rec/ (aaaa-mm-jj-hhmmss-NOM.ext). Retourne le nom du fichier. */
+    fun store(ctx: Context, file: java.io.File, time: Long, who: String, number: String?): String? {
+        val (tree, recId) = recDir(ctx) ?: return null
+        val kids = children(ctx, tree, recId)
+        val base = SimpleDateFormat("yyyy-MM-dd-HHmmss", Locale.US).format(java.util.Date(time)) + "-" + safe(who)
+        val ext = file.name.substringAfterLast('.', "m4a")
+        var dest = "$base.$ext"; var k = 2
+        while (kids.any { it.name == dest }) dest = "$base-${k++}.$ext"
+        val target = try { DocumentsContract.createDocument(ctx.contentResolver, DocumentsContract.buildDocumentUriUsingTree(tree, recId), "application/octet-stream", dest) } catch (_: Throwable) { null } ?: return null
+        val ok = try { file.inputStream().use { inp -> ctx.contentResolver.openOutputStream(target, "w")?.use { out -> inp.copyTo(out, 64 * 1024) } } != null } catch (_: Throwable) { false }
+        if (!ok) { try { DocumentsContract.deleteDocument(ctx.contentResolver, target) } catch (_: Throwable) { }; return null }
+        if (number != null) {
+            val doc = kids.firstOrNull { it.name == INDEX }
+            val index = loadIndex(ctx, tree, doc); index[dest] = number
+            saveIndex(ctx, tree, recId, doc, index)
         }
-        if (dirty) saveIndex(ctx, tree, recId, existing[INDEX], index)
-        return added
+        all.value = (listOf(Rec(target, dest, time, who, number, file.length())) + all.value).sortedByDescending { it.time }
+        return dest
     }
 
     private fun loadIndex(ctx: Context, tree: Uri, doc: Doc?): HashMap<String, String> {
@@ -250,19 +170,16 @@ object Recordings {
         return res
     }
 
-    /** Import des nouveautés puis relecture de DiAllo/Rec (hors fil principal). */
+    /** Relecture de DiAllo/Rec (hors fil principal). */
     fun refresh(ctx: Context, data: CallRepository.Data) {
         if (busy.value) return
         busy.value = true
         try {
             val names = HashMap<String, String>(); val numbers = HashMap<String, String>()
             data.contacts.forEach { c -> val k = keyOf(c.number); if (k.isNotEmpty()) c.name?.let { n -> names.putIfAbsent(k, n); numbers.putIfAbsent(n.lowercase(), c.number) } }
-            val added = importNew(ctx) { n -> names[keyOf(n)] }
             val recs = scan(ctx) { w -> numbers[w.lowercase()] }
             all.value = recs
             byCall.value = match(data.calls, recs)
-            if (added > 0) status.value = "✅ $added enregistrement${if (added > 1) "s" else ""} importé${if (added > 1) "s" else ""} dans Rec"
-            else if (status.value?.startsWith("Import") == true) status.value = null
         } finally { busy.value = false }
     }
 

@@ -129,13 +129,9 @@ internal fun SettingsScreen(
                     Box(Modifier.size(34.dp).clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.surfaceVariant), contentAlignment = Alignment.Center) { Text("💬", fontSize = 18.sp) }
                 }) { sub = "qsms" }
                 val recN = Recordings.all.value.size
-                val recSrc = remember(sub, Recordings.folderVersion.value) { Recordings.sources(ctx).size }
-                NavRow("Enregistrement des appels", when {
-                    recSrc > 0 || recN > 0 -> "Dossier Rec · $recN enregistrement${if (recN > 1) "s" else ""}"
-                    Recordings.callVaultInstalled(ctx) -> "CallVault installé · ajoute son dossier"
-                    else -> "Avec CallVault (appli libre, à part)"
-                }, leading = {
-                    Box(Modifier.size(34.dp).clip(RoundedCornerShape(10.dp)).background(if (recSrc > 0) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant), contentAlignment = Alignment.Center) { Text("🎙️", fontSize = 18.sp) }
+                val recOn = remember(sub) { fr.soaresden.diallo.rec.CallRecorder.enabled(ctx) }
+                NavRow("Enregistrement des appels", (if (recOn) "Activé" else "Désactivé") + " · $recN enregistrement${if (recN > 1) "s" else ""}", leading = {
+                    Box(Modifier.size(34.dp).clip(RoundedCornerShape(10.dp)).background(if (recOn) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant), contentAlignment = Alignment.Center) { Text("🎙️", fontSize = 18.sp) }
                 }) { sub = "rec" }
             }
             SectionCard("Téléphone") {
@@ -154,7 +150,8 @@ internal fun SettingsScreen(
                 Text("Di-Allô — version ${appVersion(ctx)}", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onBackground)
                 Text("by Soaresden · github.com/soaresden/di-allo-dialerandroid", fontSize = 12.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium); Spacer(Modifier.height(6.dp))
                 Text("Dialer avec clavier musical.", fontSize = 12.5.sp, color = muted()); Spacer(Modifier.height(6.dp))
-                Text("🎙️ L'enregistrement des appels passe par CallVault (Réglages › Pendant l'appel) : Android le réserve aux applis système.", fontSize = 12.sp, color = muted())
+                Text("🎙️ Enregistrement des appels en MP3 via le débogage sans fil (Réglages › Pendant l'appel).", fontSize = 12.sp, color = muted()); Spacer(Modifier.height(6.dp))
+                Text("Bibliothèques : libadb-android (Apache-2.0), Conscrypt (Apache-2.0), jump3r / LAME (LGPL), osmdroid (Apache-2.0), Coil (Apache-2.0).", fontSize = 11.5.sp, color = muted(.55f))
             }
             Spacer(Modifier.height(16.dp))
         }
