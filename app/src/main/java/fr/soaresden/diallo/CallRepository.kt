@@ -10,7 +10,7 @@ object CallRepository {
 
     data class CallEntry(
         val number: String, val name: String?, val photoUri: String?,
-        val date: Long, val duration: Int, val type: Int
+        val date: Long, val duration: Int, val type: Int, val id: Long = -1
     ) {
         val display: String get() = name ?: number
         val dirLabel: String get() = when (type) {
@@ -74,22 +74,28 @@ object CallRepository {
         return Data(calls, withCounts, st, groups)
     }
 
+    /** Supprime UN appel du journal (Di-Allô doit être l'appli Téléphone par défaut). */
+    fun deleteCall(ctx: Context, id: Long): Boolean = id >= 0 && try {
+        ctx.contentResolver.delete(CallLog.Calls.CONTENT_URI, CallLog.Calls._ID + "=?", arrayOf(id.toString())) > 0
+    } catch (_: Throwable) { false }
+
     private fun rawCalls(ctx: Context): List<CallEntry> {
         val list = ArrayList<CallEntry>()
         val cols = arrayOf(
             CallLog.Calls.NUMBER, CallLog.Calls.CACHED_NAME, CallLog.Calls.CACHED_PHOTO_URI,
-            CallLog.Calls.DATE, CallLog.Calls.DURATION, CallLog.Calls.TYPE
+            CallLog.Calls.DATE, CallLog.Calls.DURATION, CallLog.Calls.TYPE, CallLog.Calls._ID
         )
         try {
             ctx.contentResolver.query(CallLog.Calls.CONTENT_URI, cols, null, null, CallLog.Calls.DATE + " DESC")?.use { c ->
                 val iN = c.getColumnIndex(CallLog.Calls.NUMBER); val iNm = c.getColumnIndex(CallLog.Calls.CACHED_NAME)
                 val iPh = c.getColumnIndex(CallLog.Calls.CACHED_PHOTO_URI); val iD = c.getColumnIndex(CallLog.Calls.DATE)
                 val iDur = c.getColumnIndex(CallLog.Calls.DURATION); val iT = c.getColumnIndex(CallLog.Calls.TYPE)
+                val iId = c.getColumnIndex(CallLog.Calls._ID)
                 while (c.moveToNext()) {
                     val num = c.getString(iN) ?: "Inconnu"
                     val nm = if (iNm >= 0) c.getString(iNm)?.ifBlank { null } else null
                     val ph = if (iPh >= 0) c.getString(iPh)?.ifBlank { null } else null
-                    list.add(CallEntry(num, nm, ph, c.getLong(iD), c.getInt(iDur), c.getInt(iT)))
+                    list.add(CallEntry(num, nm, ph, c.getLong(iD), c.getInt(iDur), c.getInt(iT), if (iId >= 0) c.getLong(iId) else -1))
                 }
             }
         } catch (_: Throwable) { }

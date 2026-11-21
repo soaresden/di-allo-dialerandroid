@@ -13,10 +13,11 @@
 
 ### ⌨️ Clavier
 - **Touches musicales** : piano, guitare, violon, violoncelle, batterie… (sons synthétisés, aucun fichier audio)
-- 🎼 **Enregistreur de mélodies** : ⏺ enregistre ce que tu joues avec le rythme, ou tape un air en chiffres (« 624 624 687… », espace = pause). La lecture anime les touches, et les mélodies se partagent en chiffres.
+- 🎵 **Mode composeur** (grosse note à droite du bouton d'appel) : les touches jouées s'écrivent à l'écran, ␣ pour une pause, ⌫ pour corriger, puis 💾 pour garder. Mélodies modifiables, lecture façon karaoké (la note en cours s'allume), recueil d'airs du domaine public, partage en chiffres.
 - Recherche **T9** sur les noms *et* sur les chiffres du numéro (« 32 » trouve tous les numéros qui contiennent 32), avec surlignage
 - Candidats triés par nombre d'appels, contacts à plusieurs numéros gérés
 - Touche ⭐ **Favoris** directement sur le clavier
+- Appui long sur un appel récent : fiche du contact ou **supprimer cet appel** du journal
 
 ### 📞 Écran d'appel
 - Haut-parleur, muet, clavier DTMF, attente, Bluetooth

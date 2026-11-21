@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Voicemail
 import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.IconButton
@@ -106,7 +107,6 @@ internal fun DialScreen(
         frequent.map { s -> byKey[keyOf(s.number)] ?: CallRepository.Contact(s.number, s.name, s.photoUri, calls = s.count) }
     }
     var showFav by remember { mutableStateOf(false) }
-    var showMelodies by remember { mutableStateOf(false) }
     var toSave by remember { mutableStateOf<Pair<List<Melodies.Note>, String>?>(null) }
     val recording by Melodies.recording
     val playingName by Melodies.playingName
@@ -115,11 +115,11 @@ internal fun DialScreen(
         Synth.play(k)
         view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
     }
-    fun stopRec() { val r = Melodies.stopRec(); if (r.first.isNotEmpty()) toSave = r }
-    androidx.activity.compose.BackHandler(enabled = recording) { stopRec() }
-
-    if (showMelodies) MelodySheet(onDismiss = { showMelodies = false; Melodies.stop() }, onRecord = { showMelodies = false; value = ""; Melodies.startRec() })
-    toSave?.let { (n, t) -> SaveRecordingDialog(n, t) { toSave = null } }
+    // Mode composeur : ⌨️ joue sans taper de numéro, la composition s'écrit dans l'affichage
+    fun saveDraft() { val r = Melodies.takeDraft(); if (r.first.isNotEmpty()) toSave = r }
+    fun toggleComposer() { if (recording) { saveDraft(); Melodies.exitComposer() } else { value = ""; Melodies.startRec() } }
+    androidx.activity.compose.BackHandler(enabled = recording) { toggleComposer() }
+    toSave?.let { (n, t) -> MelodyEditDialog(n, t) { toSave = null } }
 
     if (showFav) {
         ModalBottomSheet(onDismissRequest = { showFav = false }, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true), containerColor = MaterialTheme.colorScheme.surface) {
@@ -149,7 +149,8 @@ internal fun DialScreen(
                 Modifier.weight(1f).fillMaxWidth().padding(horizontal = 12.dp).padding(top = 8.dp),
                 color = MaterialTheme.colorScheme.surface.copy(alpha = .92f), shape = RoundedCornerShape(20.dp)
             ) {
-                LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(vertical = 6.dp)) {
+                if (recording) MelodyLibrary(Modifier.fillMaxSize())
+                else LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(vertical = 6.dp)) {
                     when {
                         value.isEmpty() -> {
                             if (freqRows.isNotEmpty()) {
@@ -171,7 +172,8 @@ internal fun DialScreen(
             }
 
             // ---------- Affichage du numéro ----------
-            if (recording) RecDisplay(displayH)
+            if (playingName != null && (recording || value.isEmpty())) KaraokeDisplay(displayH)
+            else if (recording) RecDisplay(displayH)
             else Box(Modifier.fillMaxWidth().height(displayH)) {
             Column(Modifier.fillMaxSize().padding(horizontal = 24.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
@@ -182,10 +184,6 @@ internal fun DialScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
                 when {
-                    value.isEmpty() && playingName != null -> Row(Modifier.clip(RoundedCornerShape(50)).clickable { Melodies.stop() }.padding(horizontal = 10.dp, vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Text("🎶 ${playingName}", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.widthIn(max = 220.dp))
-                        Spacer(Modifier.width(6.dp)); Icon(Icons.Filled.Stop, "Arrêter", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
-                    }
                     value.isEmpty() -> Text("Saisis un numéro ou un nom (T9)", fontSize = 13.sp, color = muted(.45f))
                     exact != null -> Text(exact.display, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     typed.length >= 6 -> Row(Modifier.clip(RoundedCornerShape(50)).clickable {
@@ -197,12 +195,6 @@ internal fun DialScreen(
                     else -> Spacer(Modifier.height(18.dp))
                 }
             }
-                if (value.isEmpty()) Row(Modifier.align(Alignment.TopEnd).padding(end = 10.dp)) {
-                    IconButton(onClick = { showMelodies = true }, modifier = Modifier.size(36.dp)) { Text("🎼", fontSize = 18.sp) }
-                    IconButton(onClick = { Melodies.startRec() }, modifier = Modifier.size(36.dp)) {
-                        Box(Modifier.size(16.dp).clip(CircleShape).background(RecRed))
-                    }
-                }
             }
 
             // ---------- Cadran ----------
@@ -229,13 +221,16 @@ internal fun DialScreen(
                             Text("PAUSE", fontSize = (key.value * 0.12f).sp, fontWeight = FontWeight.SemiBold, letterSpacing = 1.sp, color = muted(.5f))
                         }
                     }
-                    Box(Modifier.size(key).shadow(8.dp, CircleShape, ambientColor = RecRed, spotColor = RecRed).clip(CircleShape).background(RecRed)
-                        .clickable { stopRec() }, contentAlignment = Alignment.Center) {
-                        Icon(Icons.Filled.Stop, "Terminer", tint = Color.White, modifier = Modifier.size(key * 0.42f))
+                    val hasDraft = Melodies.recTokens.isNotEmpty()
+                    Box(Modifier.size(key).shadow(if (hasDraft) 8.dp else 0.dp, CircleShape, ambientColor = MaterialTheme.colorScheme.primary, spotColor = MaterialTheme.colorScheme.primary)
+                        .clip(CircleShape).background(if (hasDraft) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant)
+                        .clickable(enabled = hasDraft) { saveDraft() }, contentAlignment = Alignment.Center) {
+                        Icon(Icons.Filled.Save, "Garder la composition", tint = if (hasDraft) MaterialTheme.colorScheme.onPrimary else muted(.3f), modifier = Modifier.size(key * 0.4f))
                     }
-                    BackspaceKey(key, visible = Melodies.recTokens.isNotEmpty(), onClick = {
+                    if (hasDraft) BackspaceKey(key, visible = true, onClick = {
                         Melodies.backspace(); view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
                     }, onLong = { Melodies.clearRec(); view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS) })
+                    else MusicKey(key, active = true) { toggleComposer() }
                 }
                 else Row(horizontalArrangement = Arrangement.spacedBy(gapH), verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.size(key).clip(CircleShape).clickable { showFav = true; view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP) }, contentAlignment = Alignment.Center) {
@@ -245,9 +240,10 @@ internal fun DialScreen(
                         .clickable { if (value.isNotEmpty()) onConfirm(value) }, contentAlignment = Alignment.Center) {
                         Icon(Icons.Filled.Call, "Appeler", tint = Color.White, modifier = Modifier.size(key * 0.4f))
                     }
-                    BackspaceKey(key, visible = value.isNotEmpty(), onClick = {
+                    if (value.isNotEmpty()) BackspaceKey(key, visible = true, onClick = {
                         value = value.dropLast(1); view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
                     }, onLong = { value = ""; view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS) })
+                    else MusicKey(key, active = false) { toggleComposer() }
                 }
             }
         }
@@ -317,6 +313,19 @@ private fun DialKey(k: K, size: Dp, pulse: Int = 0, onDown: () -> Unit, onLong: 
                 else -> Text(k.l, fontSize = (size.value * 0.125f).sp, fontWeight = FontWeight.SemiBold, letterSpacing = 1.5.sp, color = muted(.5f))
             }
         }
+    }
+}
+
+/** Grosse note de musique : entre / sort du mode composeur. */
+@Composable
+private fun MusicKey(size: Dp, active: Boolean, onClick: () -> Unit) {
+    val cs = MaterialTheme.colorScheme
+    Box(
+        Modifier.size(size).clip(CircleShape).background(if (active) cs.primaryContainer else Color.Transparent).clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        Text("🎵", fontSize = (size.value * 0.42f).sp)
+        if (active) Text("✕", fontSize = (size.value * 0.16f).sp, fontWeight = FontWeight.Bold, color = cs.primary, modifier = Modifier.align(Alignment.TopEnd).padding(top = size * 0.12f, end = size * 0.14f))
     }
 }
 
@@ -411,7 +420,7 @@ private fun RecDisplay(h: Dp) {
             Box(Modifier.size(10.dp).graphicsLayer { alpha = blink }.clip(CircleShape).background(RecRed))
             Spacer(Modifier.width(8.dp))
             Text(
-                if (n == 0) "REC · joue ta mélodie" else "REC · $n note${if (n > 1) "s" else ""} · ${fmtMelodyDur(Melodies.recDurationMs)}",
+                if (n == 0) "MODE COMPOSEUR · joue !" else "COMPOSEUR · $n note${if (n > 1) "s" else ""} · ${fmtMelodyDur(Melodies.recDurationMs)}",
                 fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold, color = RecRed
             )
             Spacer(Modifier.weight(1f))

@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -149,7 +150,7 @@ private fun Root(theme: String, onTheme: (String) -> Unit) {
             if (!granted) Banner(MaterialTheme.colorScheme.surfaceVariant, "Autoriser le journal d'appels et les contacts", "Autoriser") { permLauncher.launch(PERMS) }
             when (tab) {
                 0 -> DialScreen(confirm, { callVoicemail(ctx) }, data.contacts, frequent)
-                1 -> RecentsList(data.calls, confirm) { detail = it }
+                1 -> RecentsList(data.calls, confirm, onDeleted = { refresh++ }) { detail = it }
                 2 -> ContactsScreen(data.contacts, data.groups, confirm) { detail = it }
                 3 -> NotesScreen(data.contacts, confirm) { detail = it }
                 4 -> StatsScreen(data.calls, data.contacts, onWrapped = { wrapped = true }) { detail = it }
@@ -222,9 +223,14 @@ private fun bucket(ts: Long): Int { val d = daysAgo(ts); return when { d <= 0 ->
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun RecentsList(calls: List<CallRepository.CallEntry>, onConfirm: (String) -> Unit, onDetail: (String) -> Unit) {
-    if (calls.isEmpty()) { Empty("Aucun appel dans le journal."); return }
-    val groups = remember(calls) { calls.groupBy { bucket(it.date) }.toSortedMap() }
+private fun RecentsList(calls: List<CallRepository.CallEntry>, onConfirm: (String) -> Unit, onDeleted: () -> Unit, onDetail: (String) -> Unit) {
+    val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
+    // appels supprimés : masqués tout de suite, avant le rechargement du journal
+    val gone = remember { mutableStateListOf<Long>() }
+    val shownCalls = remember(calls, gone.size) { if (gone.isEmpty()) calls else calls.filter { it.id !in gone } }
+    if (shownCalls.isEmpty()) { Empty("Aucun appel dans le journal."); return }
+    val groups = remember(shownCalls) { shownCalls.groupBy { bucket(it.date) }.toSortedMap() }
     // Les périodes anciennes sont repliées par défaut (des milliers d'appels depuis 2008)
     val states = RECENT_LABELS.indices.map { i -> rememberCollapsed("recent_$i", default = i >= 3) }
     LazyColumn(Modifier.fillMaxSize().padding(horizontal = 12.dp)) {
@@ -243,10 +249,24 @@ private fun RecentsList(calls: List<CallRepository.CallEntry>, onConfirm: (Strin
                     Spacer(Modifier.width(4.dp)); Chevron(st.value)
                 }
             }
-            if (!st.value) items(list.size, key = { i -> "c$b-${list[i].date}-$i" }) { i ->
+            if (!st.value) items(list.size, key = { i -> "c$b-${list[i].id}-${list[i].date}-$i" }) { i ->
                 val row = list[i]
                 val isMissed = row.type == android.provider.CallLog.Calls.MISSED_TYPE || row.type == android.provider.CallLog.Calls.REJECTED_TYPE
-                Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).combinedClickable(onClick = { onConfirm(row.number) }, onLongClick = { onDetail(keyOf(row.number).ifEmpty { row.number }) }).padding(vertical = 9.dp, horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                var menu by remember { mutableStateOf(false) }
+                Box {
+                DropdownMenu(menu, { menu = false }) {
+                    DropdownMenuItem(text = { Text("📊 Fiche de ${row.display}") }, onClick = { menu = false; onDetail(keyOf(row.number).ifEmpty { row.number }) })
+                    DropdownMenuItem(text = { Text("🗑️ Supprimer cet appel", color = Red) }, enabled = row.id >= 0, onClick = {
+                        menu = false
+                        gone.add(row.id)
+                        scope.launch {
+                            val ok = withContext(Dispatchers.IO) { CallRepository.deleteCall(ctx, row.id) }
+                            if (!ok) { gone.remove(row.id); android.widget.Toast.makeText(ctx, "Impossible : Di-Allô doit être l'appli Téléphone par défaut", android.widget.Toast.LENGTH_LONG).show() }
+                            else { android.widget.Toast.makeText(ctx, "Appel supprimé", android.widget.Toast.LENGTH_SHORT).show(); onDeleted() }
+                        }
+                    })
+                }
+                Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).combinedClickable(onClick = { onConfirm(row.number) }, onLongClick = { menu = true }).padding(vertical = 9.dp, horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                     Avatar(row.display, row.photoUri); Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
                         Text(row.display, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis, color = if (isMissed) Red else MaterialTheme.colorScheme.onBackground)
@@ -257,6 +277,7 @@ private fun RecentsList(calls: List<CallRepository.CallEntry>, onConfirm: (Strin
                         }
                     }
                     Text(fmtWhen(row.date), fontSize = 12.sp, color = muted())
+                }
                 }
             }
         }

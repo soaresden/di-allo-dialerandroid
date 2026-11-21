@@ -56,6 +56,7 @@ object Melodies {
         save(ctx, listOf(m) + list)
         return m
     }
+    fun update(ctx: Context, m: Melody) = save(ctx, load(ctx).map { if (it.id == m.id) m else it })
     fun rename(ctx: Context, id: Long, name: String) = save(ctx, load(ctx).map { if (it.id == id) it.copy(name = name.trim().ifBlank { it.name }) else it })
     fun delete(ctx: Context, id: Long) { if (playingId.value == id) stop(); save(ctx, load(ctx).filter { it.id != id }) }
     fun nextName(ctx: Context) = "Mélodie ${load(ctx).size + 1}"
@@ -73,6 +74,20 @@ object Melodies {
             prev = c
         }
         return out
+    }
+
+    /** Comme [toText] (avec retours à la ligne) + la position de chaque note dans le texte (karaoké). */
+    fun layout(notes: List<Note>): Pair<String, IntArray> {
+        if (notes.isEmpty()) return "" to IntArray(0)
+        val gaps = notes.zipWithNext { a, b -> b.t - a.t }
+        val med = gaps.sorted().getOrNull(gaps.size / 2)?.coerceAtLeast(60) ?: 0
+        val sb = StringBuilder(); val pos = IntArray(notes.size)
+        pos[0] = 0; sb.append(notes[0].k)
+        gaps.forEachIndexed { i, g ->
+            if (med > 0 && g > med * 2.6) sb.append('\n') else if (med > 0 && g > med * 1.7) sb.append(' ')
+            pos[i + 1] = sb.length; sb.append(notes[i + 1].k)
+        }
+        return sb.toString() to pos
     }
 
     /** Ne garde que ce qui sert : touches, espaces, retours à la ligne. */
@@ -175,6 +190,14 @@ object Melodies {
     }
     fun clearRec() { recNotes.clear(); recTokens.clear(); tLast = 0; edited = false }
 
+    /** Prend le brouillon (notes, texte) et le vide, en restant en mode composeur. */
+    fun takeDraft(): Pair<List<Note>, String> {
+        val r = recNotes.toList() to recText.trim()
+        recNotes.clear(); recTokens.clear(); tLast = 0; edited = false
+        return r
+    }
+    fun exitComposer() { recording.value = false; recNotes.clear(); recTokens.clear() }
+
     /** Fin : (notes avec le rythme joué, texte affiché). */
     fun stopRec(): Pair<List<Note>, String> {
         recording.value = false
@@ -187,6 +210,9 @@ object Melodies {
     // ---------- Lecture ----------
     val playingId = mutableStateOf<Long?>(null)
     val playingName = mutableStateOf<String?>(null)
+    /** Pour le karaoké : notes en cours de lecture et index de la note jouée (-1 = pas encore). */
+    val playingNotes = mutableStateOf<List<Note>>(emptyList())
+    val playingIndex = mutableIntStateOf(-1)
     /** Compteur par touche : il augmente à chaque note jouée, le clavier anime la touche. */
     val pulse = mutableStateMapOf<String, Int>()
     private var job: Job? = null
@@ -198,13 +224,14 @@ object Melodies {
         stop()
         if (notes.isEmpty()) return
         Synth.prepare(instr); Synth.warmUp()
-        playingId.value = id; playingName.value = name
+        playingId.value = id; playingName.value = name; playingNotes.value = notes; playingIndex.intValue = -1
         job = scope.launch {
             delay(120)                                               // laisse le temps de préparer les sons
             val start = System.currentTimeMillis()
-            for (n in notes) {
+            for ((i, n) in notes.withIndex()) {
                 val wait = start + n.t - System.currentTimeMillis()
                 if (wait > 0) delay(wait)
+                playingIndex.intValue = i
                 Synth.play(n.k, instr)
                 pulse[n.k] = (pulse[n.k] ?: 0) + 1
             }
@@ -213,7 +240,7 @@ object Melodies {
         }
     }
 
-    fun stop() { job?.cancel(); job = null; playingId.value = null; playingName.value = null }
+    fun stop() { job?.cancel(); job = null; playingId.value = null; playingName.value = null; playingIndex.intValue = -1 }
 }
 
 internal fun fmtMelodyDur(ms: Int): String { val s = (ms + 500) / 1000; return "${s / 60}:${(s % 60).toString().padStart(2, '0')}" }
