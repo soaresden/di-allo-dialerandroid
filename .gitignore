@@ -19,3 +19,6 @@ local.properties
 hyperdial.html
 Lancer-Dialer-HyperOS.bat
 Set-HyperOS-Dialer.ps1
+
+# vidéos exportées (lourdes)
+store/video/out/

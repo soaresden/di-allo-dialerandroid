@@ -128,10 +128,17 @@ internal fun DialScreen(
     var toSave by remember { mutableStateOf<Pair<List<Melodies.Note>, String>?>(null) }
     val recording by Melodies.recording
     val playingName by Melodies.playingName
+    // notes tenues du mode composeur : touche → son en cours
+    val heldVoices = remember { HashMap<String, Long>() }
+    LaunchedEffect(recording) { if (recording) Synth.prepareHeld() }
     fun press(k: String) {
-        if (recording) Melodies.note(k) else if (value.length < 24) value += k
-        Synth.play(k)
+        if (recording) { Melodies.note(k); heldVoices[k]?.let { Synth.release(it) }; heldVoices[k] = Synth.playHeld(k) }
+        else { if (value.length < 24) value += k; Synth.play(k) }
         view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+    }
+    fun releaseKey(k: String, heldMs: Long) {
+        heldVoices.remove(k)?.let { Synth.release(it) }
+        if (recording) Melodies.release(k, heldMs)
     }
     // Mode composeur : ⌨️ joue sans taper de numéro, la composition s'écrit dans l'affichage
     fun saveDraft() { val r = Melodies.takeDraft(); if (r.first.isNotEmpty()) toSave = r }
@@ -236,7 +243,7 @@ internal fun DialScreen(
                     Row(horizontalArrangement = Arrangement.spacedBy(gapH)) {
                         for (col in 0 until 3) {
                             val k = KEYS[r * 3 + col]
-                            DialKey(k, key, pulse = Melodies.pulse[k.d] ?: 0, onDown = { press(k.d) }, onLong = {
+                            DialKey(k, key, pulse = Melodies.pulse[k.d] ?: 0, onDown = { press(k.d) }, onUp = { ms -> releaseKey(k.d, ms) }, onLong = {
                                 if (!recording) when (k.d) {
                                     "1" -> { if (value.endsWith("1")) value = value.dropLast(1); onVoicemail() }
                                     in SpeedDial.DIGITS -> if (value == k.d) {
@@ -291,8 +298,8 @@ internal fun DialScreen(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun DialKey(k: K, size: Dp, pulse: Int = 0, onDown: () -> Unit, onLong: () -> Unit) {
-    val down by rememberUpdatedState(onDown); val long by rememberUpdatedState(onLong)
+private fun DialKey(k: K, size: Dp, pulse: Int = 0, onDown: () -> Unit, onUp: (Long) -> Unit = {}, onLong: () -> Unit) {
+    val down by rememberUpdatedState(onDown); val up by rememberUpdatedState(onUp); val long by rememberUpdatedState(onLong)
     val scope = rememberCoroutineScope()
     // Animations jouées jusqu'au bout, même pour une frappe très brève
     val press = remember { Animatable(1f) }    // échelle de la touche
@@ -328,11 +335,13 @@ private fun DialKey(k: K, size: Dp, pulse: Int = 0, onDown: () -> Unit, onLong: 
                 detectTapGestures(
                     onPress = { o ->
                         touch = o
+                        val since = android.os.SystemClock.uptimeMillis()
                         down()
                         val sink = scope.launch { press.animateTo(.86f, tween(70, easing = FastOutSlowInEasing)) }
                         val lit = scope.launch { glow.snapTo(1f) }
                         scope.launch { wave.snapTo(0f); wave.animateTo(1f, tween(480, easing = LinearOutSlowInEasing)) }
                         tryAwaitRelease()
+                        up(android.os.SystemClock.uptimeMillis() - since)
                         scope.launch { sink.join(); press.animateTo(1f, spring(dampingRatio = .38f, stiffness = 700f)) }
                         scope.launch { lit.join(); delay(40); glow.animateTo(0f, tween(300)) }
                     },
@@ -468,7 +477,7 @@ private fun RecDisplay(h: Dp) {
                 fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold, color = RecRed
             )
             Spacer(Modifier.weight(1f))
-            Text(tr("␣ pause · ⌫ corriger"), fontSize = 11.sp, color = muted(.45f))
+            Text(tr("appui long = note tenue · ␣ pause"), fontSize = 11.sp, color = muted(.45f))
         }
         // les derniers chiffres tapés, le curseur au bout
         Text(

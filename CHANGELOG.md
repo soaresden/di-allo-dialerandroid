@@ -3,6 +3,10 @@
 Les versions sont numérotées `AAAA-MM-JJ-NN` (date du build, puis numéro du build du jour).
 Chaque version est téléchargeable dans les [Releases](../../releases).
 
+## 2026-11-22-16
+- 🎵 **Notes tenues** dans le mode composeur : garde le doigt sur une touche, la note dure (« 3- » = 2 temps, « 3-- » = 3 temps…). Le son tient tant que tu appuies (vents, cordes, orgue, synthés, 8-bit ; le piano et la guitare s'éteignent d'eux-mêmes)
+- Les mélodies gardent la durée de chaque note et la rejouent ; dans le recueil, les « - » font vraiment durer les notes
+
 ## 2026-11-22-15
 - ⬆️ **Mises à jour en arrière-plan** : Di-Allô vérifie GitHub toutes les ~6 h, même fermée, et envoie une notification quand une nouvelle version sort (un appui : nouveautés et installation)
 - La mise à jour trouvée n'est plus oubliée quand on relance l'appli

@@ -123,6 +123,49 @@ object Synth {
         }
     }
 
+    // ---- Notes tenues : version longue du son, coupée en douceur au relâchement ----
+    private const val HOLD_SEC = 4.3
+    /** Instruments dont le son peut tenir (vents, cordes frottées, orgue, synthés…). Piano, guitare, percussions : le son s'éteint de lui-même. */
+    fun holds(id: String? = null): Boolean {
+        val i = instr(id)
+        return when (i.kind) {
+            Kind.BOWED, Kind.VESSEL -> true
+            Kind.MELODIC -> i.attack >= .01 || i.id == "8bit" || i.id == "chip"
+            else -> false
+        }
+    }
+    private fun renderHeld(instr: Instr, key: String): ShortArray = cache.getOrPut(instr.id + "|" + key + "|H") {
+        val f = (freqOf[key] ?: 440.0) * instr.octave
+        when (instr.kind) {
+            Kind.BOWED -> renderBowed(f, instr, HOLD_SEC)
+            Kind.VESSEL -> renderVessel(f, instr, HOLD_SEC)
+            else -> renderMelodic(f, instr, HOLD_SEC)
+        }
+    }
+    /** Prépare les sons tenus de l'instrument (mode composeur, lecture d'une mélodie). */
+    fun prepareHeld(id: String? = null) {
+        val instr = instr(id); if (!holds(instr.id)) return
+        KEYS.forEach { k -> if (!cache.containsKey(instr.id + "|" + k + "|H")) exec.execute { try { renderHeld(instr, k) } catch (_: Throwable) { } } }
+    }
+    private val nextVoice = java.util.concurrent.atomic.AtomicLong(1)
+    private val releasedEarly = java.util.concurrent.ConcurrentHashMap.newKeySet<Long>()
+    /** Joue la touche en son tenu ; renvoie un numéro à passer à [release] (ou -1 : son normal, rien à relâcher). */
+    fun playHeld(key: String, instrId: String? = null): Long {
+        val instr = instr(instrId)
+        if (!holds(instr.id)) { play(key, instrId); return -1 }
+        val id = nextVoice.getAndIncrement()
+        val ready = cache[instr.id + "|" + key + "|H"]
+        if (ready != null) start(ready, id)
+        else exec.execute { try { start(renderHeld(instr, key), id) } catch (_: Throwable) { } }
+        return id
+    }
+    /** Relâche une note tenue : elle s'éteint en ~0,2 s. */
+    fun release(id: Long) {
+        if (id < 0) return
+        val v = voices.firstOrNull { it.id == id }
+        if (v != null) { if (v.fade < 0) v.fade = v.pos } else releasedEarly.add(id)
+    }
+
     private fun instr(id: String?): Instr = id?.let { i -> instruments.firstOrNull { it.id == i } } ?: current
 
     /** Calcule à l'avance les 12 touches de l'instrument [id] (courant par défaut). */
@@ -143,7 +186,8 @@ object Synth {
     }
 
     // ---- Mixeur : un seul AudioTrack en flux, gardé ouvert quelques secondes ----
-    private class Voice(val s: ShortArray) { var pos = 0 }
+    private class Voice(val s: ShortArray, val id: Long = 0) { @Volatile var pos = 0; @Volatile var fade = -1 }
+    private const val FADE_N = SR / 5      // relâché d'une note tenue : 0,2 s
     private val voices = java.util.concurrent.ConcurrentLinkedQueue<Voice>()
     private val lock = Object()
     @Volatile private var mixer: Thread? = null
@@ -151,8 +195,10 @@ object Synth {
     private const val CHUNK = 192          // ~4 ms par paquet
     private const val IDLE_MS = 60_000L    // ferme le flux après 1 min sans touche (le rouvrir coûte une latence)
 
-    private fun start(s: ShortArray) {
-        voices.add(Voice(s))
+    private fun start(s: ShortArray, id: Long = 0) {
+        val v = Voice(s, id)
+        if (id > 0 && releasedEarly.remove(id)) v.fade = 0
+        voices.add(v)
         while (voices.size > 6) voices.poll()   // pas plus de 6 notes à la fois
         ensureMixer()
     }
@@ -190,9 +236,11 @@ object Synth {
                 while (it.hasNext()) {
                     val v = it.next()
                     val n = minOf(CHUNK, v.s.size - v.pos)
-                    for (i in 0 until n) mix[i] += v.s[v.pos + i].toInt()
+                    val f0 = v.fade
+                    if (f0 < 0) for (i in 0 until n) mix[i] += v.s[v.pos + i].toInt()
+                    else for (i in 0 until n) { val gk = 1f - (v.pos + i - f0).toFloat() / FADE_N; if (gk > 0f) mix[i] += (v.s[v.pos + i] * gk).toInt() }
                     v.pos += n
-                    if (v.pos >= v.s.size) it.remove()
+                    if (v.pos >= v.s.size || (f0 >= 0 && v.pos - f0 >= FADE_N)) it.remove()
                 }
                 for (i in 0 until CHUNK) out[i] = mix[i].coerceIn(-32767, 32767).toShort()
                 track.write(out, 0, CHUNK)   // bloquant : cadence le mixeur sur la sortie audio
@@ -226,8 +274,8 @@ object Synth {
         return out
     }
 
-    private fun renderMelodic(freq: Double, instr: Instr): ShortArray {
-        val dur = instr.decay
+    private fun renderMelodic(freq: Double, instr: Instr, hold: Double = 0.0): ShortArray {
+        val dur = if (hold > 0) hold else instr.decay
         val n = (SR * dur).toInt()
         val buf = DoubleArray(n)
         val gainSum = instr.partials.sumOf { it.gain }
@@ -235,7 +283,9 @@ object Synth {
         val a = instr.attack
         for (i in 0 until n) {
             val t = i.toDouble() / SR
-            val env = if (t < a) t / a else exp(-4.0 * (t - a) / (dur - a))
+            val env = if (t < a) t / a
+                else if (hold > 0) (1.0 - .3 * (t - a) / (dur - a)) * ((dur - t) / .3).coerceAtMost(1.0)   // tenue qui faiblit à peine
+                else exp(-4.0 * (t - a) / (dur - a))
             val vib = if (instr.vibDepth > 0) 1.0 + instr.vibDepth * sin(2 * Math.PI * instr.vibRate * t) else 1.0
             var s = 0.0
             for (j in instr.partials.indices) {
@@ -253,8 +303,8 @@ object Synth {
      * à l'attaque (« chiff ») puis léger souffle continu, note qui monte un poil en place,
      * vibrato qui n'arrive qu'après l'attaque, tenue puis relâché doux.
      */
-    private fun renderVessel(freq: Double, instr: Instr): ShortArray {
-        val dur = instr.decay
+    private fun renderVessel(freq: Double, instr: Instr, hold: Double = 0.0): ShortArray {
+        val dur = if (hold > 0) hold else instr.decay
         val n = (SR * dur).toInt()
         val buf = DoubleArray(n)
         val rnd = java.util.Random(freq.toLong() * 31)
@@ -293,8 +343,8 @@ object Synth {
             bump(2800.0, 1.0, .32) + bump(4300.0, .3, .25)
     }
 
-    private fun renderBowed(freq: Double, instr: Instr): ShortArray {
-        val dur = instr.decay
+    private fun renderBowed(freq: Double, instr: Instr, hold: Double = 0.0): ShortArray {
+        val dur = if (hold > 0) hold else instr.decay
         val n = (SR * dur).toInt()
         val buf = DoubleArray(n)
         val nh = (9000.0 / freq).toInt().coerceIn(6, 32)

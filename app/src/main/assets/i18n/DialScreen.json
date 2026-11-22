@@ -152,5 +152,12 @@
   "de": "✖ entfernt nur diese Nummer aus den Di-Allô-Favoriten: der Kontakt bleibt auf deinem Telefon markiert.",
   "it": "✖ rimuove solo questo numero dai preferiti di Di-Allô: il contatto resta con la stella nel telefono.",
   "pt": "✖ só remove este número dos favoritos do Di-Allô: o contacto continua com estrela no telemóvel."
+ },
+ "appui long = note tenue · ␣ pause": {
+  "en": "long press = held note · ␣ rest",
+  "es": "pulsación larga = nota larga · ␣ pausa",
+  "de": "lang drücken = gehaltener Ton · ␣ Pause",
+  "it": "pressione lunga = nota tenuta · ␣ pausa",
+  "pt": "toque longo = nota longa · ␣ pausa"
  }
 }

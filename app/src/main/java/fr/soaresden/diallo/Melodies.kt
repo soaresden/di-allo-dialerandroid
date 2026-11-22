@@ -18,7 +18,8 @@ import org.json.JSONObject
  * Rangées dans les réglages → sauvegardées avec le dossier de travail.
  */
 object Melodies {
-    data class Note(val k: String, val t: Int)                       // touche, ms depuis le début
+    /** touche, ms depuis le début, durée tenue en ms (0 = note normale). */
+    data class Note(val k: String, val t: Int, val d: Int = 0)
     data class Melody(val id: Long, val name: String, val instr: String, val notes: List<Note>) {
         val durationMs: Int get() = (notes.lastOrNull()?.t ?: 0) + 400
     }
@@ -35,14 +36,14 @@ object Melodies {
         (0 until a.length()).map { i ->
             val o = a.getJSONObject(i); val n = o.getJSONArray("n")
             Melody(o.getLong("id"), o.optString("name", tr("Mélodie")), o.optString("instr", "piano"),
-                (0 until n.length()).map { j -> val x = n.getJSONArray(j); Note(x.getString(0), x.getInt(1)) })
+                (0 until n.length()).map { j -> val x = n.getJSONArray(j); Note(x.getString(0), x.getInt(1), x.optInt(2, 0)) })
         }
     } catch (_: Throwable) { emptyList() }
 
     private fun save(ctx: Context, list: List<Melody>) {
         val a = JSONArray()
         list.forEach { m ->
-            val n = JSONArray(); m.notes.forEach { n.put(JSONArray().put(it.k).put(it.t)) }
+            val n = JSONArray(); m.notes.forEach { val x = JSONArray().put(it.k).put(it.t); if (it.d > 0) x.put(it.d); n.put(x) }
             a.put(JSONObject().put("id", m.id).put("name", m.name).put("instr", m.instr).put("n", n))
         }
         prefs(ctx).edit().putString(KEY, a.toString()).apply()
@@ -62,31 +63,47 @@ object Melodies {
     fun nextName(ctx: Context) = tr("Mélodie {0}", load(ctx).size + 1)
 
     // ---------- Chiffres <-> notes ----------
-    /** « 624 624 687 » → notes espacées de [stepMs] ; un espace = une pause, un retour à la ligne aussi (une seule, même juste après un espace). */
+    /** « 624 624 6-87 » → notes espacées de [stepMs] ; « - » juste après une note la tient un temps de plus ;
+     *  un espace = une pause, un retour à la ligne aussi (une seule, même juste après un espace). */
     fun fromText(text: String, stepMs: Int): List<Note> {
-        val out = ArrayList<Note>(); var t = 0; var prev = ' '
+        val out = ArrayList<Note>(); var t = 0; var prev = ' '; var holding = false
         text.forEach { c ->
             when {
-                c.toString() in VALID -> { out.add(Note(c.toString(), t)); t += stepMs }
-                c == '\n' -> if (out.isNotEmpty() && prev != ' ' && prev != '\n') t += stepMs
-                c == ' ' || c == '-' || c == '.' || c == ',' || c == '/' -> if (out.isNotEmpty()) t += stepMs
+                c.toString() in VALID -> { out.add(Note(c.toString(), t)); t += stepMs; holding = true }
+                c == '-' && holding && out.isNotEmpty() -> { val l = out.last(); out[out.lastIndex] = l.copy(d = (if (l.d > 0) l.d else stepMs) + stepMs); t += stepMs }
+                c == '\n' -> { if (out.isNotEmpty() && prev != ' ' && prev != '\n') t += stepMs; holding = false }
+                c == ' ' || c == '-' || c == '.' || c == ',' || c == '/' -> { if (out.isNotEmpty()) t += stepMs; holding = false }
             }
             prev = c
         }
         return out
     }
 
+    /** Durée d'un temps : écart habituel entre deux notes non tenues (les notes tenues faussent la médiane). */
+    private fun baseStep(notes: List<Note>, gaps: List<Int>): Int {
+        if (gaps.isEmpty()) return notes.firstOrNull()?.d?.takeIf { it > 0 }?.let { it / 2 } ?: 0
+        val plain = gaps.filterIndexed { i, _ -> notes[i].d <= 0 }.sorted()
+        val m = plain.getOrNull(plain.size / 2) ?: (gaps.minOrNull()!! / 2)
+        return m.coerceAtLeast(60)
+    }
+
+    /** Nombre de « - » à écrire après une note tenue ([med] = écart habituel entre deux notes). */
+    private fun holdDashes(n: Note, med: Int): Int = if (n.d <= 0 || med <= 0) 0 else (Math.round(n.d.toDouble() / med).toInt() - 1).coerceIn(0, 8)
+
     /** Comme [toText] (avec retours à la ligne) + la position de chaque note dans le texte (karaoké). */
     fun layout(notes: List<Note>): Pair<String, IntArray> {
         if (notes.isEmpty()) return "" to IntArray(0)
         val gaps = notes.zipWithNext { a, b -> b.t - a.t }
-        val med = gaps.sorted().getOrNull(gaps.size / 2)?.coerceAtLeast(60) ?: 0
+        val med = baseStep(notes, gaps)
         val sb = StringBuilder(); val pos = IntArray(notes.size)
         pos[0] = 0; sb.append(notes[0].k)
-        gaps.forEachIndexed { i, g ->
+        gaps.forEachIndexed { i, g0 ->
+            val h = holdDashes(notes[i], med); repeat(h) { sb.append('-') }
+            val g = g0 - h * med
             if (med > 0 && g > med * 2.6) sb.append('\n') else if (med > 0 && g > med * 1.7) sb.append(' ')
             pos[i + 1] = sb.length; sb.append(notes[i + 1].k)
         }
+        repeat(holdDashes(notes.last(), med)) { sb.append('-') }
         return sb.toString() to pos
     }
 
@@ -110,12 +127,15 @@ object Melodies {
     fun toText(notes: List<Note>, lines: Boolean = false): String {
         if (notes.isEmpty()) return ""
         val gaps = notes.zipWithNext { a, b -> b.t - a.t }
-        val med = gaps.sorted().getOrNull(gaps.size / 2)?.coerceAtLeast(60) ?: 0
+        val med = baseStep(notes, gaps)
         val sb = StringBuilder(notes[0].k)
-        gaps.forEachIndexed { i, g ->
+        gaps.forEachIndexed { i, g0 ->
+            val h = holdDashes(notes[i], med); repeat(h) { sb.append('-') }
+            val g = g0 - h * med
             if (med > 0 && lines && g > med * 2.6) sb.append('\n') else if (med > 0 && g > med * 1.7) sb.append(' ')
             sb.append(notes[i + 1].k)
         }
+        repeat(holdDashes(notes.last(), med)) { sb.append('-') }
         return sb.toString()
     }
 
@@ -175,6 +195,16 @@ object Melodies {
         tLast = t; wallLast = now; edited = false
     }
 
+    /** Touche relâchée après [heldMs] : appui long = note tenue (« 3- » = 2 temps, « 3-- » = 3 temps…). */
+    fun release(k: String, heldMs: Long) {
+        if (!recording.value || recNotes.isEmpty() || recTokens.isEmpty() || recTokens.last() != k || recNotes.last().k != k) return
+        val step = typicalGap()
+        val beats = Math.round(heldMs.toDouble() / step).toInt().coerceIn(1, 9)
+        if (heldMs < 280 || beats < 2) return
+        repeat(beats - 1) { recTokens.add("-") }
+        recNotes[recNotes.lastIndex] = recNotes.last().copy(d = heldMs.toInt())
+    }
+
     /** Touche espace : une pause d'une note. */
     fun space() {
         if (!recording.value || recTokens.isEmpty() || recTokens.last() == " ") return
@@ -188,6 +218,10 @@ object Melodies {
         if (recTokens.isEmpty()) return
         val last = recTokens.removeAt(recTokens.lastIndex)
         if (last == " ") tLast = (tLast - typicalGap()).coerceAtLeast(recNotes.lastOrNull()?.t ?: 0)
+        else if (last == "-") {   // note tenue un temps de moins
+            val l = recNotes.lastOrNull()
+            if (l != null) recNotes[recNotes.lastIndex] = l.copy(d = if (recTokens.lastOrNull() == "-") (l.d - typicalGap()).coerceAtLeast(1) else 0)
+        }
         else { recNotes.removeAt(recNotes.lastIndex); tLast = recNotes.lastOrNull()?.t ?: 0 }
         wallLast = System.currentTimeMillis(); edited = true
     }
@@ -228,7 +262,7 @@ object Melodies {
         stop()
         if (notes.isEmpty()) return
         val first = from.coerceIn(0, notes.lastIndex)
-        Synth.prepare(instr); Synth.warmUp()
+        Synth.prepare(instr); Synth.warmUp(); if (notes.any { it.d > 0 }) Synth.prepareHeld(instr)
         playingId.value = id; playingName.value = name; playingNotes.value = notes; playingIndex.intValue = first - 1
         job = scope.launch {
             delay(120)                                               // laisse le temps de préparer les sons
@@ -238,7 +272,8 @@ object Melodies {
                 val wait = start + n.t - System.currentTimeMillis()
                 if (wait > 0) delay(wait)
                 playingIndex.intValue = i
-                Synth.play(n.k, instr)
+                if (n.d > 0 && Synth.holds(instr)) { val h = Synth.playHeld(n.k, instr); heldIds.add(h); launch { delay(n.d.toLong()); Synth.release(h); heldIds.remove(h) } }
+                else Synth.play(n.k, instr)
                 pulse[n.k] = (pulse[n.k] ?: 0) + 1
             }
             delay(450)
@@ -246,7 +281,8 @@ object Melodies {
         }
     }
 
-    fun stop() { job?.cancel(); job = null; playingId.value = null; playingName.value = null; playingIndex.intValue = -1 }
+    private val heldIds = ArrayList<Long>()     // notes tenues en cours de lecture
+    fun stop() { heldIds.forEach { Synth.release(it) }; heldIds.clear(); job?.cancel(); job = null; playingId.value = null; playingName.value = null; playingIndex.intValue = -1 }
 }
 
 internal fun fmtMelodyDur(ms: Int): String { val s = (ms + 500) / 1000; return "${s / 60}:${(s % 60).toString().padStart(2, '0')}" }
