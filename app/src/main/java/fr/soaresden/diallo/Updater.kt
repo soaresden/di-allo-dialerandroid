@@ -39,17 +39,61 @@ object Updater {
 
     private fun p(c: Context) = c.getSharedPreferences("updater", Context.MODE_PRIVATE)
     fun auto(c: Context) = p(c).getBoolean("auto", true)
-    fun setAuto(c: Context, on: Boolean) = p(c).edit().putBoolean("auto", on).apply()
+    fun setAuto(c: Context, on: Boolean) { p(c).edit().putBoolean("auto", on).apply(); schedule(c) }
     private fun skipped(c: Context) = p(c).getString("skip", null)
     fun skip(c: Context, v: String) { p(c).edit().putString("skip", v).apply(); available.value = null }
 
     /** Versions « aaaa-mm-jj-NN » : l'ordre alphabétique est l'ordre chronologique. */
     private fun newer(remote: String, local: String) = remote.isNotBlank() && local.isNotBlank() && remote > local
 
-    /** Interroge GitHub (au plus toutes les 6 h, sauf [force]). Retourne la release plus récente, ou null. Hors fil principal. */
-    fun check(ctx: Context, force: Boolean = false): Release? {
+    // dernière release trouvée, gardée d'un lancement à l'autre (sinon oubliée jusqu'à la vérif suivante)
+    private fun save(c: Context, r: Release?) {
+        val e = p(c).edit()
+        if (r == null) e.remove("rel_v") else e.putString("rel_v", r.version).putString("rel_apk", r.apk).putString("rel_notes", r.notes).putString("rel_page", r.page)
+        e.apply()
+    }
+    private fun stored(c: Context): Release? {
+        val v = p(c).getString("rel_v", null) ?: return null
+        if (!newer(v, appVersion(c)) || skipped(c) == v) return null
+        return Release(v, p(c).getString("rel_apk", "") ?: "", p(c).getString("rel_notes", "") ?: "", p(c).getString("rel_page", "") ?: "")
+    }
+
+    /** Vérification en arrière-plan toutes les ~6 h (JobScheduler, réseau requis), même appli fermée. */
+    fun schedule(c: Context) {
+        val js = c.getSystemService(android.app.job.JobScheduler::class.java) ?: return
+        if (!auto(c)) { js.cancel(JOB_ID); return }
+        if (js.getPendingJob(JOB_ID) != null) return
+        try {
+            js.schedule(android.app.job.JobInfo.Builder(JOB_ID, android.content.ComponentName(c, UpdateJob::class.java))
+                .setRequiredNetworkType(android.app.job.JobInfo.NETWORK_TYPE_ANY)
+                .setPeriodic(6 * 3_600_000L, 2 * 3_600_000L)
+                .setPersisted(true)
+                .build())
+        } catch (_: Throwable) { }
+    }
+    private const val JOB_ID = 4207
+
+    /** Notification « mise à jour disponible », une seule fois par version. */
+    fun notify(c: Context, r: Release) {
+        if (p(c).getString("notified", null) == r.version) return
+        I18n.ensure(c)
+        val nm = c.getSystemService(android.app.NotificationManager::class.java) ?: return
+        if (nm.getNotificationChannel("updates") == null) nm.createNotificationChannel(android.app.NotificationChannel("updates", tr("Mises à jour"), android.app.NotificationManager.IMPORTANCE_DEFAULT))
+        val open = android.app.PendingIntent.getActivity(c, 7, Intent(c, MainActivity::class.java).putExtra("update", true).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP),
+            android.app.PendingIntent.FLAG_IMMUTABLE or android.app.PendingIntent.FLAG_UPDATE_CURRENT)
+        try {
+            nm.notify(4207, android.app.Notification.Builder(c, "updates").setSmallIcon(android.R.drawable.stat_sys_download_done)
+                .setContentTitle("⬆️ " + tr("Di-Allô {0} est disponible", r.version))
+                .setContentText(tr("Touche pour voir les nouveautés et l'installer"))
+                .setContentIntent(open).setAutoCancel(true).build())
+            p(c).edit().putString("notified", r.version).apply()
+        } catch (_: Throwable) { }
+    }
+
+    /** Interroge GitHub (au plus toutes les [minHours] h, sauf [force]). Retourne la release plus récente, ou null. Hors fil principal. */
+    fun check(ctx: Context, force: Boolean = false, minHours: Int = 6): Release? {
         val now = System.currentTimeMillis()
-        if (!force && (!auto(ctx) || now - p(ctx).getLong("last", 0) < 6 * 3_600_000L)) return available.value
+        if (!force && (!auto(ctx) || now - p(ctx).getLong("last", 0) < minHours * 3_600_000L)) return (available.value ?: stored(ctx))?.also { available.value = it }
         p(ctx).edit().putLong("last", now).apply()
         return try {
             val c = (URL(API).openConnection() as HttpURLConnection).apply {
@@ -67,7 +111,7 @@ object Updater {
             }
             val local = appVersion(ctx)
             val r = Release(v, apk, o.optString("body"), o.optString("html_url"))
-            if (apk.isNotEmpty() && newer(v, local) && (force || skipped(ctx) != v)) { available.value = r; r } else { if (force) available.value = null; null }
+            if (apk.isNotEmpty() && newer(v, local) && (force || skipped(ctx) != v)) { available.value = r; save(ctx, r); r } else { if (force) available.value = null; save(ctx, null); null }
         } catch (_: Throwable) { null }
     }
 
@@ -113,6 +157,18 @@ object Updater {
             }
         } finally { progress.value = null }
     }
+}
+
+/** Tâche de fond : vérifie GitHub et notifie si une nouvelle version est sortie. */
+class UpdateJob : android.app.job.JobService() {
+    override fun onStartJob(params: android.app.job.JobParameters): Boolean {
+        Thread {
+            try { Updater.check(applicationContext, minHours = 1)?.let { Updater.notify(applicationContext, it) } } catch (_: Throwable) { }
+            jobFinished(params, false)
+        }.start()
+        return true
+    }
+    override fun onStopJob(params: android.app.job.JobParameters) = true
 }
 
 /** Fenêtre « mise à jour disponible » : nouveautés + Télécharger. */

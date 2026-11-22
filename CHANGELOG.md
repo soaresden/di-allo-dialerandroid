@@ -3,6 +3,10 @@
 Les versions sont numérotées `AAAA-MM-JJ-NN` (date du build, puis numéro du build du jour).
 Chaque version est téléchargeable dans les [Releases](../../releases).
 
+## 2026-11-22-15
+- ⬆️ **Mises à jour en arrière-plan** : Di-Allô vérifie GitHub toutes les ~6 h, même fermée, et envoie une notification quand une nouvelle version sort (un appui : nouveautés et installation)
+- La mise à jour trouvée n'est plus oubliée quand on relance l'appli
+
 ## 2026-11-22-14
 - 🏺 Nouvel instrument : **Ocarina** (son rond et pur, souffle à l'attaque, vibrato qui arrive doucement). 38 instruments
 

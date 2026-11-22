@@ -33,5 +33,26 @@
   "de": "Diese Version überspringen",
   "it": "Ignora questa versione",
   "pt": "Ignorar esta versão"
+ },
+ "Mises à jour": {
+  "en": "Updates",
+  "es": "Actualizaciones",
+  "de": "Updates",
+  "it": "Aggiornamenti",
+  "pt": "Atualizações"
+ },
+ "Di-Allô {0} est disponible": {
+  "en": "Di-Allô {0} is available",
+  "es": "Di-Allô {0} está disponible",
+  "de": "Di-Allô {0} ist verfügbar",
+  "it": "Di-Allô {0} è disponibile",
+  "pt": "Di-Allô {0} está disponível"
+ },
+ "Touche pour voir les nouveautés et l'installer": {
+  "en": "Tap to see what's new and install it",
+  "es": "Toca para ver las novedades e instalarla",
+  "de": "Tippen, um die Neuerungen zu sehen und zu installieren",
+  "it": "Tocca per vedere le novità e installarla",
+  "pt": "Toca para ver as novidades e instalar"
  }
 }

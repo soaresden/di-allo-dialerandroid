@@ -47,6 +47,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         CrashLog.install(this)
         I18n.init(this)
+        Updater.schedule(applicationContext)
         DataFolder.init(this)
         takeTab(intent)
         setContent { App() }
@@ -57,7 +58,10 @@ class MainActivity : ComponentActivity() {
         if (!HyperInCallService.inCall) DataFolder.autoBackupIfDue(this)
         FavoritesWidget.refresh(this)
     }
-    private fun takeTab(i: Intent?) { i?.getIntExtra("tab", -1)?.takeIf { it >= 0 }?.let { openTab.intValue = it } }
+    private fun takeTab(i: Intent?) {
+        i?.getIntExtra("tab", -1)?.takeIf { it >= 0 }?.let { openTab.intValue = it }
+        if (i?.getBooleanExtra("update", false) == true) Updater.showDialog.value = true   // depuis la notification
+    }
 
     companion object {
         /** Onglet demandé de l'extérieur (écran d'appel « Ajouter », widget…). */
