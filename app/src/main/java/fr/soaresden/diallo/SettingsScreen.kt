@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -128,7 +129,7 @@ internal fun SettingsScreen(
                 NavRow(tr("Thème"), t?.name?.let { tr(it) } ?: tr("Auto (suit le système)"), leading = {
                     val sh = t ?: resolveTheme("auto", androidx.compose.foundation.isSystemInDarkTheme())
                     Box(Modifier.size(34.dp).clip(RoundedCornerShape(10.dp)).background(sh.brush())) { Box(Modifier.size(12.dp).clip(CircleShape).background(sh.primary).align(Alignment.BottomEnd)) }
-                }) { sub = "theme" }
+                }) { ThemePicker.open.value = true }
                 val langChoice = remember(sub, I18n.lang.value) { I18n.choice(ctx) }
                 NavRow(tr("Langue"), if (langChoice == "auto") tr("Langue du téléphone") + " (" + (I18n.LANGS.firstOrNull { it.first == I18n.lang.value }?.second ?: "") + ")" else I18n.LANGS.firstOrNull { it.first == langChoice }?.second ?: "", leading = {
                     Box(Modifier.size(34.dp).clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.surfaceVariant), contentAlignment = Alignment.Center) { Text("🌍", fontSize = 18.sp) }
@@ -182,9 +183,22 @@ internal fun SettingsScreen(
                 Text(tr("Di-Allô — version {0}", appVersion(ctx)), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onBackground)
                 Text("by Soaresden · github.com/soaresden/di-allo-dialerandroid", fontSize = 12.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium); Spacer(Modifier.height(6.dp))
                 Text(tr("Dialer avec clavier musical."), fontSize = 12.5.sp, color = muted()); Spacer(Modifier.height(6.dp))
+                var autoUp by remember { mutableStateOf(Updater.auto(ctx)) }
+                var upMsg by remember { mutableStateOf<String?>(null) }
+                val upScope = rememberCoroutineScope()
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text(tr("Prévenir des mises à jour (GitHub)"), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
+                    Switch(autoUp, { autoUp = it; Updater.setAuto(ctx, it) })
+                }
                 TextButton(onClick = {
-                    try { ctx.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://github.com/soaresden/di-allo-dialerandroid/blob/main/CHANGELOG.md"))) } catch (_: Throwable) { }
-                }, contentPadding = PaddingValues(0.dp)) { Text("📜 " + tr("Nouveautés de chaque version")) }
+                    upMsg = tr("Recherche…")
+                    upScope.launch {
+                        val r = withContext(Dispatchers.IO) { Updater.check(ctx.applicationContext, force = true) }
+                        if (r != null) { upMsg = null; Updater.showDialog.value = true } else upMsg = tr("Tu as la dernière version ✅")
+                    }
+                }, contentPadding = PaddingValues(0.dp)) { Text("🔄 " + tr("Rechercher une mise à jour")) }
+                upMsg?.let { Text(it, fontSize = 12.sp, color = muted(.6f)) }
+                Spacer(Modifier.height(6.dp))
                 Text(tr("🎙️ Enregistrement des appels en MP3 via le débogage sans fil (Réglages › Pendant l'appel)."), fontSize = 12.sp, color = muted()); Spacer(Modifier.height(6.dp))
                 Text(tr("Bibliothèques : libadb-android (Apache-2.0), Conscrypt (Apache-2.0), jump3r / LAME (LGPL), osmdroid (Apache-2.0), Coil (Apache-2.0). Emoji 3D Fluent (Microsoft, MIT). Polices Google Fonts (SIL OFL / Apache-2.0)."), fontSize = 11.5.sp, color = muted(.55f))
             }
@@ -481,3 +495,58 @@ private fun BackupSummary(title: String, total: Int, present: Int, missing: Int,
 
 @Composable
 private fun Stat(k: String, v: Int, m: Modifier, c: Color) { Column(m) { Text(k, fontSize = 11.sp, color = muted()); Text("$v", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = c) } }
+
+
+/** Le journal des versions (CHANGELOG.md du dépôt, embarqué à la compilation). */
+@Composable
+internal fun Changelog() {
+    val ctx = LocalContext.current
+    val lines = remember { try { ctx.assets.open("CHANGELOG.md").bufferedReader().readLines() } catch (_: Throwable) { emptyList() } }
+    val cs = MaterialTheme.colorScheme
+    val current = remember { appVersion(ctx) }
+    if (I18n.lang.value != "fr") Text(tr("Le journal des versions est rédigé en français."), fontSize = 12.sp, color = muted(.6f), modifier = Modifier.padding(bottom = 8.dp))
+    val blocks = remember(lines) {
+        val out = ArrayList<Pair<String, List<String>>>()
+        var t: String? = null; var b = ArrayList<String>()
+        for (raw in lines) {
+            val l = raw.trimEnd()
+            when {
+                l.startsWith("## ") -> { t?.let { out.add(it to b) }; t = l.removePrefix("## ").trim(); b = ArrayList() }
+                l.startsWith("# ") -> {}
+                t != null && l.isNotBlank() -> b.add(l)
+            }
+        }
+        t?.let { out.add(it to b) }
+        out
+    }
+    if (blocks.isEmpty()) Text(tr("Rien à afficher."), color = muted())
+    blocks.forEachIndexed { i, (ver, items) ->
+        val isNow = ver == current
+        SectionCard(ver, id = "chg_$ver", defaultCollapsed = i > 2, action = { if (isNow) Text(tr("installée"), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = cs.primary) }) {
+            items.forEach { l ->
+                val bullet = l.trimStart().startsWith("- ")
+                val txt = mdInline(l.trimStart().removePrefix("- "), cs.primary)
+                Row(Modifier.padding(vertical = 3.dp)) {
+                    if (bullet) Text("•", fontSize = 13.sp, color = cs.primary, modifier = Modifier.width(14.dp))
+                    Text(txt, fontSize = 13.sp, lineHeight = 18.sp, color = cs.onSurface)
+                }
+            }
+        }
+    }
+}
+
+/** **gras**, `code` et [lien](…) → texte enrichi simple. */
+private fun mdInline(s: String, accent: androidx.compose.ui.graphics.Color): androidx.compose.ui.text.AnnotatedString {
+    val clean = Regex("\\[([^\\]]+)\\]\\([^)]*\\)").replace(s) { it.groupValues[1] }
+    return androidx.compose.ui.text.buildAnnotatedString {
+        var i = 0
+        val re = Regex("\\*\\*(.+?)\\*\\*|`([^`]+)`")
+        for (m in re.findAll(clean)) {
+            append(clean.substring(i, m.range.first))
+            if (m.groupValues[1].isNotEmpty()) withStyle(androidx.compose.ui.text.SpanStyle(fontWeight = FontWeight.Bold)) { append(m.groupValues[1]) }
+            else withStyle(androidx.compose.ui.text.SpanStyle(fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace, color = accent)) { append(m.groupValues[2]) }
+            i = m.range.last + 1
+        }
+        append(clean.substring(i))
+    }
+}

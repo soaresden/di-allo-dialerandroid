@@ -32,6 +32,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Backspace
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.PersonAdd
@@ -117,7 +118,8 @@ internal fun DialScreen(
     val exact = remember(typed, contacts) {
         if (typed.length < 9) null else contacts.firstOrNull { it.digits.length >= 9 && it.digits.takeLast(9) == typed.takeLast(9) }
     }
-    val favorites = remember(contacts) { contacts.filter { it.starred || it.groups.contains("⭐ Favoris") }.sortedWith(compareByDescending<CallRepository.Contact> { it.calls }.thenBy { it.display.lowercase() }) }
+    val favVer = FavNumbers.version.intValue
+    val favorites = remember(contacts, favVer) { val fs = FavNumbers.snap(ctx); contacts.filter { fs.isFav(it.number, it.starred || it.groups.contains("⭐ Favoris")) }.distinctBy { keyOf(it.number) }.sortedWith(compareByDescending<CallRepository.Contact> { it.calls }.thenBy { it.display.lowercase() }) }
     val byKey = remember(contacts) { contacts.associateBy { keyOf(it.number) } }
     val freqRows = remember(frequent, byKey) {
         frequent.map { s -> byKey[keyOf(s.number)] ?: CallRepository.Contact(s.number, s.name, s.photoUri, calls = s.count) }
@@ -140,9 +142,18 @@ internal fun DialScreen(
     if (showFav) {
         ModalBottomSheet(onDismissRequest = { showFav = false }, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true), containerColor = MaterialTheme.colorScheme.surface) {
             Text(tr("⭐ Favoris"), fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp))
-            if (favorites.isEmpty()) Hint(tr("Aucun favori. Mets une étoile à un contact dans l'app Contacts."))
+            if (favorites.isEmpty()) Hint(tr("Aucun favori. Touche ☆ à côté d'un numéro dans Contacts."))
             else LazyColumn(Modifier.fillMaxWidth().heightIn(max = 560.dp)) {
-                items(favorites.size) { i -> CompactRow(favorites[i], { showFav = false; onConfirm(it) }) }
+                items(favorites.size) { i ->
+                    val f = favorites[i]
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.weight(1f)) { CompactRow(f, { showFav = false; onConfirm(it) }) }
+                        IconButton(onClick = { FavNumbers.set(ctx, f.number, false, f.starred || f.groups.contains("⭐ Favoris")) }) {
+                            Icon(Icons.Filled.Close, tr("Retirer des favoris"), tint = muted(.5f))
+                        }
+                    }
+                }
+                item { Text(tr("✖ retire seulement ce numéro des favoris de Di-Allô : le contact reste étoilé dans ton téléphone."), fontSize = 11.5.sp, color = muted(.5f), modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) }
                 item { Spacer(Modifier.height(20.dp)) }
             }
         }

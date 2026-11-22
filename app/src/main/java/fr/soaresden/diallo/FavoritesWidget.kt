@@ -49,6 +49,8 @@ class FavoritesWidget : AppWidgetProvider() {
         internal data class Fav(val name: String, val number: String, val photo: String?, val calls: Int)
 
         internal fun favorites(ctx: Context): List<Fav> {
+            // vue personnalisée : les contacts choisis, dans l'ordre choisi
+            if (WidgetPrefs.source(ctx) == 3) return WidgetPrefs.custom(ctx).take(SLOTS).map { Fav(it.name, it.number, it.photo, 0) }
             // nombre d'appels par numéro (les 3000 derniers)
             val counts = HashMap<String, Int>()
             try {
@@ -66,14 +68,15 @@ class FavoritesWidget : AppWidgetProvider() {
                         ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI, ContactsContract.CommonDataKinds.Phone.STARRED),
                     null, null, null
                 )?.use { c ->
-                    val best = HashMap<Long, Fav>()
+                    // favoris numéro par numéro (étoilés du téléphone ± retraits / ajouts faits dans Di-Allô)
+                    val fs = FavNumbers.snap(ctx)
+                    val seen = HashSet<String>()
                     while (c.moveToNext()) {
                         val num = c.getString(2) ?: continue
                         val f = Fav(c.getString(1) ?: num, num, c.getString(3), counts[keyOf(num)] ?: 0)
                         everyone.putIfAbsent(keyOf(num), f)
-                        if (c.getInt(4) == 1) { val id = c.getLong(0); val cur = best[id]; if (cur == null || f.calls > cur.calls) best[id] = f }
+                        if (fs.isFav(num, c.getInt(4) == 1) && seen.add(keyOf(num))) starred.add(f)
                     }
-                    starred.addAll(best.values)
                 }
             } catch (_: Throwable) { }
             val n = WidgetPrefs.count(ctx).coerceIn(1, SLOTS)

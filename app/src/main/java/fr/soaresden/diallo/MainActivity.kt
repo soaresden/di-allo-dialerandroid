@@ -141,7 +141,15 @@ private fun Root(theme: String, onTheme: (String) -> Unit) {
     LaunchedEffect(Unit) { withContext(Dispatchers.IO) { fr.soaresden.diallo.rec.RecHealth.check(ctx.applicationContext) } }
     if (recWizard) fr.soaresden.diallo.rec.RecSetupWizard { fr.soaresden.diallo.rec.RecHealth.wizard.value = false; withContextRecCheck(ctx) }
 
+    // nouvelle version sur GitHub ? (au plus toutes les 6 h)
+    LaunchedEffect(Unit) { withContext(Dispatchers.IO) { Updater.check(ctx.applicationContext) } }
+    val update by Updater.available
+    UpdateDialog()
+    val picking by ThemePicker.open
+    LaunchedEffect(picking) { if (picking) tab = 0 }   // le clavier d'abord : c'est l'écran qui compte
+    Row(Modifier.fillMaxSize()) {
     Scaffold(
+        modifier = Modifier.weight(1f),
         containerColor = Color.Transparent,
         bottomBar = {
             NavigationBar(containerColor = MaterialTheme.colorScheme.surface, tonalElevation = 0.dp) {
@@ -170,6 +178,7 @@ private fun Root(theme: String, onTheme: (String) -> Unit) {
             if (!isDefault) Banner(MaterialTheme.colorScheme.primaryContainer, tr("Définir Di-Allô comme téléphone par défaut"), tr("Activer")) { requestDefault() }
             if (!granted) Banner(MaterialTheme.colorScheme.surfaceVariant, tr("Autoriser le journal d'appels et les contacts"), tr("Autoriser")) { permLauncher.launch(PERMS) }
             recProblem?.let { Banner(MaterialTheme.colorScheme.surfaceVariant, it, tr("Régler")) { fr.soaresden.diallo.rec.RecHealth.wizard.value = true } }
+            update?.let { u -> Banner(MaterialTheme.colorScheme.primaryContainer, "⬆️ " + tr("Mise à jour disponible : {0}", u.version), tr("Voir")) { Updater.showDialog.value = true } }
             when (tab) {
                 0 -> DialScreen(confirm, { callVoicemail(ctx) }, data.contacts, frequent)
                 1 -> RecentsList(data.calls, confirm, onDeleted = { refresh++ }) { detail = it }
@@ -180,6 +189,8 @@ private fun Root(theme: String, onTheme: (String) -> Unit) {
                 else -> SettingsScreen(theme, onTheme, granted, { permLauncher.launch(PERMS) }, isDefault, { requestDefault() }, data.calls.size, { refresh++ })
             }
         }
+    }
+    if (picking) ThemePanel(theme, onTheme, tab, { tab = it }) { ThemePicker.open.value = false }
     }
 }
 

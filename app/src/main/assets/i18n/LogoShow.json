@@ -1,3 +1,16 @@
 {
-  "Di-Allô !": { "en": "Di-Allô!", "es": "¡Di-Allô!", "de": "Di-Allô!", "it": "Di-Allô!", "pt": "Di-Allô!" }
+ "Di-Allô !": {
+  "en": "Di-Allô!",
+  "es": "¡Di-Allô!",
+  "de": "Di-Allô!",
+  "it": "Di-Allô!",
+  "pt": "Di-Allô!"
+ },
+ "Les nouveautés": {
+  "en": "What's new",
+  "es": "Novedades",
+  "de": "Neuigkeiten",
+  "it": "Novità",
+  "pt": "Novidades"
+ }
 }

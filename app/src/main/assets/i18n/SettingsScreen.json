@@ -649,5 +649,61 @@
   "de": "Neuerungen jeder Version",
   "it": "Novità di ogni versione",
   "pt": "Novidades de cada versão"
+ },
+ "Nouveautés": {
+  "en": "What's new",
+  "es": "Novedades",
+  "de": "Neuigkeiten",
+  "it": "Novità",
+  "pt": "Novidades"
+ },
+ "Le journal des versions est rédigé en français.": {
+  "en": "The version history is written in French.",
+  "es": "El historial de versiones está escrito en francés.",
+  "de": "Der Versionsverlauf ist auf Französisch verfasst.",
+  "it": "La cronologia delle versioni è scritta in francese.",
+  "pt": "O histórico de versões está escrito em francês."
+ },
+ "installée": {
+  "en": "installed",
+  "es": "instalada",
+  "de": "installiert",
+  "it": "installata",
+  "pt": "instalada"
+ },
+ "Rien à afficher.": {
+  "en": "Nothing to show.",
+  "es": "Nada que mostrar.",
+  "de": "Nichts anzuzeigen.",
+  "it": "Niente da mostrare.",
+  "pt": "Nada para mostrar."
+ },
+ "Prévenir des mises à jour (GitHub)": {
+  "en": "Notify me of updates (GitHub)",
+  "es": "Avisar de actualizaciones (GitHub)",
+  "de": "Über Updates informieren (GitHub)",
+  "it": "Avvisa degli aggiornamenti (GitHub)",
+  "pt": "Avisar de atualizações (GitHub)"
+ },
+ "Recherche…": {
+  "en": "Checking…",
+  "es": "Buscando…",
+  "de": "Suche…",
+  "it": "Ricerca…",
+  "pt": "A procurar…"
+ },
+ "Tu as la dernière version ✅": {
+  "en": "You have the latest version ✅",
+  "es": "Tienes la última versión ✅",
+  "de": "Du hast die neueste Version ✅",
+  "it": "Hai l'ultima versione ✅",
+  "pt": "Tens a versão mais recente ✅"
+ },
+ "Rechercher une mise à jour": {
+  "en": "Check for updates",
+  "es": "Buscar actualizaciones",
+  "de": "Nach Updates suchen",
+  "it": "Cerca aggiornamenti",
+  "pt": "Procurar atualizações"
  }
 }

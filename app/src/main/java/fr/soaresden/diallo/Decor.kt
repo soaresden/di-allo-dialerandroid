@@ -39,7 +39,7 @@ import kotlin.math.sin
  * Les décors animés bouclent sur PERIOD ms ; tout le reste est statique.
  */
 private const val PERIOD = 24_000
-private val MOVING = setOf(Decor.GRID, Decor.STARS, Decor.SCANLINES, Decor.BUBBLES, Decor.WAVES, Decor.EMBERS, Decor.PETALS, Decor.DECO, Decor.PIXELS, Decor.REEF, Decor.VICE)
+private val MOVING = setOf(Decor.GRID, Decor.STARS, Decor.SCANLINES, Decor.BUBBLES, Decor.WAVES, Decor.EMBERS, Decor.PETALS, Decor.DECO, Decor.PIXELS, Decor.REEF, Decor.VICE, Decor.LEGEND, Decor.QUEST)
 
 @Composable
 internal fun DecorLayer(t: HTheme, modifier: Modifier, animate: Boolean = true) {
@@ -71,6 +71,8 @@ private fun DrawScope.drawDecor(t: HTheme, p: Float) {
         Decor.NONE -> {}
         Decor.REEF -> drawReef(t, p)
         Decor.VICE -> drawVice(t, p)
+        Decor.LEGEND -> drawLegend(t, p)
+        Decor.QUEST -> drawQuest(t, p)
 
         // Synthwave : soleil rayé sur l'horizon, grille qui défile vers nous
         Decor.GRID -> {
@@ -642,4 +644,120 @@ private fun DrawScope.drawVice(t: HTheme, p: Float) {
     palm(Offset(w * .22f, hz + 2 * d), h * .17f, .15f, sway, Color(0xFF2A1238))
     palm(Offset(w * .04f, h + 10 * d), h * .66f, .38f, sway, sil)
     palm(Offset(w * .97f, h + 10 * d), h * .52f, -.32f, -sway, sil)
+}
+
+
+/* ---------- Légende : plaine au crépuscule, château lointain, fées et notes d'ocarina ---------- */
+private fun DrawScope.drawLegend(t: HTheme, p: Float) {
+    val w = size.width; val h = size.height; val d = density
+    // ciel : nuit en haut, braise de crépuscule à l'horizon
+    drawRect(Brush.verticalGradient(0f to Color(0xFF0B1630), .45f to Color(0xFF2B2550), .66f to Color(0xFFB8664A), .72f to Color(0xFF3A3A2A)))
+    for (i in 0 until 70) {
+        val tw = .35f + .65f * (.5f + .5f * sin(TAU * (p * (3 + i % 4) + rnd(i, 3))))
+        drawCircle(Color.White.copy(alpha = .55f * tw), (.6f + rnd(i, 4)) * d, Offset(rnd(i, 1) * w, rnd(i, 2) * h * .5f))
+    }
+    // lune
+    val mc = Offset(w * .8f, h * .14f)
+    drawCircle(Brush.radialGradient(listOf(Color(0x55FFF3C4), Color.Transparent), mc, 90 * d), 90 * d, mc)
+    drawCircle(Color(0xFFFFF3C4), 26 * d, mc)
+    drawCircle(Color(0xFFEADFAE), 6 * d, mc + Offset(-8 * d, 5 * d)); drawCircle(Color(0xFFEADFAE), 4 * d, mc + Offset(9 * d, -7 * d))
+    // château lointain sur la colline
+    val cx = w * .22f; val cy = h * .615f; val cc = Color(0xFF1B2034)
+    drawRect(cc, Offset(cx - 34 * d, cy - 30 * d), Size(68 * d, 30 * d))
+    listOf(-34f to 46f, -8f to 62f, 18f to 50f).forEach { (ox, th) ->
+        drawRect(cc, Offset(cx + ox * d, cy - th * d), Size(14 * d, th * d))
+        drawPath(Path().apply { moveTo(cx + (ox - 3) * d, cy - th * d); lineTo(cx + (ox + 7) * d, cy - (th + 16) * d); lineTo(cx + (ox + 17) * d, cy - th * d); close() }, cc)
+        drawRect(Color(0xFFFFC870).copy(alpha = .7f), Offset(cx + (ox + 5) * d, cy - (th - 10) * d), Size(4 * d, 6 * d))
+    }
+    // collines en couches
+    listOf(Triple(.64f, Color(0xFF213F2C), .9f), Triple(.72f, Color(0xFF17301F), 1.4f), Triple(.82f, Color(0xFF0E2016), 2.1f)).forEachIndexed { k, (base, col, fq) ->
+        val path = Path().apply {
+            moveTo(0f, h)
+            var x = 0f
+            while (x <= w + 8) { lineTo(x, h * base + sin(x / w * TAU * fq + k * 1.7f) * 18 * d + sin(x / w * TAU * fq * 2.3f) * 7 * d); x += 8 * d }
+            lineTo(w, h); close()
+        }
+        drawPath(path, col)
+    }
+    // arbre solitaire
+    val tx = w * .74f; val ty = h * .70f
+    drawRect(Color(0xFF0B160F), Offset(tx - 3 * d, ty - 26 * d), Size(6 * d, 28 * d))
+    drawCircle(Color(0xFF0F2418), 20 * d, Offset(tx, ty - 34 * d)); drawCircle(Color(0xFF0F2418), 15 * d, Offset(tx - 15 * d, ty - 24 * d)); drawCircle(Color(0xFF0F2418), 15 * d, Offset(tx + 15 * d, ty - 24 * d))
+    // notes d'ocarina qui montent
+    for (i in 0 until 6) {
+        val f = frac(p * 5 + i / 6f)
+        val x = w * (.12f + .15f * i) + sin(TAU * (f + i * .3f)) * 14 * d
+        val y = h * (.78f - .5f * f)
+        val a = (if (f < .15f) f / .15f else 1f - (f - .15f) / .85f).coerceIn(0f, 1f) * .75f
+        val col = t.primary.copy(alpha = a)
+        drawOval(col, Offset(x - 5 * d, y - 3.5f * d), Size(10 * d, 7 * d))
+        drawLine(col, Offset(x + 4.2f * d, y), Offset(x + 4.2f * d, y - 20 * d), 1.6f * d)
+        drawLine(col, Offset(x + 4.2f * d, y - 20 * d), Offset(x + 11 * d, y - 14 * d), 1.6f * d)
+    }
+    // fées : boules de lumière qui volent, petites ailes qui battent
+    for (i in 0 until 5) {
+        val ph = p * (2 + i % 3) + rnd(i, 9)
+        val c = Offset(w * (.15f + .7f * rnd(i, 5)) + sin(TAU * ph) * 46 * d, h * (.25f + .45f * rnd(i, 6)) + sin(TAU * ph * 2 + i) * 24 * d)
+        val col = if (i % 2 == 0) t.accent2 else Color(0xFFFFE9A8)
+        drawCircle(Brush.radialGradient(listOf(col.copy(alpha = .55f), Color.Transparent), c, 26 * d), 26 * d, c)
+        val flap = .4f + .6f * kotlin.math.abs(sin(TAU * p * 300 + i))
+        drawOval(Color.White.copy(alpha = .45f), Offset(c.x - 11 * d, c.y - 5 * d * flap), Size(9 * d, 10 * d * flap))
+        drawOval(Color.White.copy(alpha = .45f), Offset(c.x + 2 * d, c.y - 5 * d * flap), Size(9 * d, 10 * d * flap))
+        drawCircle(Color.White, 3.2f * d, c)
+    }
+}
+
+/* ---------- Quête 8-bit : carte vue de dessus en pixels (herbe, chemin, arbres, mare, cœurs) ---------- */
+private fun DrawScope.drawQuest(t: HTheme, p: Float) {
+    val w = size.width; val h = size.height; val d = density
+    val px = 3 * d                       // un « pixel » de l'écran rétro
+    val tile = 16 * px
+    fun sprite(rows: List<String>, at: Offset, pal: Map<Char, Color>) {
+        rows.forEachIndexed { r, row -> row.forEachIndexed { c, ch -> pal[ch]?.let { drawRect(it, Offset(at.x + c * px, at.y + r * px), Size(px, px)) } } }
+    }
+    drawRect(Color(0xFFA8DC8C))
+    val cols = (w / tile).toInt() + 1; val rowsN = (h / tile).toInt() + 1
+    val pathCol = (cols / 2)
+    for (cx in 0..cols) for (cy in 0..rowsN) {
+        val o = Offset(cx * tile, cy * tile)
+        val onPath = (cx == pathCol || cy == rowsN / 3) && !(cx == 0 || cx >= cols - 1)
+        if (onPath) {
+            drawRect(Color(0xFFE9D9A2), o, Size(tile, tile))
+            if (rnd(cx * 31 + cy, 2) > .5f) drawRect(Color(0xFFC9B47A), o + Offset(rnd(cx, cy) * tile * .8f, rnd(cy, cx) * tile * .8f), Size(px, px))
+        } else if (rnd(cx * 17 + cy, 1) > .55f) {
+            // touffe d'herbe en « w »
+            val b = o + Offset(tile * .3f, tile * .45f); val g = Color(0xFF5FA85A)
+            drawRect(g, b, Size(px, 2 * px)); drawRect(g, b + Offset(2 * px, -px), Size(px, 3 * px)); drawRect(g, b + Offset(4 * px, 0f), Size(px, 2 * px))
+        }
+    }
+    // mare qui scintille
+    val pond = Offset(tile * .5f, h - tile * 3.2f)
+    drawRect(Color(0xFF4FA3E0), pond, Size(tile * 2.5f, tile * 1.6f))
+    drawRect(Color(0xFF3A86C8), pond + Offset(0f, tile * 1.3f), Size(tile * 2.5f, tile * .3f))
+    for (i in 0 until 6) if (frac(p * 18 + i / 6f) < .5f) drawRect(Color.White.copy(alpha = .8f), pond + Offset(rnd(i, 1) * tile * 2.2f, rnd(i, 2) * tile * 1.2f), Size(3 * px, px))
+    // arbres sur les bords (houppiers ronds vus du dessus)
+    val tree = listOf("0011111100", "0122222110", "1223222211", "1232222211", "1222222211", "1222222111", "1122221111", "0111111110", "0001331000", "0001331000")
+    val pal = mapOf('1' to Color(0xFF235A2E), '2' to Color(0xFF3F8F43), '3' to Color(0xFF7BC46A))
+    val trunk = mapOf('3' to Color(0xFF7A4E2A))
+    var y = tile * .6f
+    while (y < h) {
+        sprite(tree, Offset(-px * 2, y), pal); sprite(tree, Offset(w - 9 * px, y + tile * .5f), pal)
+        sprite(listOf("0000000000", "0000000000", "0000000000", "0000000000", "0000000000", "0000000000", "0000000000", "0000000000", "0003333000", "0003333000"), Offset(-px * 2, y), trunk)
+        y += tile * 1.7f
+    }
+    // fleurs qui clignotent
+    for (i in 0 until 14) {
+        val o = Offset(rnd(i, 7) * (w - 2 * tile) + tile, rnd(i, 8) * h)
+        val on = frac(p * 12 + rnd(i, 9)) < .5f
+        val petal = if (i % 2 == 0) Color(0xFFE04848) else Color.White
+        drawRect(if (on) petal else Color(0xFFFFD84A), o, Size(px, px)); drawRect(petal, o + Offset(-px, px), Size(px, px)); drawRect(petal, o + Offset(px, px), Size(px, px)); drawRect(petal, o + Offset(0f, 2 * px), Size(px, px))
+    }
+    // cœurs façon HUD, en haut à droite
+    val heart = listOf("0110110", "1221111", "1211111", "0111110", "0011100", "0001000")
+    for (i in 0 until 3) sprite(heart, Offset(w - (i + 1) * 9 * px - 6 * d, 10 * d), mapOf('1' to t.accent2, '2' to Color(0xFFFFB0B0)))
+    // petit papillon qui traverse
+    val f = frac(p * 4)
+    val bx = w * f; val by = h * .55f + sin(TAU * f * 3) * 30 * d
+    val open = frac(p * 160) < .5f
+    sprite(if (open) listOf("101", "111", "101") else listOf("010", "111", "010"), Offset(bx, by), mapOf('1' to Color(0xFFF4E04D)))
 }

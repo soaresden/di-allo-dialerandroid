@@ -24,6 +24,8 @@
     <uses-permission android:name="android.permission.RECEIVE_WAP_PUSH" />
     <!-- Carte des contacts : tuiles OpenStreetMap + géocodage des adresses -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- mises à jour depuis les Releases GitHub : installer l'APK téléchargé -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />

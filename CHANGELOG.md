@@ -3,6 +3,15 @@
 Les versions sont numérotées `AAAA-MM-JJ-NN` (date du build, puis numéro du build du jour).
 Chaque version est téléchargeable dans les [Releases](../../releases).
 
+## 2026-11-22-12
+- ⬆️ **Mises à jour automatiques** : Di-Allô prévient quand une nouvelle version sort sur GitHub, montre les nouveautés, la télécharge et lance l'installation (désactivable dans Réglages › À propos)
+- 🎨 **Choix du thème en direct** : un volet fin à droite, l'appli reste visible à gauche (le clavier d'abord). Boutons pour voir les autres écrans, ▶ pour les faire défiler, ↺ pour annuler
+- 🗡️ Deux thèmes d'aventure : **Légende** (plaine au crépuscule, château, fées et notes d'ocarina) et **Quête 8-bit** (vue de dessus en pixels, arbres, mare, cœurs)
+- 📊 **Stats** : toucher une barre la **sélectionne** (couleur différente qui brille) au lieu de changer de vue ; 🔍 Zoomer à la demande ; la période et les filtres actifs restent toujours en haut
+- ⭐ **Favoris numéro par numéro** : ☆ à côté de chaque numéro dans Contacts, ✖ pour en retirer un. Les favoris du téléphone ne sont jamais modifiés
+- 🧩 Widget Favoris : vue **Perso** (tes contacts, dans ton ordre)
+- 😎 Toucher le logo : l'animation, puis **les nouveautés** juste en dessous
+
 ## 2026-11-22-10
 - ⚡ **Clavier sans saccade** : la recherche T9 tourne en arrière-plan, les sons des 12 touches se calculent en parallèle, le chiffre s'allume sans recalculer l'écran
 - 📊 **Stats interactives** : touche une barre (heure, jour, période), un sens d'appel, un pays, un type de ligne ou une région, toute la page se filtre. Les filtres s'empilent en puces en haut, et une carte 🔎 Détail liste les appels correspondants. Zoom jusqu'à l'heure dans une journée

@@ -1,0 +1,37 @@
+{
+ "Di-Allô {0}": {
+  "en": "Di-Allô {0}",
+  "es": "Di-Allô {0}",
+  "de": "Di-Allô {0}",
+  "it": "Di-Allô {0}",
+  "pt": "Di-Allô {0}"
+ },
+ "Ta version : {0}": {
+  "en": "Your version: {0}",
+  "es": "Tu versión: {0}",
+  "de": "Deine Version: {0}",
+  "it": "La tua versione: {0}",
+  "pt": "A tua versão: {0}"
+ },
+ "Téléchargement… {0} %": {
+  "en": "Downloading… {0}%",
+  "es": "Descargando… {0} %",
+  "de": "Herunterladen… {0} %",
+  "it": "Download… {0}%",
+  "pt": "A transferir… {0}%"
+ },
+ "Télécharger et installer": {
+  "en": "Download and install",
+  "es": "Descargar e instalar",
+  "de": "Herunterladen und installieren",
+  "it": "Scarica e installa",
+  "pt": "Transferir e instalar"
+ },
+ "Ignorer cette version": {
+  "en": "Skip this version",
+  "es": "Omitir esta versión",
+  "de": "Diese Version überspringen",
+  "it": "Ignora questa versione",
+  "pt": "Ignorar esta versão"
+ }
+}

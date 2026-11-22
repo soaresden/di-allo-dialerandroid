@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 
 /** Décor dessiné derrière l'appli (voir Decor.kt). */
-enum class Decor { NONE, GRID, STARS, CURTAIN, PAPER, VICHY, SCANLINES, BUBBLES, WAVES, RAINBOW, DOTS, SUNBURST, PIXELS, EMBERS, PETALS, DECO, REEF, VICE }
+enum class Decor { NONE, GRID, STARS, CURTAIN, PAPER, VICHY, SCANLINES, BUBBLES, WAVES, RAINBOW, DOTS, SUNBURST, PIXELS, EMBERS, PETALS, DECO, REEF, VICE, LEGEND, QUEST }
 
 /** Forme des touches du clavier. */
 enum class KeyShape { CIRCLE, SQUIRCLE, SQUARE, CUT }
@@ -70,7 +70,8 @@ data class HTheme(
     val scrim: Float get() = when (decor) {
         Decor.NONE -> 0f
         Decor.VICE -> .62f
-        Decor.REEF, Decor.GRID -> .45f
+        Decor.REEF, Decor.GRID, Decor.LEGEND -> .45f
+        Decor.QUEST -> .40f
         Decor.CURTAIN, Decor.PIXELS, Decor.STARS, Decor.BUBBLES, Decor.EMBERS, Decor.WAVES -> .30f
         else -> .18f
     }
@@ -183,6 +184,15 @@ val THEMES: List<HTheme> = listOf(
         accent2 = c(0xFFFFD166), title = F_BEBAS, head = F_BEBAS, num = F_BEBAS, headScale = 1.25f, numScale = 1.2f,
         decor = Decor.EMBERS, keyShape = KeyShape.SQUIRCLE, keyStyle = KeyStyle.NEON, radius = 16, glow = true, cardAlpha = .94f,
         tag = "Étincelles qui montent"),
+    // ---------- Aventure ----------
+    HTheme("legende", "Légende", true, c(0xFFE8C15A), c(0xFF0B1630), c(0xFF1F3A2E), c(0xFF132235), c(0xFF1C3148), c(0xFFF6EFD8),
+        accent2 = c(0xFF7FE7FF), title = F_CINZEL, head = F_CINZEL, num = F_CINZEL, headScale = 1.05f, numScale = 1.05f,
+        decor = Decor.LEGEND, keyShape = KeyShape.CIRCLE, keyStyle = KeyStyle.OUTLINE, radius = 14, border = c(0x99E8C15A), glow = true, cardAlpha = .94f,
+        tag = "Plaine au crépuscule, fées et notes d'ocarina"),
+    HTheme("quete", "Quête 8-bit", false, c(0xFF2F7D32), c(0xFFDDF2C6), c(0xFFB9E39A), c(0xFFF8FCEB), c(0xFFE6F3D2), c(0xFF1F2A14),
+        accent2 = c(0xFFE04848), title = F_PIXEL, head = F_PIXEL, num = F_VT, headScale = .8f, numScale = 1.35f,
+        decor = Decor.QUEST, keyShape = KeyShape.SQUARE, keyStyle = KeyStyle.HARD, radius = 4, border = c(0xFF1F2A14), cardAlpha = .95f,
+        tag = "Herbe, arbres et cœurs en pixels, vue de dessus"),
 )
 
 /** Anciens identifiants → nouveaux thèmes. */

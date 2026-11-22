@@ -152,5 +152,75 @@
   "de": "1×1-Kontakt-Widget",
   "it": "Widget contatto 1×1",
   "pt": "Widget de contacto 1×1"
+ },
+ "Auto": {
+  "en": "Auto",
+  "es": "Auto",
+  "de": "Auto",
+  "it": "Auto",
+  "pt": "Auto"
+ },
+ "Fréquents": {
+  "en": "Frequent",
+  "es": "Frecuentes",
+  "de": "Häufig",
+  "it": "Frequenti",
+  "pt": "Frequentes"
+ },
+ "Perso": {
+  "en": "Custom",
+  "es": "Personal",
+  "de": "Eigene",
+  "it": "Personali",
+  "pt": "Personalizado"
+ },
+ "Tes favoris, complétés par les contacts que tu appelles le plus": {
+  "en": "Your favourites, topped up with the people you call most",
+  "es": "Tus favoritos, completados con los contactos a los que más llamas",
+  "de": "Deine Favoriten, ergänzt um die meistangerufenen Kontakte",
+  "it": "I tuoi preferiti, completati dai contatti che chiami di più",
+  "pt": "Os teus favoritos, completados com os contactos para quem mais ligas"
+ },
+ "Seulement les contacts étoilés ⭐": {
+  "en": "Only starred contacts ⭐",
+  "es": "Solo los contactos con estrella ⭐",
+  "de": "Nur markierte Kontakte ⭐",
+  "it": "Solo i contatti con la stella ⭐",
+  "pt": "Só os contactos com estrela ⭐"
+ },
+ "Les contacts que tu appelles le plus": {
+  "en": "The people you call most",
+  "es": "Los contactos a los que más llamas",
+  "de": "Die Kontakte, die du am häufigsten anrufst",
+  "it": "I contatti che chiami di più",
+  "pt": "Os contactos para quem mais ligas"
+ },
+ "Les contacts que tu choisis, dans ton ordre (8 au plus)": {
+  "en": "The contacts you choose, in your order (up to 8)",
+  "es": "Los contactos que eliges, en tu orden (8 como máximo)",
+  "de": "Die Kontakte deiner Wahl, in deiner Reihenfolge (höchstens 8)",
+  "it": "I contatti che scegli, nel tuo ordine (massimo 8)",
+  "pt": "Os contactos que escolhes, pela tua ordem (até 8)"
+ },
+ "Aucun contact choisi pour l'instant.": {
+  "en": "No contacts chosen yet.",
+  "es": "Aún no has elegido ningún contacto.",
+  "de": "Noch keine Kontakte ausgewählt.",
+  "it": "Nessun contatto scelto per ora.",
+  "pt": "Ainda não escolheste nenhum contacto."
+ },
+ "Ajouter un contact": {
+  "en": "Add a contact",
+  "es": "Añadir un contacto",
+  "de": "Kontakt hinzufügen",
+  "it": "Aggiungi un contatto",
+  "pt": "Adicionar um contacto"
+ },
+ "Ajouter au widget": {
+  "en": "Add to widget",
+  "es": "Añadir al widget",
+  "de": "Zum Widget hinzufügen",
+  "it": "Aggiungi al widget",
+  "pt": "Adicionar ao widget"
  }
 }

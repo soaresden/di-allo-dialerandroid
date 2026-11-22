@@ -2,6 +2,7 @@ package fr.soaresden.diallo
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -154,26 +155,50 @@ internal fun Segmented(options: List<String>, selected: Int, onSelect: (Int) -> 
 
 /** Histogramme cliquable : [onBar] reçoit l'index de la barre touchée. */
 @Composable
-internal fun BarChart(values: List<Int>, labels: List<String>, color: Color, height: Dp = 120.dp, highlight: Int = -1, onBar: ((Int) -> Unit)? = null) {
+internal fun BarChart(values: List<Int>, labels: List<String>, color: Color, height: Dp = 120.dp, highlight: Int = -1, onBar: ((Int) -> Unit)? = null, selected: Int = -1) {
     val max = (values.maxOrNull() ?: 1).coerceAtLeast(1)
     val track = MaterialTheme.colorScheme.surfaceVariant
+    val th = LocalHTheme.current
+    // couleur de sélection : la 2e couleur du thème, sinon un orange vif bien distinct
+    val sel = if (th.accent2 != th.primary) th.accent2 else if (th.primary.red > .8f && th.primary.green > .5f) Color(0xFF22D3EE) else Color(0xFFFF9F1C)
+    // le halo ne pulse que s'il y a une sélection (aucune image calculée sinon)
+    val pulse = remember { androidx.compose.animation.core.Animatable(1f) }
+    androidx.compose.runtime.LaunchedEffect(selected >= 0) {
+        if (selected >= 0) while (true) {
+            pulse.animateTo(.45f, androidx.compose.animation.core.tween(900))
+            pulse.animateTo(1f, androidx.compose.animation.core.tween(900))
+        }
+    }
     Column(Modifier.fillMaxWidth()) {
         Text(tr("max {0}", max), fontSize = 10.sp, color = muted(.45f), modifier = Modifier.align(Alignment.End))
         Canvas(Modifier.fillMaxWidth().height(height).then(if (onBar != null && values.isNotEmpty()) Modifier.pointerInput(values) {
             detectTapGestures { o -> val i = (o.x / (size.width.toFloat() / values.size)).toInt().coerceIn(0, values.size - 1); onBar(i) }
         } else Modifier)) {
             val n = values.size.coerceAtLeast(1); val gap = size.width / n; val bw = (gap * 0.66f).coerceAtLeast(2f)
+            val g = if (selected >= 0) pulse.value else 0f
             values.forEachIndexed { i, v ->
                 val x = i * gap + (gap - bw) / 2
-                drawRoundRect(track, Offset(x, 0f), Size(bw, size.height), CornerRadius(bw / 3, bw / 3))
+                val isSel = i == selected
+                drawRoundRect(if (isSel) sel.copy(alpha = .18f) else track, Offset(x, 0f), Size(bw, size.height), CornerRadius(bw / 3, bw / 3))
                 val bh = if (v > 0) (v.toFloat() / max) * size.height else 0f
-                if (bh > 0) drawRoundRect(if (i == highlight) color else color.copy(alpha = .85f), Offset(x, size.height - bh), Size(bw, bh.coerceAtLeast(4f)), CornerRadius(bw / 3, bw / 3))
+                if (isSel) {
+                    // halo qui pulse autour de la barre choisie
+                    val top = size.height - bh.coerceAtLeast(4f)
+                    for (k in 3 downTo 1) {
+                        val pad = k * 3.dp.toPx()
+                        drawRoundRect(sel.copy(alpha = .13f * g), Offset(x - pad, top - pad), Size(bw + 2 * pad, size.height - top + pad), CornerRadius(bw / 3 + pad, bw / 3 + pad))
+                    }
+                    drawRoundRect(sel, Offset(x, top), Size(bw, size.height - top), CornerRadius(bw / 3, bw / 3))
+                } else if (bh > 0) {
+                    val a = if (selected >= 0) .32f else if (i == highlight) 1f else .85f
+                    drawRoundRect(color.copy(alpha = a), Offset(x, size.height - bh), Size(bw, bh.coerceAtLeast(4f)), CornerRadius(bw / 3, bw / 3))
+                }
             }
         }
         if (labels.isNotEmpty()) {
             val step = if (labels.size <= 13) 1 else (labels.size + 5) / 6
             Row(Modifier.fillMaxWidth().padding(top = 4.dp)) {
-                labels.forEachIndexed { i, l -> Text(if (i % step == 0) l else "", Modifier.weight(1f), fontSize = 9.5.sp, color = muted(.55f), textAlign = TextAlign.Center, maxLines = 1) }
+                labels.forEachIndexed { i, l -> Text(if (i % step == 0 || i == selected) l else "", Modifier.weight(1f), fontSize = 9.5.sp, color = if (i == selected) sel else muted(.55f), fontWeight = if (i == selected) androidx.compose.ui.text.font.FontWeight.Bold else null, textAlign = TextAlign.Center, maxLines = 1) }
             }
         }
     }

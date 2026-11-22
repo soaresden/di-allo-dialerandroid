@@ -1,44 +1,324 @@
 {
-  "Clair": { "en": "Light", "es": "Claro", "de": "Hell", "it": "Chiaro", "pt": "Claro" },
-  "Sobre et net": { "en": "Clean and simple", "es": "Sobrio y limpio", "de": "Schlicht und klar", "it": "Sobrio e pulito", "pt": "Sóbrio e limpo" },
-  "Carnet de voyage": { "en": "Travel journal", "es": "Cuaderno de viaje", "de": "Reisetagebuch", "it": "Diario di viaggio", "pt": "Diário de viagem" },
-  "Papier, encre et tampons": { "en": "Paper, ink and stamps", "es": "Papel, tinta y sellos", "de": "Papier, Tinte und Stempel", "it": "Carta, inchiostro e timbri", "pt": "Papel, tinta e carimbos" },
-  "Bonbon Pop": { "en": "Candy Pop", "es": "Caramelo Pop", "de": "Bonbon Pop", "it": "Caramella Pop", "pt": "Doce Pop" },
-  "BD, trames et ombres dures": { "en": "Comics, halftones and hard shadows", "es": "Cómic, tramas y sombras duras", "de": "Comic, Raster und harte Schatten", "it": "Fumetto, retini e ombre nette", "pt": "Quadrinhos, retículas e sombras duras" },
-  "Guinguette": { "en": "Guinguette", "es": "Guinguette", "de": "Guinguette", "it": "Guinguette", "pt": "Guinguette" },
-  "Nappe vichy et bal musette": { "en": "Gingham tablecloth and accordion dance", "es": "Mantel de cuadros y baile musette", "de": "Karierte Tischdecke und Musette-Ball", "it": "Tovaglia a quadretti e ballo musette", "pt": "Toalha xadrez e baile musette" },
-  "Rétro 70s": { "en": "Retro 70s", "es": "Retro 70s", "de": "Retro 70er", "it": "Retrò anni '70", "pt": "Retrô anos 70" },
-  "Soleil, rayures et pattes d'eph": { "en": "Sunshine, stripes and bell-bottoms", "es": "Sol, rayas y pantalones de campana", "de": "Sonne, Streifen und Schlaghosen", "it": "Sole, righe e pantaloni a zampa", "pt": "Sol, listras e calças boca de sino" },
-  "Fierté": { "en": "Pride", "es": "Orgullo", "de": "Pride", "it": "Orgoglio", "pt": "Orgulho" },
-  "Arc-en-ciel et paillettes": { "en": "Rainbow and glitter", "es": "Arcoíris y purpurina", "de": "Regenbogen und Glitzer", "it": "Arcobaleno e brillantini", "pt": "Arco-íris e purpurina" },
-  "Sakura": { "en": "Sakura", "es": "Sakura", "de": "Sakura", "it": "Sakura", "pt": "Sakura" },
-  "Pétales qui tombent": { "en": "Falling petals", "es": "Pétalos que caen", "de": "Fallende Blütenblätter", "it": "Petali che cadono", "pt": "Pétalas caindo" },
-  "Bord de mer": { "en": "Seaside", "es": "Orilla del mar", "de": "Am Meer", "it": "Al mare", "pt": "Beira-mar" },
-  "Vagues et sable chaud": { "en": "Waves and warm sand", "es": "Olas y arena caliente", "de": "Wellen und warmer Sand", "it": "Onde e sabbia calda", "pt": "Ondas e areia quente" },
-  "AMOLED": { "en": "AMOLED", "es": "AMOLED", "de": "AMOLED", "it": "AMOLED", "pt": "AMOLED" },
-  "Noir pur, économe": { "en": "Pure black, battery saver", "es": "Negro puro, ahorra batería", "de": "Reines Schwarz, akkuschonend", "it": "Nero puro, risparmia batteria", "pt": "Preto puro, economiza bateria" },
-  "Minuit": { "en": "Midnight", "es": "Medianoche", "de": "Mitternacht", "it": "Mezzanotte", "pt": "Meia-noite" },
-  "Sombre et sobre": { "en": "Dark and simple", "es": "Oscuro y sobrio", "de": "Dunkel und schlicht", "it": "Scuro e sobrio", "pt": "Escuro e sóbrio" },
-  "Synthwave": { "en": "Synthwave", "es": "Synthwave", "de": "Synthwave", "it": "Synthwave", "pt": "Synthwave" },
-  "Néon, soleil couchant et grille 80s": { "en": "Neon, sunset and 80s grid", "es": "Neón, atardecer y cuadrícula ochentera", "de": "Neon, Sonnenuntergang und 80er-Raster", "it": "Neon, tramonto e griglia anni '80", "pt": "Néon, pôr do sol e grade anos 80" },
-  "Cabaret": { "en": "Cabaret", "es": "Cabaret", "de": "Cabaret", "it": "Cabaret", "pt": "Cabaré" },
-  "Rideau de velours, dorures": { "en": "Velvet curtain, gilding", "es": "Telón de terciopelo, dorados", "de": "Samtvorhang, Vergoldungen", "it": "Sipario di velluto, dorature", "pt": "Cortina de veludo, dourados" },
-  "Gala": { "en": "Gala", "es": "Gala", "de": "Gala", "it": "Gala", "pt": "Gala" },
-  "Noir et or, Art déco": { "en": "Black and gold, Art Deco", "es": "Negro y oro, art déco", "de": "Schwarz und Gold, Art déco", "it": "Nero e oro, Art déco", "pt": "Preto e dourado, Art déco" },
-  "Arcade": { "en": "Arcade", "es": "Arcade", "de": "Arcade", "it": "Arcade", "pt": "Arcade" },
-  "Pixels et envahisseurs": { "en": "Pixels and invaders", "es": "Píxeles e invasores", "de": "Pixel und Invasoren", "it": "Pixel e invasori", "pt": "Pixels e invasores" },
-  "Terminal": { "en": "Terminal", "es": "Terminal", "de": "Terminal", "it": "Terminale", "pt": "Terminal" },
-  "Écran cathodique vert": { "en": "Green CRT screen", "es": "Pantalla CRT verde", "de": "Grüner Röhrenbildschirm", "it": "Schermo CRT verde", "pt": "Monitor CRT verde" },
-  "Pirate": { "en": "Pirate", "es": "Pirata", "de": "Pirat", "it": "Pirata", "pt": "Pirata" },
-  "Mer sombre et parchemin": { "en": "Dark sea and parchment", "es": "Mar oscuro y pergamino", "de": "Dunkles Meer und Pergament", "it": "Mare scuro e pergamena", "pt": "Mar escuro e pergaminho" },
-  "Galaxie": { "en": "Galaxy", "es": "Galaxia", "de": "Galaxie", "it": "Galassia", "pt": "Galáxia" },
-  "Étoiles qui scintillent": { "en": "Twinkling stars", "es": "Estrellas que titilan", "de": "Funkelnde Sterne", "it": "Stelle scintillanti", "pt": "Estrelas cintilantes" },
-  "Plongée": { "en": "Diving", "es": "Buceo", "de": "Tauchgang", "it": "Immersione", "pt": "Mergulho" },
-  "Requin-baleine, mantas, tortues, murène et récif": { "en": "Whale shark, mantas, turtles, moray and reef", "es": "Tiburón ballena, mantas, tortugas, morena y arrecife", "de": "Walhai, Mantas, Schildkröten, Muräne und Riff", "it": "Squalo balena, mante, tartarughe, murena e barriera", "pt": "Tubarão-baleia, mantas, tartarugas, moreia e recife" },
-  "Ocean Drive": { "en": "Ocean Drive", "es": "Ocean Drive", "de": "Ocean Drive", "it": "Ocean Drive", "pt": "Ocean Drive" },
-  "Coucher de soleil, palmiers et néons de Floride": { "en": "Sunset, palm trees and Florida neon", "es": "Atardecer, palmeras y neones de Florida", "de": "Sonnenuntergang, Palmen und Neon aus Florida", "it": "Tramonto, palme e neon della Florida", "pt": "Pôr do sol, palmeiras e néons da Flórida" },
-  "Abysses": { "en": "Abyss", "es": "Abismos", "de": "Tiefsee", "it": "Abissi", "pt": "Abismo" },
-  "Bulles et rayons sous l'eau": { "en": "Bubbles and underwater light rays", "es": "Burbujas y rayos bajo el agua", "de": "Blasen und Lichtstrahlen unter Wasser", "it": "Bolle e raggi sott'acqua", "pt": "Bolhas e raios debaixo d'água" },
-  "Braise": { "en": "Embers", "es": "Brasas", "de": "Glut", "it": "Brace", "pt": "Brasa" },
-  "Étincelles qui montent": { "en": "Rising sparks", "es": "Chispas que suben", "de": "Aufsteigende Funken", "it": "Scintille che salgono", "pt": "Faíscas subindo" }
+ "Clair": {
+  "en": "Light",
+  "es": "Claro",
+  "de": "Hell",
+  "it": "Chiaro",
+  "pt": "Claro"
+ },
+ "Sobre et net": {
+  "en": "Clean and simple",
+  "es": "Sobrio y limpio",
+  "de": "Schlicht und klar",
+  "it": "Sobrio e pulito",
+  "pt": "Sóbrio e limpo"
+ },
+ "Carnet de voyage": {
+  "en": "Travel journal",
+  "es": "Cuaderno de viaje",
+  "de": "Reisetagebuch",
+  "it": "Diario di viaggio",
+  "pt": "Diário de viagem"
+ },
+ "Papier, encre et tampons": {
+  "en": "Paper, ink and stamps",
+  "es": "Papel, tinta y sellos",
+  "de": "Papier, Tinte und Stempel",
+  "it": "Carta, inchiostro e timbri",
+  "pt": "Papel, tinta e carimbos"
+ },
+ "Bonbon Pop": {
+  "en": "Candy Pop",
+  "es": "Caramelo Pop",
+  "de": "Bonbon Pop",
+  "it": "Caramella Pop",
+  "pt": "Doce Pop"
+ },
+ "BD, trames et ombres dures": {
+  "en": "Comics, halftones and hard shadows",
+  "es": "Cómic, tramas y sombras duras",
+  "de": "Comic, Raster und harte Schatten",
+  "it": "Fumetto, retini e ombre nette",
+  "pt": "Quadrinhos, retículas e sombras duras"
+ },
+ "Guinguette": {
+  "en": "Guinguette",
+  "es": "Guinguette",
+  "de": "Guinguette",
+  "it": "Guinguette",
+  "pt": "Guinguette"
+ },
+ "Nappe vichy et bal musette": {
+  "en": "Gingham tablecloth and accordion dance",
+  "es": "Mantel de cuadros y baile musette",
+  "de": "Karierte Tischdecke und Musette-Ball",
+  "it": "Tovaglia a quadretti e ballo musette",
+  "pt": "Toalha xadrez e baile musette"
+ },
+ "Rétro 70s": {
+  "en": "Retro 70s",
+  "es": "Retro 70s",
+  "de": "Retro 70er",
+  "it": "Retrò anni '70",
+  "pt": "Retrô anos 70"
+ },
+ "Soleil, rayures et pattes d'eph": {
+  "en": "Sunshine, stripes and bell-bottoms",
+  "es": "Sol, rayas y pantalones de campana",
+  "de": "Sonne, Streifen und Schlaghosen",
+  "it": "Sole, righe e pantaloni a zampa",
+  "pt": "Sol, listras e calças boca de sino"
+ },
+ "Fierté": {
+  "en": "Pride",
+  "es": "Orgullo",
+  "de": "Pride",
+  "it": "Orgoglio",
+  "pt": "Orgulho"
+ },
+ "Arc-en-ciel et paillettes": {
+  "en": "Rainbow and glitter",
+  "es": "Arcoíris y purpurina",
+  "de": "Regenbogen und Glitzer",
+  "it": "Arcobaleno e brillantini",
+  "pt": "Arco-íris e purpurina"
+ },
+ "Sakura": {
+  "en": "Sakura",
+  "es": "Sakura",
+  "de": "Sakura",
+  "it": "Sakura",
+  "pt": "Sakura"
+ },
+ "Pétales qui tombent": {
+  "en": "Falling petals",
+  "es": "Pétalos que caen",
+  "de": "Fallende Blütenblätter",
+  "it": "Petali che cadono",
+  "pt": "Pétalas caindo"
+ },
+ "Bord de mer": {
+  "en": "Seaside",
+  "es": "Orilla del mar",
+  "de": "Am Meer",
+  "it": "Al mare",
+  "pt": "Beira-mar"
+ },
+ "Vagues et sable chaud": {
+  "en": "Waves and warm sand",
+  "es": "Olas y arena caliente",
+  "de": "Wellen und warmer Sand",
+  "it": "Onde e sabbia calda",
+  "pt": "Ondas e areia quente"
+ },
+ "AMOLED": {
+  "en": "AMOLED",
+  "es": "AMOLED",
+  "de": "AMOLED",
+  "it": "AMOLED",
+  "pt": "AMOLED"
+ },
+ "Noir pur, économe": {
+  "en": "Pure black, battery saver",
+  "es": "Negro puro, ahorra batería",
+  "de": "Reines Schwarz, akkuschonend",
+  "it": "Nero puro, risparmia batteria",
+  "pt": "Preto puro, economiza bateria"
+ },
+ "Minuit": {
+  "en": "Midnight",
+  "es": "Medianoche",
+  "de": "Mitternacht",
+  "it": "Mezzanotte",
+  "pt": "Meia-noite"
+ },
+ "Sombre et sobre": {
+  "en": "Dark and simple",
+  "es": "Oscuro y sobrio",
+  "de": "Dunkel und schlicht",
+  "it": "Scuro e sobrio",
+  "pt": "Escuro e sóbrio"
+ },
+ "Synthwave": {
+  "en": "Synthwave",
+  "es": "Synthwave",
+  "de": "Synthwave",
+  "it": "Synthwave",
+  "pt": "Synthwave"
+ },
+ "Néon, soleil couchant et grille 80s": {
+  "en": "Neon, sunset and 80s grid",
+  "es": "Neón, atardecer y cuadrícula ochentera",
+  "de": "Neon, Sonnenuntergang und 80er-Raster",
+  "it": "Neon, tramonto e griglia anni '80",
+  "pt": "Néon, pôr do sol e grade anos 80"
+ },
+ "Cabaret": {
+  "en": "Cabaret",
+  "es": "Cabaret",
+  "de": "Cabaret",
+  "it": "Cabaret",
+  "pt": "Cabaré"
+ },
+ "Rideau de velours, dorures": {
+  "en": "Velvet curtain, gilding",
+  "es": "Telón de terciopelo, dorados",
+  "de": "Samtvorhang, Vergoldungen",
+  "it": "Sipario di velluto, dorature",
+  "pt": "Cortina de veludo, dourados"
+ },
+ "Gala": {
+  "en": "Gala",
+  "es": "Gala",
+  "de": "Gala",
+  "it": "Gala",
+  "pt": "Gala"
+ },
+ "Noir et or, Art déco": {
+  "en": "Black and gold, Art Deco",
+  "es": "Negro y oro, art déco",
+  "de": "Schwarz und Gold, Art déco",
+  "it": "Nero e oro, Art déco",
+  "pt": "Preto e dourado, Art déco"
+ },
+ "Arcade": {
+  "en": "Arcade",
+  "es": "Arcade",
+  "de": "Arcade",
+  "it": "Arcade",
+  "pt": "Arcade"
+ },
+ "Pixels et envahisseurs": {
+  "en": "Pixels and invaders",
+  "es": "Píxeles e invasores",
+  "de": "Pixel und Invasoren",
+  "it": "Pixel e invasori",
+  "pt": "Pixels e invasores"
+ },
+ "Terminal": {
+  "en": "Terminal",
+  "es": "Terminal",
+  "de": "Terminal",
+  "it": "Terminale",
+  "pt": "Terminal"
+ },
+ "Écran cathodique vert": {
+  "en": "Green CRT screen",
+  "es": "Pantalla CRT verde",
+  "de": "Grüner Röhrenbildschirm",
+  "it": "Schermo CRT verde",
+  "pt": "Monitor CRT verde"
+ },
+ "Pirate": {
+  "en": "Pirate",
+  "es": "Pirata",
+  "de": "Pirat",
+  "it": "Pirata",
+  "pt": "Pirata"
+ },
+ "Mer sombre et parchemin": {
+  "en": "Dark sea and parchment",
+  "es": "Mar oscuro y pergamino",
+  "de": "Dunkles Meer und Pergament",
+  "it": "Mare scuro e pergamena",
+  "pt": "Mar escuro e pergaminho"
+ },
+ "Galaxie": {
+  "en": "Galaxy",
+  "es": "Galaxia",
+  "de": "Galaxie",
+  "it": "Galassia",
+  "pt": "Galáxia"
+ },
+ "Étoiles qui scintillent": {
+  "en": "Twinkling stars",
+  "es": "Estrellas que titilan",
+  "de": "Funkelnde Sterne",
+  "it": "Stelle scintillanti",
+  "pt": "Estrelas cintilantes"
+ },
+ "Plongée": {
+  "en": "Diving",
+  "es": "Buceo",
+  "de": "Tauchgang",
+  "it": "Immersione",
+  "pt": "Mergulho"
+ },
+ "Requin-baleine, mantas, tortues, murène et récif": {
+  "en": "Whale shark, mantas, turtles, moray and reef",
+  "es": "Tiburón ballena, mantas, tortugas, morena y arrecife",
+  "de": "Walhai, Mantas, Schildkröten, Muräne und Riff",
+  "it": "Squalo balena, mante, tartarughe, murena e barriera",
+  "pt": "Tubarão-baleia, mantas, tartarugas, moreia e recife"
+ },
+ "Ocean Drive": {
+  "en": "Ocean Drive",
+  "es": "Ocean Drive",
+  "de": "Ocean Drive",
+  "it": "Ocean Drive",
+  "pt": "Ocean Drive"
+ },
+ "Coucher de soleil, palmiers et néons de Floride": {
+  "en": "Sunset, palm trees and Florida neon",
+  "es": "Atardecer, palmeras y neones de Florida",
+  "de": "Sonnenuntergang, Palmen und Neon aus Florida",
+  "it": "Tramonto, palme e neon della Florida",
+  "pt": "Pôr do sol, palmeiras e néons da Flórida"
+ },
+ "Abysses": {
+  "en": "Abyss",
+  "es": "Abismos",
+  "de": "Tiefsee",
+  "it": "Abissi",
+  "pt": "Abismo"
+ },
+ "Bulles et rayons sous l'eau": {
+  "en": "Bubbles and underwater light rays",
+  "es": "Burbujas y rayos bajo el agua",
+  "de": "Blasen und Lichtstrahlen unter Wasser",
+  "it": "Bolle e raggi sott'acqua",
+  "pt": "Bolhas e raios debaixo d'água"
+ },
+ "Braise": {
+  "en": "Embers",
+  "es": "Brasas",
+  "de": "Glut",
+  "it": "Brace",
+  "pt": "Brasa"
+ },
+ "Étincelles qui montent": {
+  "en": "Rising sparks",
+  "es": "Chispas que suben",
+  "de": "Aufsteigende Funken",
+  "it": "Scintille che salgono",
+  "pt": "Faíscas subindo"
+ },
+ "Légende": {
+  "en": "Legend",
+  "es": "Leyenda",
+  "de": "Legende",
+  "it": "Leggenda",
+  "pt": "Lenda"
+ },
+ "Plaine au crépuscule, fées et notes d'ocarina": {
+  "en": "Twilight fields, fairies and ocarina notes",
+  "es": "Llanura al atardecer, hadas y notas de ocarina",
+  "de": "Ebene in der Dämmerung, Feen und Okarina-Töne",
+  "it": "Pianura al crepuscolo, fate e note di ocarina",
+  "pt": "Planície ao crepúsculo, fadas e notas de ocarina"
+ },
+ "Quête 8-bit": {
+  "en": "8-bit Quest",
+  "es": "Aventura 8 bits",
+  "de": "8-Bit-Abenteuer",
+  "it": "Avventura 8-bit",
+  "pt": "Aventura 8 bits"
+ },
+ "Herbe, arbres et cœurs en pixels, vue de dessus": {
+  "en": "Pixel grass, trees and hearts, seen from above",
+  "es": "Hierba, árboles y corazones en píxeles, vista cenital",
+  "de": "Gras, Bäume und Herzen in Pixeln, von oben",
+  "it": "Erba, alberi e cuori in pixel, vista dall'alto",
+  "pt": "Relva, árvores e corações em píxeis, vista de cima"
+ }
 }

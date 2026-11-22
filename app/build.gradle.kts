@@ -20,8 +20,15 @@ if (isBuild) {
 val verName = "%s-%02d".format(today, buildN)
 val verCode = today.replace("-", "").drop(2).toInt() * 100 + buildN   // yyMMddXX, toujours croissant
 
+// ---- CHANGELOG.md (racine du dépôt) embarqué dans l'appli : un seul fichier à tenir à jour ----
+val changelogDir = layout.buildDirectory.dir("generated/changelog").get().asFile
+rootProject.file("CHANGELOG.md").takeIf { it.exists() }?.let { src ->
+    changelogDir.mkdirs(); src.copyTo(File(changelogDir, "CHANGELOG.md"), overwrite = true)
+}
+
 android {
     namespace = "fr.soaresden.diallo"
+    sourceSets.getByName("main").assets.srcDir(changelogDir)
     compileSdk = 34
 
     defaultConfig {

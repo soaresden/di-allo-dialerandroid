@@ -810,5 +810,19 @@
   "de": "Alle {0} Anrufe ansehen",
   "it": "Vedi tutte le {0} chiamate",
   "pt": "Ver as {0} chamadas"
+ },
+ "Aucune sélection · touche une barre ou une ligne pour filtrer": {
+  "en": "Nothing selected · tap a bar or a row to filter",
+  "es": "Sin selección · toca una barra o una fila para filtrar",
+  "de": "Keine Auswahl · tippe auf einen Balken oder eine Zeile zum Filtern",
+  "it": "Nessuna selezione · tocca una barra o una riga per filtrare",
+  "pt": "Nada selecionado · toca numa barra ou linha para filtrar"
+ },
+ "Zoomer": {
+  "en": "Zoom in",
+  "es": "Ampliar",
+  "de": "Vergrößern",
+  "it": "Ingrandisci",
+  "pt": "Ampliar"
  }
 }

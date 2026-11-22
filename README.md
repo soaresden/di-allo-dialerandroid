@@ -51,7 +51,7 @@
 - 🎁 **Di-Allô Wrapped** : ton année au téléphone en stories, à partager en image
 
 ### 🎨 Et aussi
-- 21 thèmes à forte personnalité : polices, décors animés (Plongée avec requin-baleine, mantas et tortues ; Ocean Drive au coucher du soleil ; Synthwave, Cabaret, Arcade, Terminal…), forme et style des touches
+- 23 thèmes à forte personnalité : polices, décors animés (Plongée avec requin-baleine, mantas et tortues ; Ocean Drive au coucher du soleil ; Synthwave, Cabaret, Arcade, Terminal…), forme et style des touches
 - Widgets d'écran d'accueil : **Favoris** (4 ou 8, favoris ou plus appelés, 4 styles) et **contact 1×1**, un appui, un appel
 - 🌍 **6 langues** : français, anglais, espagnol, allemand, italien, portugais (automatique ou au choix)
 - Touche le logo 😎 pour une petite surprise

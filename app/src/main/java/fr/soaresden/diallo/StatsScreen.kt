@@ -95,6 +95,18 @@ private fun wdInitial(dow: Int): String =
 private fun wdName(dow: Int): String =
     Calendar.getInstance().apply { set(Calendar.DAY_OF_WEEK, dow) }.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, I18n.locale) ?: ""
 
+/** Libellé complet d'une barre, pour la puce de filtre. */
+internal fun bucketName(b: Bucket, g: Gran): String {
+    val c = cal(b.start)
+    return when (g) {
+        Gran.YEAR -> c.get(Calendar.YEAR).toString()
+        Gran.MONTH -> "${monthName(c.get(Calendar.MONTH)).replaceFirstChar { it.uppercase() }} ${c.get(Calendar.YEAR)}"
+        Gran.WEEK -> tr("Semaine du {0}", fmtDate(b.start))
+        Gran.DAY -> "${wdName(c.get(Calendar.DAY_OF_WEEK)).replaceFirstChar { it.uppercase() }} ${fmtDate(b.start)}"
+        Gran.HOUR -> tr("{0} h – {1} h", c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.HOUR_OF_DAY) + 1)
+    }
+}
+
 /** Zoom sur une barre : année -> mois -> jours. */
 internal fun drill(b: Bucket, g: Gran): Range? {
     val c = cal(b.start)
@@ -249,6 +261,10 @@ internal fun StatsScreen(calls: List<CallRepository.CallEntry>, contacts: List<C
     val lang = I18n.lang.value
     val bs = remember(range, lang) { buckets(range) }
     val perBucket = remember(inRange, bs) { countIn(inRange, bs) }
+    // pour le graphe d'activité : tous les filtres sauf la barre choisie (sinon les autres barres tomberaient à zéro)
+    val flNoSlot = fl.filter { it.kind != "slot" }
+    val perBucketCtx = remember(calls, range, flNoSlot, bs) { countIn(calls.filter { c -> c.date in range.start..range.end && flNoSlot.all { it.test(c) } }, bs) }
+    val selColor = LocalHTheme.current.let { th -> if (th.accent2 != th.primary) th.accent2 else if (th.primary.red > .8f && th.primary.green > .5f) Color(0xFF22D3EE) else Color(0xFFFF9F1C) }
     // Calculs lourds en arrière-plan : l'écran ne fige jamais
     val aggs by produceState(emptyMap<String, Agg>(), inRange) { value = withContext(Dispatchers.Default) { aggregate(inRange) } }
     val allAggs by produceState(emptyMap<String, Agg>(), calls) { value = withContext(Dispatchers.Default) { aggregate(calls) } }
@@ -267,14 +283,24 @@ internal fun StatsScreen(calls: List<CallRepository.CallEntry>, contacts: List<C
     val primary = MaterialTheme.colorScheme.primary
 
     LazyColumn(Modifier.fillMaxSize().padding(horizontal = 12.dp)) {
-        if (filters.isNotEmpty()) stickyHeader {
-            Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxWidth()) {
-                FlowRow(Modifier.padding(vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    filters.forEach { f ->
-                        InputChip(selected = true, onClick = { filters.remove(f) }, label = { Text(f.label, fontSize = 12.sp) },
-                            trailingIcon = { Icon(Icons.Filled.Close, tr("Retirer"), Modifier.size(16.dp)) })
+        stickyHeader {
+            // toujours en haut : la période et ce qui est sélectionné
+            Surface(color = MaterialTheme.colorScheme.background, contentColor = MaterialTheme.colorScheme.onBackground, modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(vertical = 4.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (stack.isNotEmpty()) IconButton(onClick = { stack.removeAt(stack.lastIndex); filters.removeAll { it.kind == "slot" } }, modifier = Modifier.size(28.dp)) { Icon(Icons.Filled.ArrowBack, tr("Retour"), tint = primary) }
+                        Text("📅 " + range.label, fontWeight = FontWeight.Bold, fontSize = 15.sp, modifier = Modifier.weight(1f))
+                        if (filters.isNotEmpty()) TextButton(onClick = { filters.clear() }, contentPadding = PaddingValues(horizontal = 8.dp)) { Text(tr("Tout effacer"), fontSize = 12.sp) }
                     }
-                    if (filters.size > 1) TextButton(onClick = { filters.clear() }) { Text(tr("Tout effacer"), fontSize = 12.sp) }
+                    if (filters.isEmpty()) Text(tr("Aucune sélection · touche une barre ou une ligne pour filtrer"), fontSize = 11.5.sp, color = muted(.55f), modifier = Modifier.padding(start = 2.dp, bottom = 2.dp))
+                    else FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        filters.forEach { f ->
+                            InputChip(selected = true, onClick = { filters.remove(f) }, label = { Text(f.label, fontSize = 12.sp, fontWeight = FontWeight.SemiBold) },
+                                trailingIcon = { Icon(Icons.Filled.Close, tr("Retirer"), Modifier.size(16.dp)) },
+                                colors = InputChipDefaults.inputChipColors(selectedContainerColor = selColor.copy(alpha = .22f), selectedLabelColor = MaterialTheme.colorScheme.onBackground),
+                                border = InputChipDefaults.inputChipBorder(enabled = true, selected = true, selectedBorderColor = selColor, selectedBorderWidth = 1.5.dp))
+                        }
+                    }
                 }
             }
         }
@@ -296,11 +322,8 @@ internal fun StatsScreen(calls: List<CallRepository.CallEntry>, contacts: List<C
             }
         }
         item {
-            Segmented(PRESETS.map { tr(it) }, if (stack.isEmpty()) preset else -1, { preset = it; stack.clear() }, Modifier.padding(top = 2.dp, bottom = 6.dp))
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 6.dp)) {
-                if (stack.isNotEmpty()) IconButton(onClick = { stack.removeAt(stack.lastIndex) }, modifier = Modifier.size(28.dp)) { Icon(Icons.Filled.ArrowBack, tr("Retour"), tint = primary) }
-                Text(range.label, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = MaterialTheme.colorScheme.onBackground)
-            }
+            Segmented(PRESETS.map { tr(it) }, if (stack.isEmpty()) preset else -1, { preset = it; stack.clear(); filters.removeAll { f -> f.kind == "slot" } }, Modifier.padding(top = 2.dp, bottom = 6.dp))
+
         }
         // ---- 📊 Résumé : volume + sens des appels (téléphones fléchés) ----
         item {
@@ -338,10 +361,16 @@ internal fun StatsScreen(calls: List<CallRepository.CallEntry>, contacts: List<C
         item {
             val g = range.gran
             val sel = active("slot")
-            SectionCard(tr("📈 Activité"), id = "st_act", action = { Text(tr("touche une barre"), fontSize = 10.5.sp, color = muted(.5f)) }) {
-                BarChart(perBucket, bs.map { it.label }, primary, 96.dp, highlight = bs.indexOfFirst { it.start.toString() == sel }, onBar = { i ->
+            val si = bs.indexOfFirst { it.start.toString() == sel }
+            val zoom = if (si >= 0) drill(bs[si], g) else null
+            SectionCard(tr("📈 Activité"), id = "st_act", action = {
+                if (zoom != null) TextButton(onClick = { filters.removeAll { it.kind == "slot" }; stack.add(zoom) }, contentPadding = PaddingValues(horizontal = 8.dp)) { Text("🔍 " + tr("Zoomer"), fontSize = 12.sp, color = selColor, fontWeight = FontWeight.Bold) }
+                else Text(tr("touche une barre"), fontSize = 10.5.sp, color = muted(.5f))
+            }) {
+                // les barres comptent toute la période (sans la sélection d'activité elle-même) pour garder le contexte
+                BarChart(perBucketCtx, bs.map { it.label }, primary, 96.dp, selected = si, onBar = { i ->
                     val b = bs[i]
-                    drill(b, g)?.let { stack.add(it) } ?: toggle(SFilter("slot", b.start.toString(), "🕐 " + tr("{0} h", cal(b.start).get(Calendar.HOUR_OF_DAY))) { it.date >= b.start && it.date < b.end })
+                    toggle(SFilter("slot", b.start.toString(), "🎯 " + bucketName(b, g)) { it.date >= b.start && it.date < b.end })
                 })
             }
         }
@@ -394,10 +423,10 @@ internal fun StatsScreen(calls: List<CallRepository.CallEntry>, contacts: List<C
             SectionCard(tr("⏰ Habitudes"), id = "st_hab", action = { Segmented(listOf(tr("Heures"), tr("Jours")), habit, { habit = it }, Modifier.width(140.dp)) }) {
                 val dows = listOf(Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY, Calendar.THURSDAY, Calendar.FRIDAY, Calendar.SATURDAY, Calendar.SUNDAY)
                 if (habit == 0) BarChart(hours.toList(), (0..23).map { if (it % 3 == 0) "${it}h" else "" }, primary.copy(alpha = .8f), 70.dp,
-                    highlight = active("hour")?.toInt() ?: (hours.indices.maxByOrNull { hours[it] } ?: -1),
+                    highlight = hours.indices.maxByOrNull { hours[it] } ?: -1, selected = active("hour")?.toInt() ?: -1,
                     onBar = { h -> toggle(SFilter("hour", "$h", "⏰ " + tr("{0} h – {1} h", h, h + 1)) { cal(it.date).get(Calendar.HOUR_OF_DAY) == h }) })
                 else BarChart(wds.toList(), dows.map { wdInitial(it) }, primary.copy(alpha = .8f), 70.dp,
-                    highlight = active("wd")?.toInt() ?: (wds.indices.maxByOrNull { wds[it] } ?: -1),
+                    highlight = wds.indices.maxByOrNull { wds[it] } ?: -1, selected = active("wd")?.toInt() ?: -1,
                     onBar = { d -> toggle(SFilter("wd", "$d", "📅 " + wdName(dows[d]).replaceFirstChar { it.uppercase() }) { (cal(it.date).get(Calendar.DAY_OF_WEEK) + 5) % 7 == d }) })
                 Text(tr("Touche une barre pour filtrer toute la page"), fontSize = 10.5.sp, color = muted(.5f), modifier = Modifier.padding(top = 4.dp))
             }

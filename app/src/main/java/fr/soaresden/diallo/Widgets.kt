@@ -113,6 +113,12 @@ object WidgetPrefs {
     /** 0 = favoris puis les plus appelés, 1 = favoris seulement, 2 = les plus appelés. */
     fun source(c: Context) = p(c).getInt("fav_source", 0)
     fun count(c: Context) = p(c).getInt("fav_count", 8)
+    /** Vue personnalisée du widget Favoris : contacts choisis à la main, dans l'ordre. */
+    fun custom(c: Context): List<Pick> = (p(c).getString("fav_custom", null) ?: "").split('\u001E').mapNotNull { Pick.decode(it) }
+    fun setCustom(c: Context, l: List<Pick>) {
+        p(c).edit().putString("fav_custom", l.joinToString("\u001E") { it.encode() }).apply()
+        FavoritesWidget.refresh(c)
+    }
     fun names(c: Context) = p(c).getBoolean("fav_names", true)
     /** 0 = vert, 1 = sombre, 2 = clair, 3 = transparent. */
     fun style(c: Context) = p(c).getInt("style", 0)
@@ -264,13 +270,44 @@ internal fun WidgetSettings() {
     var style by remember { mutableIntStateOf(WidgetPrefs.style(ctx)) }
     var picking by remember { mutableStateOf(false) }
     var msg by remember { mutableStateOf<String?>(null) }
+    var version by remember { mutableIntStateOf(0) }   // la liste perso a changé : l'aperçu se recalcule
 
     SectionCard(tr("⭐ Widget Favoris")) {
         Text(tr("Contacts affichés"), fontSize = 13.sp, color = muted(), modifier = Modifier.padding(bottom = 6.dp))
-        Segmented(listOf(tr("Favoris + fréquents"), tr("Favoris"), tr("Fréquents")), source, { source = it; WidgetPrefs.set(ctx, "fav_source", it) }, Modifier.fillMaxWidth())
+        Segmented(listOf(tr("Auto"), tr("Favoris"), tr("Fréquents"), tr("Perso")), source, { source = it; WidgetPrefs.set(ctx, "fav_source", it) }, Modifier.fillMaxWidth())
+        Text(when (source) {
+            0 -> tr("Tes favoris, complétés par les contacts que tu appelles le plus")
+            1 -> tr("Seulement les contacts étoilés ⭐")
+            2 -> tr("Les contacts que tu appelles le plus")
+            else -> tr("Les contacts que tu choisis, dans ton ordre (8 au plus)")
+        }, fontSize = 11.5.sp, color = muted(.6f), modifier = Modifier.padding(top = 4.dp))
         Spacer(Modifier.height(12.dp))
-        Text(tr("Nombre de contacts"), fontSize = 13.sp, color = muted(), modifier = Modifier.padding(bottom = 6.dp))
-        Segmented(listOf("4", "8"), if (count == 4) 0 else 1, { count = if (it == 0) 4 else 8; WidgetPrefs.set(ctx, "fav_count", count) }, Modifier.fillMaxWidth())
+        if (source == 3) {
+            var custom by remember { mutableStateOf(WidgetPrefs.custom(ctx)) }
+            var adding by remember { mutableStateOf(false) }
+            fun save(l: List<Pick>) { custom = l; WidgetPrefs.setCustom(ctx, l); version++ }
+            if (custom.isEmpty()) Text(tr("Aucun contact choisi pour l'instant."), fontSize = 12.5.sp, color = muted(.6f))
+            custom.forEachIndexed { i, pk ->
+                Row(Modifier.fillMaxWidth().padding(vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Avatar(pk.name, pk.photo, 34.dp); Spacer(Modifier.width(10.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(pk.name, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface, maxLines = 1)
+                        Text(intlNumber(pk.number), fontSize = 11.5.sp, color = muted(.6f), maxLines = 1)
+                    }
+                    IconButton(onClick = { if (i > 0) save(custom.toMutableList().apply { add(i - 1, removeAt(i)) }) }, enabled = i > 0, modifier = Modifier.size(36.dp)) { Text("⬆️", fontSize = 15.sp) }
+                    IconButton(onClick = { if (i < custom.size - 1) save(custom.toMutableList().apply { add(i + 1, removeAt(i)) }) }, enabled = i < custom.size - 1, modifier = Modifier.size(36.dp)) { Text("⬇️", fontSize = 15.sp) }
+                    IconButton(onClick = { save(custom.toMutableList().apply { removeAt(i) }) }, modifier = Modifier.size(36.dp)) { Text("✖️", fontSize = 14.sp) }
+                }
+            }
+            if (custom.size < 8) TextButton(onClick = { adding = true }) { Text("➕ " + tr("Ajouter un contact")) }
+            if (adding) ContactPickerDialog(tr("Ajouter au widget"), onDismiss = { adding = false }) { pk ->
+                adding = false
+                if (custom.none { keyOf(it.number) == keyOf(pk.number) }) save(custom + pk)
+            }
+        } else {
+            Text(tr("Nombre de contacts"), fontSize = 13.sp, color = muted(), modifier = Modifier.padding(bottom = 6.dp))
+            Segmented(listOf("4", "8"), if (count == 4) 0 else 1, { count = if (it == 0) 4 else 8; WidgetPrefs.set(ctx, "fav_count", count) }, Modifier.fillMaxWidth())
+        }
         Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(tr("Afficher les prénoms"), color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
             Switch(names, { names = it; WidgetPrefs.set(ctx, "fav_names", it) })
@@ -286,10 +323,10 @@ internal fun WidgetSettings() {
     SectionCard(tr("🎨 Apparence des widgets")) {
         Segmented(listOf(tr("Vert"), tr("Sombre"), tr("Clair"), tr("Transparent")), style, { style = it; WidgetPrefs.set(ctx, "style", it) }, Modifier.fillMaxWidth())
         Spacer(Modifier.height(12.dp))
-        val favs by produceState(emptyList<Pick>(), source, count) {
+        val favs by produceState(emptyList<Pick>(), source, count, version) {
             value = withContext(Dispatchers.IO) { try { FavoritesWidget.favorites(ctx).map { Pick(it.name, it.number, it.photo) } } catch (_: Throwable) { emptyList() } }
         }
-        WidgetPreview(style, names, count, favs)
+        WidgetPreview(style, names, if (source == 3) 8 else count, favs)
     }
     msg?.let { Text(it, fontSize = 12.5.sp, color = Amber, modifier = Modifier.padding(4.dp)) }
     if (picking) ContactPickerDialog(tr("Contact du widget"), onDismiss = { picking = false }) { p ->

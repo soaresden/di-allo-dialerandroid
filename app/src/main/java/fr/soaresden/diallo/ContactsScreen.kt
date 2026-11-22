@@ -236,6 +236,11 @@ internal fun ContactsScreen(contacts: List<CallRepository.Contact>, groups: List
                             Text(displayNumber(n.number), fontWeight = FontWeight.SemiBold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onBackground)
                             Text((n.label ?: tr("Numéro")) + " · " + (lineLabel(n.number) ?: lineTypeLabel(n.number)) + " · " + (if (n.calls > 0) trn(n.calls, "{0} appel", "{0} appels") else tr("jamais appelé")), fontSize = 12.sp, color = muted())
                         }
+                        val phoneStar = n.starred || n.groups.contains("⭐ Favoris")
+                        val isFav = remember(n.number, FavNumbers.version.intValue) { FavNumbers.snap(ctx).isFav(n.number, phoneStar) }
+                        IconButton(onClick = { FavNumbers.set(ctx, n.number, !isFav, phoneStar) }) {
+                            Text(if (isFav) "⭐" else "☆", fontSize = 20.sp, color = if (isFav) androidx.compose.ui.graphics.Color(0xFFF5B301) else muted(.6f))
+                        }
                         IconButton(onClick = { if (!WidgetPrefs.pinContact(ctx, Pick(n.display, n.number, n.photoUri))) android.widget.Toast.makeText(ctx, tr("Ton écran d'accueil ne permet pas d'ajouter le widget depuis l'appli : appui long sur l'écran d'accueil › Widgets › Di-Allô."), android.widget.Toast.LENGTH_LONG).show() }) { Text("📌", fontSize = 18.sp) }
                         Box(Modifier.size(40.dp).clip(CircleShape).background(CallGreen), contentAlignment = Alignment.Center) { Icon(Icons.Filled.Call, tr("Appeler"), tint = androidx.compose.ui.graphics.Color.White, modifier = Modifier.size(20.dp)) }
                     }
