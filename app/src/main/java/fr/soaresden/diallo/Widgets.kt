@@ -187,7 +187,7 @@ class ContactWidget : AppWidgetProvider() {
             } else {
                 v.setImageViewBitmap(R.id.img, FavoritesWidget.avatar(ctx, p.name, p.photo, 160))
                 v.setTextViewText(R.id.name, p.name.substringBefore(' ').take(12))
-                val call = Intent(Intent.ACTION_CALL, Uri.fromParts("tel", p.number, null))
+                val call = Intent(Intent.ACTION_CALL, telUri(p.number))
                 v.setOnClickPendingIntent(R.id.root, PendingIntent.getActivity(ctx, 6000 + id, call, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT))
             }
             mgr.updateAppWidget(id, v)

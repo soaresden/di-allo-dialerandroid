@@ -131,7 +131,7 @@ class FavoritesWidget : AppWidgetProvider() {
                 views.setTextViewText(NAME[i], f.name.substringBefore(' ').take(12))
                 views.setTextColor(NAME[i], fg)
                 views.setViewVisibility(NAME[i], if (names) View.VISIBLE else View.GONE)
-                val call = PendingIntent.getActivity(ctx, 100 + i, Intent(Intent.ACTION_CALL, Uri.fromParts("tel", f.number, null)), PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+                val call = PendingIntent.getActivity(ctx, 100 + i, Intent(Intent.ACTION_CALL, telUri(f.number)), PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
                 views.setOnClickPendingIntent(SLOT[i], call)
             }
             views.setOnClickPendingIntent(R.id.empty, open)

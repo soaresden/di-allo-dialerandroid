@@ -3,6 +3,9 @@
 Les versions sont numérotées `AAAA-MM-JJ-NN` (date du build, puis numéro du build du jour).
 Chaque version est téléchargeable dans les [Releases](../../releases).
 
+## 2026-11-22-18
+- 📞 Les numéros sont composés **sans espaces ni tirets** (« +32 470 12 34 56 » part en « +32470123456 »), exactement comme le téléphone de Google. Évite chez la personne appelée l'alerte rouge de Google « Ce n'est peut-être pas … » quand le numéro du contact était enregistré avec des espaces
+
 ## 2026-11-22-17
 - 🐞 Correction : plantage possible de l'écran d'appel pendant que ça sonne
 - 📞 La notification d'appel entrant affiche le **nom du contact** dès la première sonnerie
