@@ -118,7 +118,45 @@ internal fun RecScreen(contacts: List<CallRepository.Contact>, onCall: (String) 
     // par contact : le correspondant du dernier enregistrement en haut (se recale si on supprime)
     val groups = remember(shown) { shown.groupBy { it.key }.entries.sortedByDescending { e -> e.value.maxOf { it.time } } }
     val cs = MaterialTheme.colorScheme
+    // État de la configuration de l'enregistreur, vérifié hors du fil principal
+    val problem by fr.soaresden.diallo.rec.RecHealth.problem
+    var setup by remember { mutableStateOf<Int?>(null) }   // 0 désactivé, 1 à terminer, 2 prêt
+    LaunchedEffect(Unit) {
+        setup = withContext(Dispatchers.IO) {
+            fr.soaresden.diallo.rec.RecHealth.check(ctx)
+            when {
+                !fr.soaresden.diallo.rec.CallRecorder.enabled(ctx) -> 0
+                !fr.soaresden.diallo.rec.AdbLauncher.paired(ctx) -> 1
+                else -> 2
+            }
+        }
+    }
     Column(Modifier.fillMaxSize().padding(horizontal = 14.dp)) {
+        setup?.let { st ->
+            val ok = st == 2 && problem == null
+            val color = if (ok) Color(0xFF2FC45B) else if (st == 0) cs.outline else Color(0xFFE8903A)
+            val mode = when (fr.soaresden.diallo.rec.CallRecorder.mode(ctx)) {
+                fr.soaresden.diallo.rec.CallRecorder.ALL -> tr("automatique, tous les appels")
+                fr.soaresden.diallo.rec.CallRecorder.CONTACTS -> tr("automatique, contacts")
+                else -> tr("bouton 🔴 pendant l'appel")
+            }
+            val text = when {
+                ok -> tr("Setup ✅ · {0}", mode)
+                st == 0 -> tr("⚪ Enregistrement désactivé · touche pour l'activer")
+                st == 1 -> tr("⚠️ Setup à terminer · touche pour continuer")
+                else -> "⚠️ " + (problem ?: tr("Setup à vérifier"))
+            }
+            Row(
+                Modifier.fillMaxWidth().padding(bottom = 8.dp).clip(RoundedCornerShape(14.dp)).background(color.copy(alpha = .14f))
+                    .clickable { onSettings() }.padding(horizontal = 12.dp, vertical = 9.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(Modifier.size(9.dp).clip(androidx.compose.foundation.shape.CircleShape).background(color))
+                Spacer(Modifier.width(9.dp))
+                Text(text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = cs.onBackground, modifier = Modifier.weight(1f), maxLines = 2)
+                Text("›", fontSize = 18.sp, color = muted(.5f))
+            }
+        }
         OutlinedTextField(
             q, { q = it }, Modifier.fillMaxWidth(), placeholder = { Text(tr("Chercher un contact, un numéro…")) }, singleLine = true,
             shape = RoundedCornerShape(16.dp), leadingIcon = { Icon(Icons.Filled.Search, null) },

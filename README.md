@@ -5,7 +5,7 @@
 <p align="center">
   <b>Le téléphone qui dit allô 🤙</b> · <i>by Soaresden</i><br>
   Une appli Téléphone complète pour Android, gratuite et sans pub, faite pour remplacer le dialer de ton téléphone.<br>
-  👉 <a href="docs/index.html">Toutes les fonctionnalités</a>
+  👉 <a href="docs/index.html">Toutes les fonctionnalités</a> · <a href="CHANGELOG.md">Nouveautés</a>
 </p>
 
 ---

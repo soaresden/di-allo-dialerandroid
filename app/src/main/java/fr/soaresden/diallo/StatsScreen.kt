@@ -3,6 +3,11 @@ package fr.soaresden.diallo
 import android.provider.CallLog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.border
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -30,7 +35,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /* ---------- Périodes & découpage temporel ---------- */
-enum class Gran { DAY, WEEK, MONTH, YEAR }
+enum class Gran { HOUR, DAY, WEEK, MONTH, YEAR }
+/** Filtre posé en touchant une barre (heure, jour, pays, type…) : un seul filtre par sorte [kind]. */
+class SFilter(val kind: String, val id: String, val label: String, val test: (CallRepository.CallEntry) -> Boolean)
 data class Range(val start: Long, val end: Long, val label: String, val gran: Gran)
 data class Bucket(val start: Long, val end: Long, val label: String)
 
@@ -63,12 +70,14 @@ internal fun buckets(r: Range): List<Bucket> {
     while (c.timeInMillis <= r.end && guard++ < 400) {
         val s = c.timeInMillis
         val label = when (r.gran) {
+            Gran.HOUR -> c.get(Calendar.HOUR_OF_DAY).let { if (it % 3 == 0) "${it}h" else "" }
             Gran.DAY -> if (r.end - r.start <= 8 * DAY_MS) wdInitial(c.get(Calendar.DAY_OF_WEEK)) else c.get(Calendar.DAY_OF_MONTH).toString()
             Gran.WEEK -> "${c.get(Calendar.DAY_OF_MONTH)}/${c.get(Calendar.MONTH) + 1}"
             Gran.MONTH -> monthName(c.get(Calendar.MONTH)).take(1).uppercase()
             Gran.YEAR -> "'" + (c.get(Calendar.YEAR) % 100).toString().padStart(2, '0')
         }
         when (r.gran) {
+            Gran.HOUR -> c.add(Calendar.HOUR_OF_DAY, 1)
             Gran.DAY -> c.add(Calendar.DAY_OF_YEAR, 1); Gran.WEEK -> c.add(Calendar.DAY_OF_YEAR, 7)
             Gran.MONTH -> c.add(Calendar.MONTH, 1); Gran.YEAR -> c.add(Calendar.YEAR, 1)
         }
@@ -93,7 +102,8 @@ internal fun drill(b: Bucket, g: Gran): Range? {
         Gran.YEAR -> Range(b.start, b.end - 1, tr("Année {0}", c.get(Calendar.YEAR).toString()), Gran.MONTH)
         Gran.MONTH -> Range(b.start, b.end - 1, "${monthName(c.get(Calendar.MONTH)).replaceFirstChar { it.uppercase() }} ${c.get(Calendar.YEAR)}", Gran.DAY)
         Gran.WEEK -> Range(b.start, b.end - 1, tr("Semaine du {0}", fmtDate(b.start)), Gran.DAY)
-        Gran.DAY -> null
+        Gran.DAY -> Range(b.start, b.end - 1, "${wdName(c.get(Calendar.DAY_OF_WEEK)).replaceFirstChar { it.uppercase() }} ${fmtDate(b.start)}", Gran.HOUR)
+        Gran.HOUR -> null
     }
 }
 
@@ -213,6 +223,7 @@ private fun facts(calls: List<CallRepository.CallEntry>, aggs: Map<String, Agg>,
 private fun agoTextSpan(ms: Long): String { val d = (ms / DAY_MS).toInt(); return if (d >= 365) trn(d / 365, "{0} an", "{0} ans") else tr("{0} mois", d / 30) }
 
 /* ---------- Écran (version compacte, organisée) ---------- */
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 internal fun StatsScreen(calls: List<CallRepository.CallEntry>, contacts: List<CallRepository.Contact>, onWrapped: () -> Unit = {}, onDetail: (String) -> Unit) {
     if (calls.isEmpty()) { Empty(tr("Pas de données : accorde l'accès au journal d'appels.")); return }
@@ -224,8 +235,17 @@ internal fun StatsScreen(calls: List<CallRepository.CallEntry>, contacts: List<C
     var rank by remember { mutableStateOf(0) }
     var origin by remember { mutableStateOf(0) }
     var allFacts by remember { mutableStateOf(false) }
+    val filters = remember { mutableStateListOf<SFilter>() }
+    fun toggle(f: SFilter) {
+        val same = filters.firstOrNull { it.kind == f.kind }
+        if (same != null) filters.remove(same)
+        if (same?.id != f.id) filters.add(f)
+    }
+    fun active(kind: String) = filters.firstOrNull { it.kind == kind }?.id
+    var detailAll by remember { mutableStateOf(false) }
 
-    val inRange = remember(calls, range) { calls.filter { it.date in range.start..range.end } }
+    val fl = filters.toList()
+    val inRange = remember(calls, range, fl) { calls.filter { c -> c.date in range.start..range.end && fl.all { it.test(c) } } }
     val lang = I18n.lang.value
     val bs = remember(range, lang) { buckets(range) }
     val perBucket = remember(inRange, bs) { countIn(inRange, bs) }
@@ -234,19 +254,30 @@ internal fun StatsScreen(calls: List<CallRepository.CallEntry>, contacts: List<C
     val allAggs by produceState(emptyMap<String, Agg>(), calls) { value = withContext(Dispatchers.Default) { aggregate(calls) } }
     val contactKeys = remember(contacts) { contacts.map { keyOf(it.number) }.toHashSet() }
     val fun_ by produceState(emptyList<Fact>(), inRange, contactKeys, lang) { value = withContext(Dispatchers.Default) { facts(inRange, aggregate(inRange), contactKeys) } }
-    val origins by produceState(Triple(emptyList<Triple<String, String, Int>>(), emptyList<Triple<String, String, Int>>(), emptyList<Triple<String, String, Int>>()), inRange, lang) {
+    val origins by produceState(Triple(emptyList<Org>(), emptyList<Org>(), emptyList<Org>()), inRange, lang) {
         value = withContext(Dispatchers.Default) {
-            val countries = inRange.groupBy { countryOf(it.number) }.map { (c, l) -> Triple(c?.flag ?: "❔", c?.name ?: tr("Masqué / court"), l.size) }.sortedByDescending { it.third }
+            val countries = inRange.groupBy { countryOf(it.number) }.map { (c, l) -> Org(c?.flag ?: "❔", c?.name ?: tr("Masqué / court"), l.size, c?.iso ?: "") }.sortedByDescending { it.n }
             val typeEmoji = mapOf("Mobile" to "📱", "Fixe" to "☎️", "Box / VoIP" to "🌐", "Numéro spécial" to "💶", "Court / service" to "🔢", "Étranger" to "✈️", "Masqué" to "🕵️")
-            val types = inRange.groupBy { lineType(it.number) }.map { (t, l) -> Triple(typeEmoji[t] ?: "❔", tr(t), l.size) }.sortedByDescending { it.third }
+            val types = inRange.groupBy { lineType(it.number) }.map { (t, l) -> Org(typeEmoji[t] ?: "❔", tr(t), l.size, t) }.sortedByDescending { it.n }
             val regEmoji = mapOf("Île-de-France" to "🗼", "Nord-Ouest" to "⚓", "Nord-Est" to "🏰", "Sud-Est" to "☀️", "Sud-Ouest" to "🍇", "Outre-mer" to "🏝️")
-            val regions = inRange.mapNotNull { frRegion(it.number) }.groupingBy { it }.eachCount().map { (r, n) -> Triple(regEmoji[r] ?: "📍", tr(r), n) }.sortedByDescending { it.third }
+            val regions = inRange.mapNotNull { frRegion(it.number) }.groupingBy { it }.eachCount().map { (r, n) -> Org(regEmoji[r] ?: "📍", tr(r), n, r) }.sortedByDescending { it.n }
             Triple(countries, types, regions)
         }
     }
     val primary = MaterialTheme.colorScheme.primary
 
     LazyColumn(Modifier.fillMaxSize().padding(horizontal = 12.dp)) {
+        if (filters.isNotEmpty()) stickyHeader {
+            Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxWidth()) {
+                FlowRow(Modifier.padding(vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    filters.forEach { f ->
+                        InputChip(selected = true, onClick = { filters.remove(f) }, label = { Text(f.label, fontSize = 12.sp) },
+                            trailingIcon = { Icon(Icons.Filled.Close, tr("Retirer"), Modifier.size(16.dp)) })
+                    }
+                    if (filters.size > 1) TextButton(onClick = { filters.clear() }) { Text(tr("Tout effacer"), fontSize = 12.sp) }
+                }
+            }
+        }
         item {
             // 🎁 Bilan façon « Wrapped »
             Box(
@@ -290,9 +321,10 @@ internal fun StatsScreen(calls: List<CallRepository.CallEntry>, contacts: List<C
                 }
                 Spacer(Modifier.height(10.dp))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    DirStat(Icons.Filled.PhoneForwarded, tr("Sortants"), out, (out * 100 / tot).toInt(), OutColor, Modifier.weight(1f))
-                    DirStat(Icons.Filled.PhoneCallback, tr("Entrants"), inc, (inc * 100 / tot).toInt(), InColor, Modifier.weight(1f))
-                    DirStat(Icons.Filled.PhoneMissed, tr("Manqués"), miss, (miss * 100 / tot).toInt(), Red, Modifier.weight(1f))
+                    val dir = active("dir")
+                    DirStat(Icons.Filled.PhoneForwarded, tr("Sortants"), out, (out * 100 / tot).toInt(), OutColor, Modifier.weight(1f), dir == "out") { toggle(SFilter("dir", "out", "↗️ " + tr("Sortants")) { it.type == CallLog.Calls.OUTGOING_TYPE }) }
+                    DirStat(Icons.Filled.PhoneCallback, tr("Entrants"), inc, (inc * 100 / tot).toInt(), InColor, Modifier.weight(1f), dir == "in") { toggle(SFilter("dir", "in", "↙️ " + tr("Entrants")) { it.type == CallLog.Calls.INCOMING_TYPE }) }
+                    DirStat(Icons.Filled.PhoneMissed, tr("Manqués"), miss, (miss * 100 / tot).toInt(), Red, Modifier.weight(1f), dir == "miss") { toggle(SFilter("dir", "miss", "❌ " + tr("Manqués")) { isMissed(it.type) }) }
                 }
                 Row(Modifier.fillMaxWidth().padding(top = 8.dp).height(6.dp).clip(RoundedCornerShape(50))) {
                     if (out > 0) Box(Modifier.weight(out / tot).fillMaxHeight().background(OutColor))
@@ -305,19 +337,54 @@ internal fun StatsScreen(calls: List<CallRepository.CallEntry>, contacts: List<C
         // ---- 📈 Activité (zoomable) ----
         item {
             val g = range.gran
-            SectionCard(tr("📈 Activité"), id = "st_act", action = { if (g != Gran.DAY) Text(tr("touche une barre"), fontSize = 10.5.sp, color = muted(.5f)) }) {
-                BarChart(perBucket, bs.map { it.label }, primary, 96.dp, onBar = { i -> drill(bs[i], g)?.let { stack.add(it) } })
+            val sel = active("slot")
+            SectionCard(tr("📈 Activité"), id = "st_act", action = { Text(tr("touche une barre"), fontSize = 10.5.sp, color = muted(.5f)) }) {
+                BarChart(perBucket, bs.map { it.label }, primary, 96.dp, highlight = bs.indexOfFirst { it.start.toString() == sel }, onBar = { i ->
+                    val b = bs[i]
+                    drill(b, g)?.let { stack.add(it) } ?: toggle(SFilter("slot", b.start.toString(), "🕐 " + tr("{0} h", cal(b.start).get(Calendar.HOUR_OF_DAY))) { it.date >= b.start && it.date < b.end })
+                })
+            }
+        }
+        // ---- 🔎 Détail : les appels qui correspondent à ce que tu as touché ----
+        if (filters.isNotEmpty() || range.gran == Gran.HOUR) item {
+            val sorted = remember(inRange) { inRange.sortedByDescending { it.date } }
+            val shown = if (detailAll) sorted else sorted.take(30)
+            SectionCard(tr("🔎 Détail"), id = "st_det", collapsible = false, action = { Text(trn(sorted.size, "{0} appel", "{0} appels"), fontSize = 11.sp, color = muted(.6f)) }) {
+                if (sorted.isEmpty()) Text(tr("Aucun appel ne correspond."), fontSize = 12.sp, color = muted(.5f))
+                shown.forEach { c ->
+                    Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).clickable { onDetail(keyOf(c.number).ifEmpty { c.number }) }.padding(vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text(c.display, fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onBackground, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Text(c.dirLabel + (if (c.duration > 0) " · " + fmtDur(c.duration) else ""), fontSize = 11.5.sp, color = if (isMissed(c.type)) Red else muted(.6f))
+                        }
+                        Text(fmtWhen(c.date), fontSize = 12.sp, color = muted(.6f))
+                    }
+                }
+                if (sorted.size > 30) TextButton(onClick = { detailAll = !detailAll }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                    Text(if (detailAll) tr("Moins") else trn(sorted.size - 30, "Voir {0} autre", "Voir les {0} autres"))
+                }
             }
         }
         // ---- 🌍 Origine des numéros ----
         item {
             val (countries, types, regions) = origins
-            val list = when (origin) { 0 -> countries; 1 -> types; else -> regions }
+            val list: List<Org> = when (origin) { 0 -> countries; 1 -> types; else -> regions }
             SectionCard(tr("🌍 Origine"), id = "st_org", action = { Segmented(listOf(tr("Pays"), tr("Type"), tr("Région")), origin, { origin = it }, Modifier.width(190.dp)) }) {
-                if (origin == 0) countries.count { it.first != "❔" }.let { nc -> Text(trn(nc, "{0} pays différent", "{0} pays différents"), fontSize = 11.5.sp, color = muted(.6f), modifier = Modifier.padding(bottom = 4.dp)) }
+                if (origin == 0) countries.count { it.emoji != "❔" }.let { nc -> Text(trn(nc, "{0} pays différent", "{0} pays différents"), fontSize = 11.5.sp, color = muted(.6f), modifier = Modifier.padding(bottom = 4.dp)) }
                 if (list.isEmpty()) Text(if (origin == 2) tr("Aucun fixe français sur la période.") else tr("Rien sur la période."), fontSize = 12.sp, color = muted(.5f))
-                val m = (list.maxOfOrNull { it.third } ?: 1).coerceAtLeast(1)
-                list.take(6).forEach { (e, name, n) -> EmojiBar(e, name, n.toFloat() / m, "$n", primary) }
+                val m = (list.maxOfOrNull { it.n } ?: 1).coerceAtLeast(1)
+                val kind = when (origin) { 0 -> "pays"; 1 -> "type"; else -> "reg" }
+                val on = active(kind)
+                list.take(if (on != null) 12 else 6).forEach { o ->
+                    EmojiBar(o.emoji, o.name, o.n.toFloat() / m, "${o.n}", primary, selected = on == o.id) {
+                        val test: (CallRepository.CallEntry) -> Boolean = when (kind) {
+                            "pays" -> { c -> (countryOf(c.number)?.iso ?: "") == o.id }
+                            "type" -> { c -> lineType(c.number) == o.id }
+                            else -> { c -> frRegion(c.number) == o.id }
+                        }
+                        toggle(SFilter(kind, o.id, o.emoji + " " + o.name, test))
+                    }
+                }
             }
         }
         // ---- ⏰ Habitudes : heures OU jours ----
@@ -325,8 +392,14 @@ internal fun StatsScreen(calls: List<CallRepository.CallEntry>, contacts: List<C
             val hours = IntArray(24); val wds = IntArray(7)
             inRange.forEach { val c = cal(it.date); hours[c.get(Calendar.HOUR_OF_DAY)]++; wds[(c.get(Calendar.DAY_OF_WEEK) + 5) % 7]++ }
             SectionCard(tr("⏰ Habitudes"), id = "st_hab", action = { Segmented(listOf(tr("Heures"), tr("Jours")), habit, { habit = it }, Modifier.width(140.dp)) }) {
-                if (habit == 0) BarChart(hours.toList(), (0..23).map { if (it % 3 == 0) "${it}h" else "" }, primary.copy(alpha = .8f), 70.dp, highlight = hours.indices.maxByOrNull { hours[it] } ?: -1)
-                else BarChart(wds.toList(), listOf(Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY, Calendar.THURSDAY, Calendar.FRIDAY, Calendar.SATURDAY, Calendar.SUNDAY).map { wdInitial(it) }, primary.copy(alpha = .8f), 70.dp, highlight = wds.indices.maxByOrNull { wds[it] } ?: -1)
+                val dows = listOf(Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY, Calendar.THURSDAY, Calendar.FRIDAY, Calendar.SATURDAY, Calendar.SUNDAY)
+                if (habit == 0) BarChart(hours.toList(), (0..23).map { if (it % 3 == 0) "${it}h" else "" }, primary.copy(alpha = .8f), 70.dp,
+                    highlight = active("hour")?.toInt() ?: (hours.indices.maxByOrNull { hours[it] } ?: -1),
+                    onBar = { h -> toggle(SFilter("hour", "$h", "⏰ " + tr("{0} h – {1} h", h, h + 1)) { cal(it.date).get(Calendar.HOUR_OF_DAY) == h }) })
+                else BarChart(wds.toList(), dows.map { wdInitial(it) }, primary.copy(alpha = .8f), 70.dp,
+                    highlight = active("wd")?.toInt() ?: (wds.indices.maxByOrNull { wds[it] } ?: -1),
+                    onBar = { d -> toggle(SFilter("wd", "$d", "📅 " + wdName(dows[d]).replaceFirstChar { it.uppercase() }) { (cal(it.date).get(Calendar.DAY_OF_WEEK) + 5) % 7 == d }) })
+                Text(tr("Touche une barre pour filtrer toute la page"), fontSize = 10.5.sp, color = muted(.5f), modifier = Modifier.padding(top = 4.dp))
             }
         }
         // ---- 🏆 Classements ----
@@ -387,6 +460,8 @@ internal fun StatsScreen(calls: List<CallRepository.CallEntry>, contacts: List<C
     }
 }
 
+data class Org(val emoji: String, val name: String, val n: Int, val id: String)
+
 internal val OutColor = Color(0xFF2FC45B)
 internal val InColor = Color(0xFF3A7AFE)
 
@@ -400,8 +475,8 @@ private fun BigStat(emoji: String, value: String, label: String, modifier: Modif
 }
 
 @Composable
-private fun DirStat(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, n: Int, pc: Int, color: Color, modifier: Modifier) {
-    Row(modifier.clip(RoundedCornerShape(12.dp)).background(color.copy(alpha = .12f)).padding(horizontal = 8.dp, vertical = 7.dp), verticalAlignment = Alignment.CenterVertically) {
+private fun DirStat(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, n: Int, pc: Int, color: Color, modifier: Modifier, selected: Boolean = false, onClick: () -> Unit = {}) {
+    Row(modifier.clip(RoundedCornerShape(12.dp)).background(color.copy(alpha = if (selected) .32f else .12f)).then(if (selected) Modifier.border(1.5.dp, color, RoundedCornerShape(12.dp)) else Modifier).clickable { onClick() }.padding(horizontal = 8.dp, vertical = 7.dp), verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.size(30.dp).clip(CircleShape).background(color), contentAlignment = Alignment.Center) { Icon(icon, label, tint = Color.White, modifier = Modifier.size(17.dp)) }
         Spacer(Modifier.width(7.dp))
         Column {
@@ -412,8 +487,9 @@ private fun DirStat(icon: androidx.compose.ui.graphics.vector.ImageVector, label
 }
 
 @Composable
-private fun EmojiBar(emoji: String, name: String, frac: Float, right: String, color: Color) {
-    Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+private fun EmojiBar(emoji: String, name: String, frac: Float, right: String, color: Color, selected: Boolean = false, onClick: (() -> Unit)? = null) {
+    Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(if (selected) color.copy(alpha = .16f) else Color.Transparent)
+        .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier).padding(vertical = 4.dp, horizontal = 2.dp), verticalAlignment = Alignment.CenterVertically) {
         Text(emoji, fontSize = 18.sp, modifier = Modifier.width(30.dp))
         Text(name, Modifier.weight(1f), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onBackground, maxLines = 1, overflow = TextOverflow.Ellipsis)
         Box(Modifier.width(80.dp).height(7.dp).clip(RoundedCornerShape(50)).background(MaterialTheme.colorScheme.surfaceVariant)) {
@@ -460,10 +536,35 @@ private fun FactTile(f: Fact, modifier: Modifier, onClick: () -> Unit) {
 }
 
 /* ---------- Fiche statistique d'un contact ---------- */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
-internal fun ContactStatsSheet(key: String, calls: List<CallRepository.CallEntry>, onCall: (String) -> Unit, onDismiss: () -> Unit) {
-    val mine = remember(key, calls) { calls.filter { keyOf(it.number).ifEmpty { it.number } == key } }
+internal fun ContactStatsSheet(key: String, calls: List<CallRepository.CallEntry>, onCall: (String) -> Unit, onDismiss: () -> Unit, onDeleted: () -> Unit = {}) {
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    val scope = rememberCoroutineScope()
+    val gone = remember { mutableStateListOf<Long>() }          // supprimés : masqués tout de suite
+    val mine = remember(key, calls, gone.size) { calls.filter { keyOf(it.number).ifEmpty { it.number } == key && it.id !in gone } }
+    val sel = remember { mutableStateListOf<Long>() }
+    var selecting by remember { mutableStateOf(false) }
+    var askDelete by remember { mutableStateOf(false) }
+    var showAll by remember { mutableStateOf(false) }
+    fun toggle(id: Long) { if (id < 0) return; if (id in sel) sel.remove(id) else sel.add(id) }
+    if (askDelete) AlertDialog(
+        onDismissRequest = { askDelete = false },
+        title = { Text(trn(sel.size, "Supprimer {0} appel ?", "Supprimer {0} appels ?")) },
+        text = { Text(tr("Ils seront effacés du journal du téléphone.")) },
+        confirmButton = {
+            Button(onClick = {
+                askDelete = false
+                val ids = sel.toList(); sel.clear(); selecting = false; gone.addAll(ids)
+                scope.launch {
+                    val ok = withContext(Dispatchers.IO) { ids.count { CallRepository.deleteCall(ctx, it) } }
+                    if (ok == 0) { gone.removeAll(ids); android.widget.Toast.makeText(ctx, tr("Impossible : Di-Allô doit être l'appli Téléphone par défaut"), android.widget.Toast.LENGTH_LONG).show() }
+                    else { android.widget.Toast.makeText(ctx, trn(ok, "{0} appel supprimé", "{0} appels supprimés"), android.widget.Toast.LENGTH_SHORT).show(); onDeleted() }
+                }
+            }, colors = ButtonDefaults.buttonColors(containerColor = Red, contentColor = Color.White)) { Text(tr("Supprimer")) }
+        },
+        dismissButton = { TextButton(onClick = { askDelete = false }) { Text(tr("Annuler")) } }
+    )
     val state = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = state, containerColor = MaterialTheme.colorScheme.background) {
         if (mine.isEmpty()) { Box(Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) { Text(tr("Aucun appel avec ce contact."), color = muted()) }; return@ModalBottomSheet }
@@ -492,16 +593,34 @@ internal fun ContactStatsSheet(key: String, calls: List<CallRepository.CallEntry
                 SectionCard(range.label, collapsible = false, action = { if (stack.isNotEmpty()) TextButton(onClick = { stack.removeAt(stack.lastIndex) }) { Text(tr("Retour")) } }) {
                     BarChart(counts, bs.map { it.label }, primary, 110.dp, onBar = { i -> drill(bs[i], range.gran)?.let { stack.add(it) } })
                 }
-                Text(tr("Derniers appels"), fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(vertical = 6.dp))
+                Row(Modifier.fillMaxWidth().padding(vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
+                    if (selecting) {
+                        Text(trn(sel.size, "{0} sélectionné", "{0} sélectionnés"), fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.weight(1f))
+                        TextButton(onClick = { val shown = mine.take(if (showAll) mine.size else 25).map { it.id }.filter { it >= 0 }; if (sel.containsAll(shown)) sel.clear() else { sel.clear(); sel.addAll(shown) } }) { Text(tr("Tout")) }
+                        TextButton(onClick = { sel.clear(); selecting = false }) { Text(tr("Annuler")) }
+                        Button(onClick = { if (sel.isNotEmpty()) askDelete = true }, enabled = sel.isNotEmpty(), colors = ButtonDefaults.buttonColors(containerColor = Red, contentColor = Color.White), contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp)) {
+                            Icon(Icons.Filled.Delete, null, Modifier.size(16.dp))
+                        }
+                    } else {
+                        Text(tr("Derniers appels"), fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.weight(1f))
+                        TextButton(onClick = { selecting = true }) { Text("☑️ " + tr("Sélectionner")) }
+                    }
+                }
             }
-            items(mine.size.coerceAtMost(25)) { i ->
+            items(if (showAll) mine.size else mine.size.coerceAtMost(25)) { i ->
                 val c = mine[i]
-                Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp))
+                    .combinedClickable(onClick = { if (selecting) toggle(c.id) }, onLongClick = { selecting = true; toggle(c.id) })
+                    .padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                    if (selecting) Checkbox(checked = c.id in sel, onCheckedChange = { toggle(c.id) }, modifier = Modifier.size(32.dp))
                     Text(c.dirLabel, fontSize = 13.sp, color = if (isMissed(c.type)) Red else MaterialTheme.colorScheme.onBackground, modifier = Modifier.weight(1f))
                     Text(if (c.duration > 0) fmtDur(c.duration) else "—", fontSize = 13.sp, color = muted(), modifier = Modifier.width(70.dp))
                     RecBadge(c.id, a.display)
                     Text(fmtWhen(c.date), fontSize = 13.sp, color = muted())
                 }
+            }
+            if (!showAll && mine.size > 25) item {
+                TextButton(onClick = { showAll = true }, modifier = Modifier.fillMaxWidth()) { Text(trn(mine.size, "Voir l'appel", "Voir les {0} appels")) }
             }
             item { Spacer(Modifier.height(30.dp)) }
         }

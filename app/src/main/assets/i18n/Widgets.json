@@ -1,22 +1,156 @@
 {
-  "Nom ou numéro": { "en": "Name or number", "es": "Nombre o número", "de": "Name oder Nummer", "it": "Nome o numero", "pt": "Nome ou número" },
-  "Contact du widget": { "en": "Widget contact", "es": "Contacto del widget", "de": "Widget-Kontakt", "it": "Contatto del widget", "pt": "Contacto do widget" },
-  "Appui long sur une touche du clavier (2 à 9) pour appeler directement le contact choisi. 1 = messagerie.": { "en": "Long-press a keypad key (2 to 9) to call the chosen contact directly. 1 = voicemail.", "es": "Mantén pulsada una tecla (2 a 9) para llamar directamente al contacto elegido. 1 = buzón de voz.", "de": "Halte eine Taste (2 bis 9) gedrückt, um den gewählten Kontakt direkt anzurufen. 1 = Mailbox.", "it": "Tieni premuto un tasto (da 2 a 9) per chiamare subito il contatto scelto. 1 = segreteria.", "pt": "Mantém premida uma tecla (2 a 9) para ligar diretamente ao contacto escolhido. 1 = correio de voz." },
-  "Non attribuée · touche pour choisir": { "en": "Unassigned · tap to choose", "es": "Sin asignar · toca para elegir", "de": "Nicht belegt · tippen zum Auswählen", "it": "Non assegnato · tocca per scegliere", "pt": "Não atribuída · toca para escolher" },
-  "Retirer": { "en": "Remove", "es": "Quitar", "de": "Entfernen", "it": "Rimuovi", "pt": "Remover" },
-  "Touche {0}": { "en": "Key {0}", "es": "Tecla {0}", "de": "Taste {0}", "it": "Tasto {0}", "pt": "Tecla {0}" },
-  "⭐ Widget Favoris": { "en": "⭐ Favorites widget", "es": "⭐ Widget de favoritos", "de": "⭐ Favoriten-Widget", "it": "⭐ Widget Preferiti", "pt": "⭐ Widget de favoritos" },
-  "Contacts affichés": { "en": "Contacts shown", "es": "Contactos mostrados", "de": "Angezeigte Kontakte", "it": "Contatti mostrati", "pt": "Contactos mostrados" },
-  "Favoris + fréquents": { "en": "Favorites + frequent", "es": "Favoritos + frecuentes", "de": "Favoriten + häufige", "it": "Preferiti + frequenti", "pt": "Favoritos + frequentes" },
-  "Nombre de contacts": { "en": "Number of contacts", "es": "Número de contactos", "de": "Anzahl der Kontakte", "it": "Numero di contatti", "pt": "Número de contactos" },
-  "Afficher les prénoms": { "en": "Show first names", "es": "Mostrar los nombres", "de": "Vornamen anzeigen", "it": "Mostra i nomi", "pt": "Mostrar os nomes" },
-  "Ton écran d'accueil ne permet pas d'ajouter le widget depuis l'appli : appui long sur l'écran d'accueil › Widgets › Di-Allô.": { "en": "Your home screen doesn't allow adding the widget from the app: long-press the home screen › Widgets › Di-Allô.", "es": "Tu pantalla de inicio no permite añadir el widget desde la app: mantén pulsada la pantalla de inicio › Widgets › Di-Allô.", "de": "Dein Startbildschirm erlaubt das Hinzufügen aus der App nicht: Startbildschirm lange drücken › Widgets › Di-Allô.", "it": "La tua schermata Home non permette di aggiungere il widget dall'app: tieni premuto sulla Home › Widget › Di-Allô.", "pt": "O teu ecrã principal não permite adicionar o widget a partir da app: mantém premido o ecrã principal › Widgets › Di-Allô." },
-  "Ajouter le widget à l'écran d'accueil": { "en": "Add the widget to the home screen", "es": "Añadir el widget a la pantalla de inicio", "de": "Widget zum Startbildschirm hinzufügen", "it": "Aggiungi il widget alla schermata Home", "pt": "Adicionar o widget ao ecrã principal" },
-  "👤 Widget contact (1×1)": { "en": "👤 Contact widget (1×1)", "es": "👤 Widget de contacto (1×1)", "de": "👤 Kontakt-Widget (1×1)", "it": "👤 Widget contatto (1×1)", "pt": "👤 Widget de contacto (1×1)" },
-  "Une seule photo sur l'écran d'accueil : un appui appelle ce contact. Aussi depuis un numéro : appui long › Sur l'écran d'accueil.": { "en": "A single photo on the home screen: one tap calls this contact. Also from a number: long-press › On the home screen.", "es": "Una sola foto en la pantalla de inicio: un toque llama a ese contacto. También desde un número: mantén pulsado › En la pantalla de inicio.", "de": "Ein einzelnes Foto auf dem Startbildschirm: Antippen ruft den Kontakt an. Auch von einer Nummer aus: lange drücken › Auf den Startbildschirm.", "it": "Una sola foto sulla schermata Home: un tocco chiama il contatto. Anche da un numero: tieni premuto › Sulla schermata Home.", "pt": "Uma só foto no ecrã principal: um toque liga a esse contacto. Também a partir de um número: mantém premido › No ecrã principal." },
-  "Choisir un contact et l'ajouter": { "en": "Choose a contact and add it", "es": "Elegir un contacto y añadirlo", "de": "Kontakt wählen und hinzufügen", "it": "Scegli un contatto e aggiungilo", "pt": "Escolher um contacto e adicioná-lo" },
-  "🎨 Apparence des widgets": { "en": "🎨 Widget look", "es": "🎨 Apariencia de los widgets", "de": "🎨 Aussehen der Widgets", "it": "🎨 Aspetto dei widget", "pt": "🎨 Aparência dos widgets" },
-  "Vert": { "en": "Green", "es": "Verde", "de": "Grün", "it": "Verde", "pt": "Verde" },
-  "Sombre": { "en": "Dark", "es": "Oscuro", "de": "Dunkel", "it": "Scuro", "pt": "Escuro" },
-  "Transparent": { "en": "Transparent", "es": "Transparente", "de": "Transparent", "it": "Trasparente", "pt": "Transparente" }
+ "Nom ou numéro": {
+  "en": "Name or number",
+  "es": "Nombre o número",
+  "de": "Name oder Nummer",
+  "it": "Nome o numero",
+  "pt": "Nome ou número"
+ },
+ "Contact du widget": {
+  "en": "Widget contact",
+  "es": "Contacto del widget",
+  "de": "Widget-Kontakt",
+  "it": "Contatto del widget",
+  "pt": "Contacto do widget"
+ },
+ "Appui long sur une touche du clavier (2 à 9) pour appeler directement le contact choisi. 1 = messagerie.": {
+  "en": "Long-press a keypad key (2 to 9) to call the chosen contact directly. 1 = voicemail.",
+  "es": "Mantén pulsada una tecla (2 a 9) para llamar directamente al contacto elegido. 1 = buzón de voz.",
+  "de": "Halte eine Taste (2 bis 9) gedrückt, um den gewählten Kontakt direkt anzurufen. 1 = Mailbox.",
+  "it": "Tieni premuto un tasto (da 2 a 9) per chiamare subito il contatto scelto. 1 = segreteria.",
+  "pt": "Mantém premida uma tecla (2 a 9) para ligar diretamente ao contacto escolhido. 1 = correio de voz."
+ },
+ "Non attribuée · touche pour choisir": {
+  "en": "Unassigned · tap to choose",
+  "es": "Sin asignar · toca para elegir",
+  "de": "Nicht belegt · tippen zum Auswählen",
+  "it": "Non assegnato · tocca per scegliere",
+  "pt": "Não atribuída · toca para escolher"
+ },
+ "Retirer": {
+  "en": "Remove",
+  "es": "Quitar",
+  "de": "Entfernen",
+  "it": "Rimuovi",
+  "pt": "Remover"
+ },
+ "Touche {0}": {
+  "en": "Key {0}",
+  "es": "Tecla {0}",
+  "de": "Taste {0}",
+  "it": "Tasto {0}",
+  "pt": "Tecla {0}"
+ },
+ "⭐ Widget Favoris": {
+  "en": "⭐ Favorites widget",
+  "es": "⭐ Widget de favoritos",
+  "de": "⭐ Favoriten-Widget",
+  "it": "⭐ Widget Preferiti",
+  "pt": "⭐ Widget de favoritos"
+ },
+ "Contacts affichés": {
+  "en": "Contacts shown",
+  "es": "Contactos mostrados",
+  "de": "Angezeigte Kontakte",
+  "it": "Contatti mostrati",
+  "pt": "Contactos mostrados"
+ },
+ "Favoris + fréquents": {
+  "en": "Favorites + frequent",
+  "es": "Favoritos + frecuentes",
+  "de": "Favoriten + häufige",
+  "it": "Preferiti + frequenti",
+  "pt": "Favoritos + frequentes"
+ },
+ "Nombre de contacts": {
+  "en": "Number of contacts",
+  "es": "Número de contactos",
+  "de": "Anzahl der Kontakte",
+  "it": "Numero di contatti",
+  "pt": "Número de contactos"
+ },
+ "Afficher les prénoms": {
+  "en": "Show first names",
+  "es": "Mostrar los nombres",
+  "de": "Vornamen anzeigen",
+  "it": "Mostra i nomi",
+  "pt": "Mostrar os nomes"
+ },
+ "Ton écran d'accueil ne permet pas d'ajouter le widget depuis l'appli : appui long sur l'écran d'accueil › Widgets › Di-Allô.": {
+  "en": "Your home screen doesn't allow adding the widget from the app: long-press the home screen › Widgets › Di-Allô.",
+  "es": "Tu pantalla de inicio no permite añadir el widget desde la app: mantén pulsada la pantalla de inicio › Widgets › Di-Allô.",
+  "de": "Dein Startbildschirm erlaubt das Hinzufügen aus der App nicht: Startbildschirm lange drücken › Widgets › Di-Allô.",
+  "it": "La tua schermata Home non permette di aggiungere il widget dall'app: tieni premuto sulla Home › Widget › Di-Allô.",
+  "pt": "O teu ecrã principal não permite adicionar o widget a partir da app: mantém premido o ecrã principal › Widgets › Di-Allô."
+ },
+ "Ajouter le widget à l'écran d'accueil": {
+  "en": "Add the widget to the home screen",
+  "es": "Añadir el widget a la pantalla de inicio",
+  "de": "Widget zum Startbildschirm hinzufügen",
+  "it": "Aggiungi il widget alla schermata Home",
+  "pt": "Adicionar o widget ao ecrã principal"
+ },
+ "👤 Widget contact (1×1)": {
+  "en": "👤 Contact widget (1×1)",
+  "es": "👤 Widget de contacto (1×1)",
+  "de": "👤 Kontakt-Widget (1×1)",
+  "it": "👤 Widget contatto (1×1)",
+  "pt": "👤 Widget de contacto (1×1)"
+ },
+ "Une seule photo sur l'écran d'accueil : un appui appelle ce contact. Aussi depuis un numéro : appui long › Sur l'écran d'accueil.": {
+  "en": "A single photo on the home screen: one tap calls this contact. Also from a number: long-press › On the home screen.",
+  "es": "Una sola foto en la pantalla de inicio: un toque llama a ese contacto. También desde un número: mantén pulsado › En la pantalla de inicio.",
+  "de": "Ein einzelnes Foto auf dem Startbildschirm: Antippen ruft den Kontakt an. Auch von einer Nummer aus: lange drücken › Auf den Startbildschirm.",
+  "it": "Una sola foto sulla schermata Home: un tocco chiama il contatto. Anche da un numero: tieni premuto › Sulla schermata Home.",
+  "pt": "Uma só foto no ecrã principal: um toque liga a esse contacto. Também a partir de um número: mantém premido › No ecrã principal."
+ },
+ "Choisir un contact et l'ajouter": {
+  "en": "Choose a contact and add it",
+  "es": "Elegir un contacto y añadirlo",
+  "de": "Kontakt wählen und hinzufügen",
+  "it": "Scegli un contatto e aggiungilo",
+  "pt": "Escolher um contacto e adicioná-lo"
+ },
+ "🎨 Apparence des widgets": {
+  "en": "🎨 Widget look",
+  "es": "🎨 Apariencia de los widgets",
+  "de": "🎨 Aussehen der Widgets",
+  "it": "🎨 Aspetto dei widget",
+  "pt": "🎨 Aparência dos widgets"
+ },
+ "Vert": {
+  "en": "Green",
+  "es": "Verde",
+  "de": "Grün",
+  "it": "Verde",
+  "pt": "Verde"
+ },
+ "Sombre": {
+  "en": "Dark",
+  "es": "Oscuro",
+  "de": "Dunkel",
+  "it": "Scuro",
+  "pt": "Escuro"
+ },
+ "Transparent": {
+  "en": "Transparent",
+  "es": "Transparente",
+  "de": "Transparent",
+  "it": "Trasparente",
+  "pt": "Transparente"
+ },
+ "Aperçu": {
+  "en": "Preview",
+  "es": "Vista previa",
+  "de": "Vorschau",
+  "it": "Anteprima",
+  "pt": "Pré-visualização"
+ },
+ "Widget contact 1×1": {
+  "en": "1×1 contact widget",
+  "es": "Widget de contacto 1×1",
+  "de": "1×1-Kontakt-Widget",
+  "it": "Widget contatto 1×1",
+  "pt": "Widget de contacto 1×1"
+ }
 }

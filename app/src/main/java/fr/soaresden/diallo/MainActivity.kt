@@ -128,7 +128,7 @@ private fun Root(theme: String, onTheme: (String) -> Unit) {
         )
     }
     if (wrapped) { WrappedScreen(data.calls, data.contacts) { wrapped = false }; return }
-    detail?.let { k -> ContactStatsSheet(k, data.calls, onCall = { detail = null; pending = it }, onDismiss = { detail = null }) }
+    detail?.let { k -> ContactStatsSheet(k, data.calls, onCall = { detail = null; pending = it }, onDismiss = { detail = null }, onDeleted = { refresh++ }) }
     // enregistrements d'appels (dossier Rec) : relus à chaque rechargement du journal
     val recFolder by Recordings.folderVersion
     LaunchedEffect(data.calls, recFolder) { if (data.calls.isNotEmpty()) withContext(Dispatchers.IO) { Recordings.refresh(ctx, data) } }

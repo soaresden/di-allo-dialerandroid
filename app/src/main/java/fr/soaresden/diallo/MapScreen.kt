@@ -123,7 +123,7 @@ internal fun ContactsMap(onBack: () -> Unit, onOpen: (Long) -> Unit) {
         )
 
         // ---- Barre du haut ----
-        Surface(Modifier.fillMaxWidth().padding(10.dp), shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surface.copy(alpha = .95f), shadowElevation = 4.dp) {
+        Surface(Modifier.fillMaxWidth().padding(10.dp), shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surface.copy(alpha = .95f), shadowElevation = 4.dp, contentColor = MaterialTheme.colorScheme.onSurface) {
             Row(Modifier.padding(end = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onBack) { Icon(Icons.Filled.ArrowBack, tr("Retour"), tint = MaterialTheme.colorScheme.onSurface) }
                 Column(Modifier.weight(1f)) {

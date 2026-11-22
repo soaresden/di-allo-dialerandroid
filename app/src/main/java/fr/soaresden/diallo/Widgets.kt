@@ -1,5 +1,6 @@
 package fr.soaresden.diallo
 
+import androidx.compose.ui.graphics.Color
 import android.app.Activity
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -271,7 +272,7 @@ internal fun WidgetSettings() {
         Text(tr("Nombre de contacts"), fontSize = 13.sp, color = muted(), modifier = Modifier.padding(bottom = 6.dp))
         Segmented(listOf("4", "8"), if (count == 4) 0 else 1, { count = if (it == 0) 4 else 8; WidgetPrefs.set(ctx, "fav_count", count) }, Modifier.fillMaxWidth())
         Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(tr("Afficher les prénoms"), modifier = Modifier.weight(1f))
+            Text(tr("Afficher les prénoms"), color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
             Switch(names, { names = it; WidgetPrefs.set(ctx, "fav_names", it) })
         }
         TextButton(onClick = { msg = if (WidgetPrefs.pinFavorites(ctx)) null else tr("Ton écran d'accueil ne permet pas d'ajouter le widget depuis l'appli : appui long sur l'écran d'accueil › Widgets › Di-Allô.") }) {
@@ -284,10 +285,63 @@ internal fun WidgetSettings() {
     }
     SectionCard(tr("🎨 Apparence des widgets")) {
         Segmented(listOf(tr("Vert"), tr("Sombre"), tr("Clair"), tr("Transparent")), style, { style = it; WidgetPrefs.set(ctx, "style", it) }, Modifier.fillMaxWidth())
+        Spacer(Modifier.height(12.dp))
+        val favs by produceState(emptyList<Pick>(), source, count) {
+            value = withContext(Dispatchers.IO) { try { FavoritesWidget.favorites(ctx).map { Pick(it.name, it.number, it.photo) } } catch (_: Throwable) { emptyList() } }
+        }
+        WidgetPreview(style, names, count, favs)
     }
     msg?.let { Text(it, fontSize = 12.5.sp, color = Amber, modifier = Modifier.padding(4.dp)) }
     if (picking) ContactPickerDialog(tr("Contact du widget"), onDismiss = { picking = false }) { p ->
         picking = false
         msg = if (WidgetPrefs.pinContact(ctx, p)) null else tr("Ton écran d'accueil ne permet pas d'ajouter le widget depuis l'appli : appui long sur l'écran d'accueil › Widgets › Di-Allô.")
+    }
+}
+
+
+/** Aperçu des widgets tels qu'ils apparaîtront, posés sur un faux fond d'écran. */
+@Composable
+private fun WidgetPreview(style: Int, names: Boolean, count: Int, favs: List<Pick>) {
+    val fg = Color(WidgetPrefs.fg(style))
+    val bg: androidx.compose.ui.graphics.Brush = when (style) {
+        1 -> androidx.compose.ui.graphics.Brush.linearGradient(listOf(Color(0xEE1A1C22), Color(0xEE0E0F13)))
+        2 -> androidx.compose.ui.graphics.Brush.linearGradient(listOf(Color(0xF2FFFFFF), Color(0xF2EEF0F4)))
+        3 -> androidx.compose.ui.graphics.Brush.linearGradient(listOf(Color.Transparent, Color.Transparent))
+        else -> androidx.compose.ui.graphics.Brush.linearGradient(listOf(Color(0xE6116B57), Color(0xE60E1A24)))
+    }
+    val wallpaper = androidx.compose.ui.graphics.Brush.linearGradient(listOf(Color(0xFF5B7FD6), Color(0xFFB06AB3), Color(0xFFF2A65A)))
+    val shown = favs.take(count)
+    Column(
+        Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(wallpaper).padding(14.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text(tr("Aperçu"), fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = Color.White.copy(alpha = .85f))
+        // widget Favoris
+        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(bg).padding(12.dp)) {
+            Text("⭐ " + tr("Favoris"), fontSize = 13.sp, fontWeight = FontWeight.Bold, color = fg, modifier = Modifier.padding(start = 4.dp, bottom = 8.dp))
+            if (shown.isEmpty()) Text(tr("Ajoute des favoris ⭐ dans tes contacts"), fontSize = 12.sp, color = fg.copy(alpha = .8f), modifier = Modifier.padding(4.dp))
+            shown.chunked(4).forEach { row ->
+                Row(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+                    row.forEach { f ->
+                        Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                            Avatar(f.name, f.photo, 46.dp)
+                            if (names) Text(f.name.substringBefore(' ').take(12), fontSize = 11.sp, color = fg, maxLines = 1, modifier = Modifier.padding(top = 3.dp))
+                        }
+                    }
+                    repeat(4 - row.size) { Spacer(Modifier.weight(1f)) }
+                }
+            }
+        }
+        // widget contact 1×1
+        shown.firstOrNull()?.let { f ->
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.size(76.dp).clip(RoundedCornerShape(22.dp)).background(bg), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                    Avatar(f.name, f.photo, 44.dp)
+                    Text(f.name.substringBefore(' ').take(10), fontSize = 10.5.sp, color = fg, maxLines = 1, modifier = Modifier.padding(top = 2.dp))
+                }
+                Spacer(Modifier.width(10.dp))
+                Text(tr("Widget contact 1×1"), fontSize = 12.sp, color = Color.White.copy(alpha = .9f))
+            }
+        }
     }
 }

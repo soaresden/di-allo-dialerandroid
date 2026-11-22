@@ -10,6 +10,10 @@ Vérifie les traductions de Di-Allô.
 3. Vérifie que chaque JSON est valide.
 """
 import json, os, re, sys, glob
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+except Exception:
+    pass
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "app/src/main/java/fr/soaresden/diallo")
@@ -27,7 +31,7 @@ def unescape(s):
 def ph(s): return sorted(set(re.findall(r'\{\d\}', s)))
 
 def main():
-    files = sys.argv[1:] or [os.path.relpath(p, SRC) for p in glob.glob(os.path.join(SRC, "**/*.kt"), recursive=True)]
+    files = sys.argv[1:] or [os.path.relpath(p, SRC) for p in glob.glob(os.path.join(SRC, "**/*.kt"), recursive=True) if not p.endswith("I18n.kt")]
     table = {}; bad_json = []
     for f in glob.glob(os.path.join(I18N, "*.json")):
         try:

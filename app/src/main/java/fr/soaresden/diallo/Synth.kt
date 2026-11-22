@@ -98,7 +98,8 @@ object Synth {
     @Volatile var currentId: String = "piano"
     private val current: Instr get() = instruments.firstOrNull { it.id == currentId } ?: instruments[0]
 
-    private val exec = Executors.newFixedThreadPool(2)
+    // un fil par cœur : les 12 sons d'un instrument se calculent en parallèle
+    private val exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors().coerceIn(2, 8)) { r -> Thread(r, "diallo-render").apply { isDaemon = true } }
 
     // Cache des sons déjà calculés (instrument courant seulement) : préparés à l'avance
     private val cache = java.util.concurrent.ConcurrentHashMap<String, ShortArray>()
@@ -125,7 +126,7 @@ object Synth {
     /** Calcule à l'avance les 12 touches de l'instrument [id] (courant par défaut). */
     fun prepare(id: String? = null) {
         val instr = instr(id)
-        exec.execute { KEYS.forEach { k -> try { render(instr, k) } catch (_: Throwable) { } } }
+        KEYS.forEach { k -> if (!cache.containsKey(instr.id + "|" + k)) exec.execute { try { render(instr, k) } catch (_: Throwable) { } } }
     }
 
     /** Ouvre le flux audio et prépare les sons : à appeler quand le clavier s'affiche. */
@@ -146,7 +147,7 @@ object Synth {
     @Volatile private var mixer: Thread? = null
     @Volatile private var lastUse = 0L
     private const val CHUNK = 192          // ~4 ms par paquet
-    private const val IDLE_MS = 15_000L    // ferme le flux après 15 s sans touche
+    private const val IDLE_MS = 60_000L    // ferme le flux après 1 min sans touche (le rouvrir coûte une latence)
 
     private fun start(s: ShortArray) {
         voices.add(Voice(s))

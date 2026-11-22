@@ -249,7 +249,7 @@ fun HyperTheme(themeId: String, content: @Composable () -> Unit) {
                 // ombre douce sous le texte quand un décor sombre est derrière
                 val legible = if (t.dark && t.decor != Decor.NONE) androidx.compose.material3.LocalTextStyle.current.copy(shadow = Shadow(Color.Black.copy(alpha = .7f), androidx.compose.ui.geometry.Offset(0f, 1.5f), 6f))
                     else androidx.compose.material3.LocalTextStyle.current
-                CompositionLocalProvider(androidx.compose.material3.LocalTextStyle provides legible) { content() }
+                CompositionLocalProvider(androidx.compose.material3.LocalTextStyle provides legible, androidx.compose.material3.LocalContentColor provides t.text) { content() }
             }
         }
     }

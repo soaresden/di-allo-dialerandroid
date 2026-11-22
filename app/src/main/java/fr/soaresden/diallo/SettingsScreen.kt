@@ -182,6 +182,9 @@ internal fun SettingsScreen(
                 Text(tr("Di-Allô — version {0}", appVersion(ctx)), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onBackground)
                 Text("by Soaresden · github.com/soaresden/di-allo-dialerandroid", fontSize = 12.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium); Spacer(Modifier.height(6.dp))
                 Text(tr("Dialer avec clavier musical."), fontSize = 12.5.sp, color = muted()); Spacer(Modifier.height(6.dp))
+                TextButton(onClick = {
+                    try { ctx.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://github.com/soaresden/di-allo-dialerandroid/blob/main/CHANGELOG.md"))) } catch (_: Throwable) { }
+                }, contentPadding = PaddingValues(0.dp)) { Text("📜 " + tr("Nouveautés de chaque version")) }
                 Text(tr("🎙️ Enregistrement des appels en MP3 via le débogage sans fil (Réglages › Pendant l'appel)."), fontSize = 12.sp, color = muted()); Spacer(Modifier.height(6.dp))
                 Text(tr("Bibliothèques : libadb-android (Apache-2.0), Conscrypt (Apache-2.0), jump3r / LAME (LGPL), osmdroid (Apache-2.0), Coil (Apache-2.0). Emoji 3D Fluent (Microsoft, MIT). Polices Google Fonts (SIL OFL / Apache-2.0)."), fontSize = 11.5.sp, color = muted(.55f))
             }
@@ -235,7 +238,7 @@ private fun ThemeSwatch(t: HTheme?, selected: Boolean, modifier: Modifier, onCli
             )
             Row(Modifier.align(Alignment.BottomCenter).padding(bottom = 8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 listOf("1", "2").forEach { d ->
-                    Box(Modifier.size(30.dp).themedKey(shown, shown.keyShapeOf(), 0f), contentAlignment = Alignment.Center) {
+                    Box(Modifier.size(30.dp).themedKey(shown, shown.keyShapeOf()), contentAlignment = Alignment.Center) {
                         Text(d, fontFamily = shown.num, fontSize = (14f * shown.numScale).sp, color = if (shown.keyStyle == KeyStyle.NEON) shown.primary else shown.text,
                             style = androidx.compose.ui.text.TextStyle(shadow = shown.glowShadow()))
                     }

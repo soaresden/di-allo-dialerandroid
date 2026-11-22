@@ -101,13 +101,18 @@ internal fun DialScreen(
     // Candidats T9 / numéro, triés par nombre d'appels décroissant (une ligne par numéro)
     // Recherche à la fois en T9 (nom) ET dans le numéro (format national 06…, pour que "33" ne matche pas tout le +33)
     val intl = value.startsWith("+")
-    val suggestions = remember(typed, intl, contacts) {
-        if (typed.isEmpty()) emptyList()
-        else contacts.filter { it.t9.contains(typed) || nationalDigits(it.number).contains(typed) || (intl && it.digits.contains(typed)) }
-            .sortedWith(compareByDescending<CallRepository.Contact> { it.calls }
-                .thenBy { c -> if (c.t9.split(' ').any { w -> w.startsWith(typed) } || nationalDigits(c.number).startsWith(typed)) 0 else 1 }
-                .thenBy { it.display.lowercase() })
-            .take(60)
+    // Index prêt dès l'affichage, hors du fil principal
+    LaunchedEffect(contacts) { kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) { contacts.forEach { it.t9Words; it.national; it.digits } } }
+    // Calcul des candidats en arrière-plan : la touche répond tout de suite, la liste suit
+    val suggestions by produceState(emptyList<CallRepository.Contact>(), typed, intl, contacts) {
+        if (typed.isEmpty()) { this.value = emptyList(); return@produceState }
+        this.value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
+            contacts.asSequence()
+                .filter { it.t9.contains(typed) || it.national.contains(typed) || (intl && it.digits.contains(typed)) }
+                .map { c -> Triple(c, if (c.t9Words.any { w -> w.startsWith(typed) } || c.national.startsWith(typed)) 0 else 1, c.display.lowercase()) }
+                .sortedWith(compareByDescending<Triple<CallRepository.Contact, Int, String>> { it.first.calls }.thenBy { it.second }.thenBy { it.third })
+                .take(60).map { it.first }.toList()
+        }
     }
     val exact = remember(typed, contacts) {
         if (typed.length < 9) null else contacts.firstOrNull { it.digits.length >= 9 && it.digits.takeLast(9) == typed.takeLast(9) }
@@ -159,7 +164,7 @@ internal fun DialScreen(
             Surface(
                 Modifier.weight(1f).fillMaxWidth().padding(horizontal = 12.dp).padding(top = 8.dp),
                 color = MaterialTheme.colorScheme.surface.copy(alpha = .92f), shape = RoundedCornerShape(20.dp)
-            ) {
+            , contentColor = MaterialTheme.colorScheme.onSurface) {
                 if (recording) MelodyLibrary(Modifier.fillMaxSize())
                 else Box(Modifier.fillMaxSize()) {
                 val listState = androidx.compose.foundation.lazy.rememberLazyListState()
@@ -237,7 +242,7 @@ internal fun DialScreen(
                 }
                 // Rangée d'appel : [favoris] [appeler] [effacer]
                 if (recording) Row(horizontalArrangement = Arrangement.spacedBy(gapH), verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.size(key).themedKey(LocalHTheme.current, LocalHTheme.current.keyShapeOf(), 0f)
+                    Box(Modifier.size(key).themedKey(LocalHTheme.current, LocalHTheme.current.keyShapeOf())
                         .clickable { Melodies.space(); view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP) }, contentAlignment = Alignment.Center) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text("␣", fontSize = (key.value * 0.36f).sp, color = MaterialTheme.colorScheme.onSurface)
@@ -299,7 +304,7 @@ private fun DialKey(k: K, size: Dp, pulse: Int = 0, onDown: () -> Unit, onLong: 
     Box(
         Modifier.size(size)
             .graphicsLayer { scaleX = press.value; scaleY = press.value }
-            .themedKey(th, shape, glow.value)
+            .themedKey(th, shape) { glow.value }
             .drawBehind {
                 if (glow.value > 0f) drawRect(accent.copy(alpha = .30f * glow.value))
                 if (wave.value < 1f) {
@@ -326,16 +331,17 @@ private fun DialKey(k: K, size: Dp, pulse: Int = 0, onDown: () -> Unit, onLong: 
         contentAlignment = Alignment.Center
     ) {
         val rest = if (th.keyStyle == KeyStyle.NEON) lerp(cs.onSurface, accent, .45f) else cs.onSurface
-        val digit = lerp(rest, accent, glow.value)
         val plain = k.d == "*" || k.d == "#"
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                k.d, fontSize = (size.value * (if (k.d == "*") 0.5f else 0.4f) * (if (plain) 1f else th.numScale)).sp,
-                fontWeight = if (th.num != null && !plain) FontWeight.Normal else if (glow.value > .5f) FontWeight.Normal else FontWeight.Light,
-                fontFamily = if (plain) null else th.num,
-                style = androidx.compose.ui.text.TextStyle(shadow = th.glowShadow()),
-                color = digit, modifier = Modifier.offset(y = if (k.d == "*") 4.dp else 0.dp)
-            )
+            // Le chiffre s'allume par une couche colorée animée au dessin : aucune recomposition pendant l'animation
+            val fs = (size.value * (if (k.d == "*") 0.5f else 0.4f) * (if (plain) 1f else th.numScale)).sp
+            val fw = if (th.num != null && !plain) FontWeight.Normal else FontWeight.Light
+            val ff = if (plain) null else th.num
+            val st = androidx.compose.ui.text.TextStyle(shadow = th.glowShadow())
+            Box(Modifier.offset(y = if (k.d == "*") 4.dp else 0.dp), contentAlignment = Alignment.Center) {
+                Text(k.d, fontSize = fs, fontWeight = fw, fontFamily = ff, style = st, color = rest)
+                Text(k.d, fontSize = fs, fontWeight = fw, fontFamily = ff, color = accent, modifier = Modifier.graphicsLayer { alpha = glow.value })
+            }
             when (k.l) {
                 "vm" -> Icon(Icons.Filled.Voicemail, tr("Messagerie"), tint = muted(.5f), modifier = Modifier.size((size.value * 0.17f).dp))
                 "" -> {}
@@ -465,7 +471,7 @@ private fun RecDisplay(h: Dp) {
 }
 
 /** Habille une touche du cadran selon le thème : plein, verre, néon, contour, BD, tampon. */
-internal fun Modifier.themedKey(th: HTheme, shape: androidx.compose.ui.graphics.Shape, lit: Float): Modifier {
+internal fun Modifier.themedKey(th: HTheme, shape: androidx.compose.ui.graphics.Shape, litOf: () -> Float = { 0f }): Modifier {
     val ink = th.border ?: th.text
     val glowColor = th.primary
     return when (th.keyStyle) {
@@ -477,7 +483,7 @@ internal fun Modifier.themedKey(th: HTheme, shape: androidx.compose.ui.graphics.
         KeyStyle.NEON -> this
             .drawBehind {
                 val o = shape.createOutline(size, layoutDirection, this)
-                val k = .55f + .45f * lit
+                val k = .55f + .45f * litOf()
                 drawOutline(o, glowColor.copy(alpha = .07f * k), style = androidx.compose.ui.graphics.drawscope.Stroke(14.dp.toPx()))
                 drawOutline(o, glowColor.copy(alpha = .14f * k), style = androidx.compose.ui.graphics.drawscope.Stroke(7.dp.toPx()))
             }
@@ -487,7 +493,7 @@ internal fun Modifier.themedKey(th: HTheme, shape: androidx.compose.ui.graphics.
         KeyStyle.HARD -> this
             .drawBehind {
                 val o = shape.createOutline(size, layoutDirection, this)
-                val off = 4.dp.toPx() * (1f - lit * .7f)
+                val off = 4.dp.toPx() * (1f - litOf() * .7f)
                 translate(off, off) { drawOutline(o, ink) }
             }
             .clip(shape).background(th.surface)

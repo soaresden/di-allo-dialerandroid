@@ -46,9 +46,9 @@ class FavoritesWidget : AppWidgetProvider() {
             Thread { try { render(app, mgr, ids) } catch (_: Throwable) { } }.start()
         }
 
-        private data class Fav(val name: String, val number: String, val photo: String?, val calls: Int)
+        internal data class Fav(val name: String, val number: String, val photo: String?, val calls: Int)
 
-        private fun favorites(ctx: Context): List<Fav> {
+        internal fun favorites(ctx: Context): List<Fav> {
             // nombre d'appels par numéro (les 3000 derniers)
             val counts = HashMap<String, Int>()
             try {

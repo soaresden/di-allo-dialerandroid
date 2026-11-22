@@ -29,8 +29,11 @@ object CallRepository {
         val label: String? = null, val calls: Int = 0, val last: Long = 0, val score: Double = 0.0
     ) {
         val display: String get() = name ?: number
-        val t9: String get() = t9Of(name ?: "")
-        val digits: String get() = number.filter { it.isDigit() }
+        // calculés une seule fois (la recherche T9 les lit à chaque touche)
+        val t9: String by lazy(LazyThreadSafetyMode.PUBLICATION) { t9Of(name ?: "") }
+        val digits: String by lazy(LazyThreadSafetyMode.PUBLICATION) { number.filter { it.isDigit() } }
+        val national: String by lazy(LazyThreadSafetyMode.PUBLICATION) { nationalDigits(number) }
+        val t9Words: List<String> by lazy(LazyThreadSafetyMode.PUBLICATION) { t9.split(' ') }
     }
 
     data class Stat(
