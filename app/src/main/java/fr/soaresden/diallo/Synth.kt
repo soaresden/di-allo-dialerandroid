@@ -19,7 +19,7 @@ object Synth {
     private const val SR = 44100
 
     enum class Wave { SINE, TRI, SAW, SQR }
-    enum class Kind { MELODIC, GUITAR, DRUM, DTMF, BOWED }
+    enum class Kind { MELODIC, GUITAR, DRUM, DTMF, BOWED, VESSEL }
 
     data class Partial(val ratio: Double, val gain: Double, val wave: Wave)
     data class Instr(
@@ -62,6 +62,7 @@ object Synth {
         Instr("cloche", "Cloche", partials = listOf(p(1.0,1.0,Wave.SINE), p(2.76,.5,Wave.SINE), p(5.4,.25,Wave.SINE), p(8.9,.12,Wave.SINE)), attack=.004, decay=1.9, emoji="🔔"),
         Instr("handpan", "Handpan", partials = listOf(p(1.0,1.0,Wave.SINE), p(2.0,.5,Wave.SINE), p(2.4,.33,Wave.SINE), p(4.0,.25,Wave.SINE)), attack=.004, decay=1.3, emoji="🛸"),
         Instr("orgue", "Orgue", partials = listOf(p(1.0,.5,Wave.SINE), p(2.0,.3,Wave.SINE), p(3.0,.14,Wave.SINE), p(4.0,.1,Wave.SINE)), attack=.02, decay=.7, emoji="⛪"),
+        Instr("ocarina", "Ocarina", kind = Kind.VESSEL, decay = .95, vibRate = 5.2, vibDepth = .005, octave = 2.0, emoji = "🏺"),
         Instr("flute", "Flûte", partials = listOf(p(1.0,1.0,Wave.SINE), p(2.0,.08,Wave.SINE)), attack=.06, decay=.6, vibRate=5.0, vibDepth=.01, emoji="🪈"),
         Instr("choeur", "Chœur", partials = listOf(p(1.0,.5,Wave.SAW), p(2.0,.2,Wave.SAW), p(3.0,.12,Wave.SAW)), attack=.12, decay=.9, vibRate=5.0, vibDepth=.009, emoji="🎤"),
         Instr("cornemuse", "Cornemuse", partials = listOf(p(1.0,.5,Wave.SAW), p(1.5,.3,Wave.SAW), p(2.0,.18,Wave.SQR), p(.5,.25,Wave.SAW)), attack=.04, decay=.85, vibRate=4.5, vibDepth=.009, emoji="🐑"),
@@ -117,6 +118,7 @@ object Synth {
             Kind.DTMF -> renderDtmf(key)
             Kind.GUITAR -> renderGuitar((freqOf[key] ?: 440.0) * instr.octave)
             Kind.BOWED -> renderBowed((freqOf[key] ?: 440.0) * instr.octave, instr)
+            Kind.VESSEL -> renderVessel((freqOf[key] ?: 440.0) * instr.octave, instr)
             Kind.MELODIC -> renderMelodic((freqOf[key] ?: 440.0) * instr.octave, instr)
         }
     }
@@ -242,6 +244,40 @@ object Synth {
                 s += part.gain * wave(part.wave, phases[j])
             }
             buf[i] = (s / gainSum) * env
+        }
+        return toShorts(buf, 0.5)
+    }
+
+    /**
+     * Ocarina (flûte globulaire) : son presque pur, très peu d'harmoniques, souffle audible
+     * à l'attaque (« chiff ») puis léger souffle continu, note qui monte un poil en place,
+     * vibrato qui n'arrive qu'après l'attaque, tenue puis relâché doux.
+     */
+    private fun renderVessel(freq: Double, instr: Instr): ShortArray {
+        val dur = instr.decay
+        val n = (SR * dur).toInt()
+        val buf = DoubleArray(n)
+        val rnd = java.util.Random(freq.toLong() * 31)
+        val att = .035; val rel = .32
+        var ph = 0.0; var lp = 0.0; var bp = 0.0
+        val cut = 1 - exp(-2 * Math.PI * (freq * 1.6) / SR)        // souffle filtré autour de la note
+        for (i in 0 until n) {
+            val t = i.toDouble() / SR
+            val env = when {
+                t < att -> t / att
+                t > dur - rel -> ((dur - t) / rel).coerceAtLeast(0.0).let { it * it }
+                else -> 1.0 - .12 * (t - att) / (dur - att - rel)      // tenue qui faiblit à peine
+            }
+            val scoop = 1.0 - .012 * exp(-t / .03)                      // attaque un peu basse qui rejoint la note
+            val vibOn = ((t - .16) / .2).coerceIn(0.0, 1.0)
+            val vib = 1.0 + instr.vibDepth * vibOn * sin(2 * Math.PI * instr.vibRate * t)
+            ph += 2 * Math.PI * freq * scoop * vib / SR
+            val tone = sin(ph) + .06 * sin(2 * ph) + .025 * sin(3 * ph)
+            // bruit de souffle : passe-bas puis retrait du grave = bande étroite près de la note
+            val w = rnd.nextGaussian()
+            lp += cut * (w - lp); bp += .02 * (lp - bp)
+            val noise = (lp - bp) * (.55 * exp(-t / .04) + .05)
+            buf[i] = (tone / 1.085 + noise) * env
         }
         return toShorts(buf, 0.5)
     }

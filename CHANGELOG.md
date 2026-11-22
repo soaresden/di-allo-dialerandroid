@@ -3,6 +3,9 @@
 Les versions sont numérotées `AAAA-MM-JJ-NN` (date du build, puis numéro du build du jour).
 Chaque version est téléchargeable dans les [Releases](../../releases).
 
+## 2026-11-22-14
+- 🏺 Nouvel instrument : **Ocarina** (son rond et pur, souffle à l'attaque, vibrato qui arrive doucement). 38 instruments
+
 ## 2026-11-22-13
 - ⭐ **Appui long sur un numéro = favori** : dans la fiche d'un contact, un appui long sur un numéro l'ajoute aux favoris (ou l'en retire), avec une petite vibration
 - ⭐ Récents : « Ajouter aux favoris » / « Retirer des favoris » dans le menu de l'appui long
