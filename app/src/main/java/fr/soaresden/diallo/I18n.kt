@@ -27,7 +27,7 @@ object I18n {
     fun choice(ctx: Context): String = prefs(ctx).getString("lang", "auto") ?: "auto"
 
     private var ready = false
-    fun init(ctx: Context) { apply(ctx.applicationContext, choice(ctx)); ready = true }
+    fun init(ctx: Context) { Home.detect(ctx.applicationContext); apply(ctx.applicationContext, choice(ctx)); ready = true }
     /** À appeler partout où l'appli peut démarrer (écran d'appel, notification…). */
     fun ensure(ctx: Context) { if (!ready) init(ctx) }
 

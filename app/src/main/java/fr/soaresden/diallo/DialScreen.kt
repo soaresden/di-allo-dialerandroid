@@ -426,13 +426,16 @@ private fun CompactRow(c: CallRepository.Contact, onConfirm: (String) -> Unit, q
     }
 }
 
-/** Chiffres au format national : +33 6… / 0033 6… -> 06… */
+/** Chiffres au format national du pays du téléphone : +33 6… / 0033 6… -> 06… ; +32 470… -> 0470… en Belgique. */
 internal fun nationalDigits(n: String): String {
     val d = n.filter { it.isDigit() }
-    val t = n.trim()
+    val t = n.trim().replace(" ", "")
+    val cc = Home.code
     return when {
         t.startsWith("+33") -> "0" + d.drop(2)
         d.startsWith("0033") -> "0" + d.drop(4)
+        cc != "33" && t.startsWith("+$cc") -> Home.trunk + d.drop(cc.length).removePrefix(if (Home.trunk.isEmpty()) "" else "0")
+        cc != "33" && d.startsWith("00$cc") -> Home.trunk + d.drop(cc.length + 2)
         else -> d
     }
 }

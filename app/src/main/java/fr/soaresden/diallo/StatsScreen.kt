@@ -217,7 +217,7 @@ private fun facts(calls: List<CallRepository.CallEntry>, aggs: Map<String, Agg>,
     val unknown = calls.count { keyOf(it.number) !in contactKeys }
     val hidden = calls.count { it.number.none(Char::isDigit) }
     f += Fact("🕵️", tr("Inconnus"), trn(unknown, "{0} appel hors contacts", "{0} appels hors contacts"), if (hidden > 0) tr("dont {0} en numéro masqué", hidden) else tr("aucun numéro masqué"))
-    val foreign = calls.filter { val c = countryOf(it.number); c != null && c.iso != "FR" }
+    val foreign = calls.filter { val c = countryOf(it.number); c != null && c.iso != Home.iso }
     if (foreign.isNotEmpty()) {
         val byC = foreign.groupBy { countryOf(it.number)!! }
         val top = byC.maxByOrNull { it.value.size }!!

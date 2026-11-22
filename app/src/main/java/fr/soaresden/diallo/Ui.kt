@@ -205,7 +205,11 @@ internal fun BarChart(values: List<Int>, labels: List<String>, color: Color, hei
 }
 
 /* ---------- Formatage ---------- */
-internal fun keyOf(n: String): String { val d = n.filter { it.isDigit() }; return if (d.length > 9) d.takeLast(9) else d }
+internal fun keyOf(n: String): String {
+    val d = n.filter { it.isDigit() }
+    if (d.length <= 6) return d
+    return significant(n).takeLast(9)
+}
 internal fun fmtDur(s: Int): String { val h = s / 3600; val m = (s % 3600) / 60; val r = s % 60; return when { h > 0 -> "${h}h${m.toString().padStart(2, '0')}"; m == 0 -> "$r s"; else -> "$m:${r.toString().padStart(2, '0')}" } }
 internal fun fmtClock(s: Long): String {
     val d = s / 86400; val h = (s % 86400) / 3600; val m = (s % 3600) / 60

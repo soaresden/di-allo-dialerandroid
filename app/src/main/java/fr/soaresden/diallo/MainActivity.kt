@@ -55,6 +55,7 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) { super.onNewIntent(intent); takeTab(intent) }
     override fun onResume() {
         super.onResume()
+        Home.detect(this)
         if (!HyperInCallService.inCall) { DataFolder.autoBackupIfDue(this); CallNotifier.cancel(this) }
         FavoritesWidget.refresh(this)
     }
@@ -210,6 +211,12 @@ private fun Header() {
         Text(" by Soaresden", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = muted(.45f), modifier = Modifier.padding(top = 4.dp))
         Spacer(Modifier.weight(1f))
         val ctx = LocalContext.current
+        // pays du réseau connecté : c'est lui qui sert à lire les numéros sans indicatif
+        Home.network.value?.let { c ->
+            Text(c.flag, fontSize = 16.sp, modifier = Modifier.padding(end = 6.dp).clip(CircleShape).clickable {
+                android.widget.Toast.makeText(ctx, tr("Réseau : {0}. Les numéros sans indicatif sont lus comme des numéros de ce pays.", c.name), android.widget.Toast.LENGTH_LONG).show()
+            })
+        }
         Text("v" + remember { appVersion(ctx) }, fontSize = 11.sp, color = muted(.45f), modifier = Modifier.padding(top = 4.dp))
     }
 }

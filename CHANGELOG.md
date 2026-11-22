@@ -3,6 +3,12 @@
 Les versions sont numérotées `AAAA-MM-JJ-NN` (date du build, puis numéro du build du jour).
 Chaque version est téléchargeable dans les [Releases](../../releases).
 
+## 2026-11-22-21
+- 🌍 **Di-Allô s'adapte au pays où tu es** (réseau connecté, sinon la SIM) : en Belgique, « 0470 12 34 56 » est lu comme un numéro belge (🇧🇪 +32 470 12 34 56, Mobile), plus comme un numéro français
+- Le drapeau du réseau connecté s'affiche en haut de l'appli (touche-le pour le détail)
+- Mobile / fixe / numéro spécial reconnus aussi en Belgique, aux Pays-Bas, en Allemagne, en Suisse, au Luxembourg, au Royaume-Uni, en Espagne, en Italie et au Portugal
+- Stats : « pays étrangers » = hors du pays où tu es
+
 ## 2026-11-22-20
 - 🔤 **Police au choix pour chaque thème** : dans le volet des thèmes, bouton **Aa** pour essayer 18 polices en direct (Bebas, Pixel, Machine à écrire, Great Vibes…). « Du thème » remet celle d'origine ; chaque thème garde la sienne
 

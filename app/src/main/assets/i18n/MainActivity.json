@@ -243,5 +243,12 @@
   "de": "Aus Favoriten entfernen",
   "it": "Rimuovi dai preferiti",
   "pt": "Remover dos favoritos"
+ },
+ "Réseau : {0}. Les numéros sans indicatif sont lus comme des numéros de ce pays.": {
+  "en": "Network: {0}. Numbers without a country code are read as numbers from this country.",
+  "es": "Red: {0}. Los números sin prefijo se leen como números de este país.",
+  "de": "Netz: {0}. Nummern ohne Ländervorwahl gelten als Nummern aus diesem Land.",
+  "it": "Rete: {0}. I numeri senza prefisso vengono letti come numeri di questo paese.",
+  "pt": "Rede: {0}. Os números sem indicativo são lidos como números deste país."
  }
 }

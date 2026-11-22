@@ -2,7 +2,7 @@ package fr.soaresden.diallo
 
 /**
  * Origine des numéros : pays (drapeau), type (mobile / fixe / box / spécial) et région française.
- * Région par défaut : France (les numéros sans indicatif sont considérés français).
+ * Les numéros sans indicatif (0470…, 06…) sont lus dans le pays où se trouve le téléphone : voir [Home].
  */
 data class Country(val iso: String, val frName: String) {
     val flag: String get() = iso.uppercase().map { Character.toChars(0x1F1E6 + (it - 'A')).concatToString() }.joinToString("")
@@ -61,6 +61,36 @@ private val CODES: Map<String, Country> = listOf(
 ).associate { (code, v) -> code to Country(v.first, v.second) }
 
 private val FR = CODES.getValue("33")
+private val ISO_CODE: Map<String, String> = CODES.entries.associate { it.value.iso to it.key }
+
+/** Pays sans « 0 » devant les numéros nationaux (ou dont le 0 fait partie du numéro, comme l'Italie). */
+private val NO_TRUNK = setOf("US", "IT", "ES", "PT", "DK", "NO", "GR", "LU", "MT", "CY", "IS", "MC", "AD", "EE", "LV", "SM")
+
+/**
+ * Pays du téléphone : celui du réseau mobile auquel il est connecté (là où on est), sinon celui de la SIM,
+ * sinon celui de la langue du téléphone. Sert à lire les numéros sans indicatif et à savoir ce qui est « étranger ».
+ */
+object Home {
+    @Volatile var iso: String = "FR"; private set
+    @Volatile var code: String = "33"; private set
+    /** Pays du réseau connecté (null hors réseau : mode avion, pas de SIM…), affiché avec son drapeau. */
+    val network = androidx.compose.runtime.mutableStateOf<Country?>(null)
+
+    fun detect(ctx: android.content.Context) {
+        val tm = try { ctx.getSystemService(android.telephony.TelephonyManager::class.java) } catch (_: Throwable) { null }
+        val net = (try { tm?.networkCountryIso } catch (_: Throwable) { null })?.uppercase()?.takeIf { ISO_CODE.containsKey(it) }
+        val sim = (try { tm?.simCountryIso } catch (_: Throwable) { null })?.uppercase()?.takeIf { ISO_CODE.containsKey(it) }
+        val loc = java.util.Locale.getDefault().country.uppercase().takeIf { ISO_CODE.containsKey(it) }
+        val pick = net ?: sim ?: loc ?: "FR"
+        iso = pick; code = ISO_CODE.getValue(pick)
+        network.value = net?.let { CODES[ISO_CODE.getValue(it)] }
+    }
+    /** Pour les tests : pays imposé. */
+    internal fun force(isoCode: String) { iso = isoCode; code = ISO_CODE.getValue(isoCode) }
+    val country: Country get() = CODES[code] ?: FR
+    /** « 0 » devant les numéros nationaux. */
+    val trunk: String get() = if (iso in NO_TRUNK) "" else "0"
+}
 // Outre-mer composé en national (0262…, 0692…)
 private val DOM_PREFIX = listOf(
     "0262" to "RE", "0692" to "RE", "0693" to "RE", "0269" to "YT", "0639" to "YT",
@@ -84,8 +114,11 @@ fun countryOf(n: String): Country? {
         return null
     }
     if (d.length <= 6) return null                       // numéros courts (3631, 112…)
-    DOM_PREFIX.firstOrNull { d.startsWith(it.first) }?.let { return Country(it.second, DOM_NAMES.getValue(it.second)) }
-    return if (d.startsWith("0")) FR else null
+    if (Home.iso == "FR") {
+        DOM_PREFIX.firstOrNull { d.startsWith(it.first) }?.let { return Country(it.second, DOM_NAMES.getValue(it.second)) }
+        return if (d.startsWith("0")) FR else null
+    }
+    return if (d.startsWith("0") || (Home.trunk.isEmpty() && d.length >= 8)) Home.country else null
 }
 
 fun flagOf(n: String): String = countryOf(n)?.flag ?: if (n.any { it.isDigit() }) "📞" else "🕵️"
@@ -98,14 +131,47 @@ fun lineType(n: String): String {
     val d = n.filter { it.isDigit() }
     if (d.isEmpty()) return "Masqué"
     val c = countryOf(n) ?: return if (d.length <= 6) "Court / service" else "Inconnu"
-    if (c.iso != "FR") return "Étranger"
-    val nat = nationalDigits(n)
-    return when {
-        nat.startsWith("06") || nat.startsWith("07") -> "Mobile"
-        nat.startsWith("09") -> "Box / VoIP"
-        nat.startsWith("08") -> "Numéro spécial"
-        nat.length >= 2 && nat[1] in '1'..'5' -> "Fixe"
-        else -> "Autre"
+    // l'outre-mer reste « chez soi » pour un téléphone en France
+    if (c.iso != Home.iso && !(Home.iso == "FR" && c.iso in DOM_NAMES.keys)) return "Étranger"
+    if (c.iso == "FR" || c.iso in DOM_NAMES.keys) {
+        val nat = "0" + significant(n)
+        return when {
+            nat.startsWith("06") || nat.startsWith("07") -> "Mobile"
+            nat.startsWith("09") -> "Box / VoIP"
+            nat.startsWith("08") -> "Numéro spécial"
+            nat.length >= 2 && nat[1] in '1'..'5' -> "Fixe"
+            else -> "Autre"
+        }
+    }
+    return localLineType(c.iso, significant(n))
+}
+
+/** Chiffres du numéro sans indicatif ni « 0 » national : +32 470 12 34 56 et 0470 12 34 56 → 470123456. */
+internal fun significant(n: String): String {
+    val d = n.filter { it.isDigit() }
+    val intl = intlDigits(n)
+    if (intl != null) {
+        val len = (3 downTo 1).firstOrNull { CODES.containsKey(intl.take(it)) && intl.length > it } ?: return intl
+        val rest = intl.drop(len)
+        return if (CODES[intl.take(len)]?.iso == "IT") rest else rest.removePrefix("0")
+    }
+    return if (Home.trunk.isNotEmpty() && d.startsWith("0") && !d.startsWith("00")) d.drop(1) else d
+}
+
+/** Mobile / fixe / spécial pour les pays voisins ; « Inconnu » ailleurs (rien n'est alors affiché). */
+private fun localLineType(iso: String, s: String): String {
+    fun any(vararg p: String) = p.any { s.startsWith(it) }
+    return when (iso) {
+        "BE" -> when { s.length == 9 && any("45", "46", "47", "48", "49") -> "Mobile"; any("800", "70", "77", "78", "90") -> "Numéro spécial"; else -> "Fixe" }
+        "NL" -> when { any("6") -> "Mobile"; any("800", "900", "906", "909") -> "Numéro spécial"; any("85", "88", "91") -> "Box / VoIP"; else -> "Fixe" }
+        "DE" -> when { any("15", "16", "17") -> "Mobile"; any("800", "900", "180", "137") -> "Numéro spécial"; else -> "Fixe" }
+        "CH" -> when { any("75", "76", "77", "78", "79") -> "Mobile"; any("800", "84", "90") -> "Numéro spécial"; else -> "Fixe" }
+        "LU" -> when { any("6") && s.length == 9 -> "Mobile"; any("800", "90") -> "Numéro spécial"; else -> "Fixe" }
+        "GB" -> when { any("7") && !any("70", "76") -> "Mobile"; any("800", "808", "9", "84", "87") -> "Numéro spécial"; else -> "Fixe" }
+        "ES" -> when { any("6", "7") -> "Mobile"; any("800", "900", "90", "80") -> "Numéro spécial"; else -> "Fixe" }
+        "IT" -> when { any("3") -> "Mobile"; any("800", "803", "89") -> "Numéro spécial"; else -> "Fixe" }
+        "PT" -> when { any("9") -> "Mobile"; any("800", "808", "7") -> "Numéro spécial"; else -> "Fixe" }
+        else -> "Inconnu"
     }
 }
 
@@ -119,7 +185,7 @@ fun frRegion(n: String): String? {
 
 /** Type de ligne traduit, pour l'affichage. « Étranger » n'est pas affiché : avec une SIM d'un autre pays (ou deux SIM),
  *  ce serait faux ; le drapeau suffit. */
-fun lineTypeLabel(n: String): String? = lineType(n).takeIf { it != "Étranger" }?.let { tr(it) }
+fun lineTypeLabel(n: String): String? = lineType(n).takeIf { it != "Étranger" && it != "Inconnu" }?.let { tr(it) }
 
 /** Région traduite, pour l'affichage ; null si inconnue. */
 fun frRegionLabel(n: String): String? = frRegion(n)?.let { tr(it) }
@@ -145,8 +211,9 @@ fun intlNumber(n: String): String {
         else -> {
             val dom = DOM_PREFIX.firstOrNull { d.startsWith(it.first) }
             when {
-                dom != null -> DOM_CC.getValue(dom.second) to d.drop(1)
-                d.startsWith("0") && d.length == 10 -> "33" to d.drop(1)
+                Home.iso == "FR" && dom != null -> DOM_CC.getValue(dom.second) to d.drop(1)
+                Home.iso == "FR" && d.startsWith("0") && d.length == 10 -> "33" to d.drop(1)
+                Home.iso != "FR" && countryOf(t) != null -> Home.code to significant(t)
                 else -> return d.chunked(2).joinToString(" ")
             }
         }
@@ -155,6 +222,12 @@ fun intlNumber(n: String): String {
         cc == "33" && rest.length == 9 -> rest.take(1) + " " + rest.drop(1).chunked(2).joinToString(" ")
         cc in DOM_CC.values && rest.length == 9 -> rest.take(3) + " " + rest.drop(3).chunked(2).joinToString(" ")
         cc == "1" && rest.length == 10 -> rest.take(3) + " " + rest.substring(3, 6) + " " + rest.drop(6)
+        // Belgique : 470 12 34 56 (mobile), 2 123 45 67 (Bruxelles, Anvers, Liège, Gand), 71 12 34 56
+        cc == "32" && rest.length == 9 -> rest.take(3) + " " + rest.drop(3).chunked(2).joinToString(" ")
+        cc == "32" && rest.length == 8 && rest[0] in "2349" -> rest.take(1) + " " + rest.substring(1, 4) + " " + rest.drop(4).chunked(2).joinToString(" ")
+        cc == "32" && rest.length == 8 -> rest.take(2) + " " + rest.drop(2).chunked(2).joinToString(" ")
+        cc == "31" && rest.length == 9 && rest.startsWith("6") -> "6 " + rest.drop(1)
+        cc == "41" && rest.length == 9 -> rest.take(2) + " " + rest.substring(2, 5) + " " + rest.drop(5).chunked(2).joinToString(" ")
         else -> rest.chunked(2).joinToString(" ")
     }
     return "+$cc $body"
