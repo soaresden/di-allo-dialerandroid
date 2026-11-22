@@ -102,6 +102,57 @@ private val F_TYPE = ff(R.font.special_elite)
 private val F_VT = ff(R.font.vt323)
 private val F_YELLOW = ff(R.font.yellowtail)
 
+/** Une police proposée pour remplacer celle d'un thème ; les échelles compensent les polices plus petites ou plus grandes. */
+class FontChoice(val id: String, val name: String, val family: FontFamily?, val headScale: Float = 1f, val numScale: Float = 1f)
+
+/**
+ * Police choisie thème par thème (« du thème » par défaut). Le choix est gardé pour chaque thème :
+ * revenir sur un thème retrouve la police qu'on lui avait donnée.
+ */
+object ThemeFonts {
+    const val THEME = "theme"
+    val ALL: List<FontChoice> = listOf(
+        FontChoice(THEME, "Du thème", null),
+        FontChoice("system", "Système", FontFamily.Default),
+        FontChoice("bebas", "Bebas", F_BEBAS, 1.15f, 1.15f),
+        FontChoice("russo", "Russo", F_RUSSO, .95f, .9f),
+        FontChoice("alfa", "Alfa Slab", F_ALFA, .92f, .85f),
+        FontChoice("lucky", "Luckiest", F_LUCKY, 1.05f, .9f),
+        FontChoice("orbitron", "Orbitron", F_ORBITRON, .9f, .82f),
+        FontChoice("cinzel", "Cinzel", F_CINZEL, 1.05f, 1f),
+        FontChoice("playfair", "Playfair", F_PLAYFAIR, 1.1f, 1.05f),
+        FontChoice("lime", "Limelight", F_LIME, .95f, .9f),
+        FontChoice("lobster", "Lobster", F_LOBSTER, 1.05f, 1f),
+        FontChoice("pacifico", "Pacifico", F_PACIFICO, .95f, .85f),
+        FontChoice("yellow", "Yellowtail", F_YELLOW, 1.15f, 1.05f),
+        FontChoice("vibes", "Great Vibes", F_VIBES, 1.3f, 1.2f),
+        FontChoice("pirata", "Pirata", F_PIRATA, 1.2f, 1.05f),
+        FontChoice("type", "Machine à écrire", F_TYPE, 1f, 1f),
+        FontChoice("monoton", "Monoton", F_MONOTON, .85f, .8f),
+        FontChoice("vt", "Terminal", F_VT, 1.35f, 1.3f),
+        FontChoice("pixel", "Pixel", F_PIXEL, .62f, .55f),
+    )
+    /** id du thème → id de la police (absent = celle du thème). Observable : l'appli se redessine au changement. */
+    private val chosen = androidx.compose.runtime.mutableStateMapOf<String, String>()
+    @Volatile private var loaded = false
+
+    fun load(c: Context) {
+        if (loaded) return
+        loaded = true
+        prefs(c).all.forEach { (k, v) -> if (k.startsWith("font_") && v is String) chosen[k.removePrefix("font_")] = v }
+    }
+    fun of(themeId: String): String = chosen[themeId] ?: THEME
+    fun set(c: Context, themeId: String, fontId: String) {
+        if (fontId == THEME) { chosen.remove(themeId); prefs(c).edit().remove("font_$themeId").apply() }
+        else { chosen[themeId] = fontId; prefs(c).edit().putString("font_$themeId", fontId).apply() }
+    }
+    /** Le thème avec la police choisie pour lui. */
+    fun apply(t: HTheme): HTheme {
+        val f = ALL.firstOrNull { it.id == chosen[t.id] }?.takeIf { it.id != THEME } ?: return t
+        return t.copy(title = f.family, head = f.family, num = f.family, headScale = f.headScale, numScale = f.numScale)
+    }
+}
+
 val THEMES: List<HTheme> = listOf(
     // ---------- Clairs ----------
     HTheme("clair", "Clair", false, c(0xFF2FC45B), c(0xFFEEF0F3), c(0xFFE2F6E8), c(0xFFFFFFFF), c(0xFFE7EAEF), DARK_TXT,
@@ -237,10 +288,10 @@ internal fun saveInst(c: Context, v: String) { prefs(c).edit().putString("inst",
 /** Applique le thème (couleurs, barre d'état), dessine le fond et son décor. */
 @Composable
 fun HyperTheme(themeId: String, content: @Composable () -> Unit) {
-    val t = resolveTheme(themeId, isSystemInDarkTheme())
-    val view = LocalView.current
     val ctx = LocalContext.current
-    androidx.compose.runtime.remember { I18n.ensure(ctx) }
+    androidx.compose.runtime.remember { I18n.ensure(ctx); ThemeFonts.load(ctx) }
+    val t = ThemeFonts.apply(resolveTheme(themeId, isSystemInDarkTheme()))
+    val view = LocalView.current
     SideEffect {
         (ctx as? Activity)?.window?.let { w ->
             w.statusBarColor = t.top.toArgb()

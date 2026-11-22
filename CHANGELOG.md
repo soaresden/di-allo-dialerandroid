@@ -3,6 +3,9 @@
 Les versions sont numérotées `AAAA-MM-JJ-NN` (date du build, puis numéro du build du jour).
 Chaque version est téléchargeable dans les [Releases](../../releases).
 
+## 2026-11-22-20
+- 🔤 **Police au choix pour chaque thème** : dans le volet des thèmes, bouton **Aa** pour essayer 18 polices en direct (Bebas, Pixel, Machine à écrire, Great Vibes…). « Du thème » remet celle d'origine ; chaque thème garde la sienne
+
 ## 2026-11-22-19
 - 🌍 Plus de mention « Étranger » sur l'écran d'appel ni dans les fiches contact : avec une SIM d'un autre pays ou deux SIM, c'était souvent faux. Le drapeau du pays reste affiché
 

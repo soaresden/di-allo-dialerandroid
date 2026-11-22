@@ -12,5 +12,40 @@
   "de": "Zeigen",
   "it": "Mostra",
   "pt": "Ver"
+ },
+ "Police de « {0} »": {
+  "en": "Font for “{0}”",
+  "es": "Fuente de «{0}»",
+  "de": "Schrift für „{0}“",
+  "it": "Carattere di «{0}»",
+  "pt": "Fonte de «{0}»"
+ },
+ "Du thème": {
+  "en": "Theme's own",
+  "es": "La del tema",
+  "de": "Vom Design",
+  "it": "Del tema",
+  "pt": "Do tema"
+ },
+ "Système": {
+  "en": "System",
+  "es": "Sistema",
+  "de": "System",
+  "it": "Sistema",
+  "pt": "Sistema"
+ },
+ "Machine à écrire": {
+  "en": "Typewriter",
+  "es": "Máquina de escribir",
+  "de": "Schreibmaschine",
+  "it": "Macchina da scrivere",
+  "pt": "Máquina de escrever"
+ },
+ "Terminal": {
+  "en": "Terminal",
+  "es": "Terminal",
+  "de": "Terminal",
+  "it": "Terminale",
+  "pt": "Terminal"
  }
 }

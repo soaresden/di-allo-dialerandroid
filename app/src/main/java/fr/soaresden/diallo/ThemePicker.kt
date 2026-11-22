@@ -43,6 +43,7 @@ internal fun ThemePanel(themeId: String, onTheme: (String) -> Unit, tab: Int, on
     val original = remember { themeId }
     val cs = MaterialTheme.colorScheme
     var auto by remember { mutableStateOf(false) }
+    var fonts by remember { mutableStateOf(false) }
     val cycle = listOf(0, 1, 2, 4, 5)
     // ▶ fait défiler les écrans pour voir le thème partout
     LaunchedEffect(auto) {
@@ -80,11 +81,30 @@ internal fun ThemePanel(themeId: String, onTheme: (String) -> Unit, tab: Int, on
                     }
                 }
             }
-            Spacer(Modifier.height(4.dp))
-            val all = listOf<HTheme?>(null) + THEMES
-            val listState = rememberLazyListState(initialFirstVisibleItemIndex = all.indexOfFirst { (it?.id ?: "auto") == original }.coerceAtLeast(0))
-            LazyColumn(Modifier.fillMaxWidth().weight(1f), state = listState, verticalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(bottom = 12.dp)) {
-                items(all, key = { it?.id ?: "auto" }) { t -> MiniSwatch(t, (t?.id ?: "auto") == themeId) { onTheme(t?.id ?: "auto") } }
+            // thèmes ou polices du thème choisi
+            val ctx = androidx.compose.ui.platform.LocalContext.current
+            val base = resolveTheme(themeId, androidx.compose.foundation.isSystemInDarkTheme())
+            Row(Modifier.fillMaxWidth().padding(top = 2.dp, bottom = 6.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                listOf(false to "🎨", true to "Aa").forEach { (f, label) ->
+                    val on = fonts == f
+                    Box(
+                        Modifier.weight(1f).height(30.dp).clip(RoundedCornerShape(8.dp)).background(if (on) cs.primary else cs.surfaceVariant).clickable { fonts = f },
+                        contentAlignment = Alignment.Center
+                    ) { Text(label, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = if (on) cs.onPrimary else cs.onSurface) }
+                }
+            }
+            if (fonts) {
+                val cur = ThemeFonts.of(base.id)
+                LazyColumn(Modifier.fillMaxWidth().weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp), contentPadding = PaddingValues(bottom = 12.dp)) {
+                    item { Text(tr("Police de « {0} »", tr(base.name)), fontSize = 10.sp, lineHeight = 12.sp, color = muted(.65f), modifier = Modifier.padding(bottom = 2.dp)) }
+                    items(ThemeFonts.ALL, key = { it.id }) { f -> FontSwatch(f, base, f.id == cur) { ThemeFonts.set(ctx, base.id, f.id) } }
+                }
+            } else {
+                val all = listOf<HTheme?>(null) + THEMES
+                val listState = rememberLazyListState(initialFirstVisibleItemIndex = all.indexOfFirst { (it?.id ?: "auto") == original }.coerceAtLeast(0))
+                LazyColumn(Modifier.fillMaxWidth().weight(1f), state = listState, verticalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(bottom = 12.dp)) {
+                    items(all, key = { it?.id ?: "auto" }) { t -> MiniSwatch(t, (t?.id ?: "auto") == themeId) { onTheme(t?.id ?: "auto") } }
+                }
             }
         }
     }
@@ -92,7 +112,7 @@ internal fun ThemePanel(themeId: String, onTheme: (String) -> Unit, tab: Int, on
 
 @Composable
 private fun MiniSwatch(t: HTheme?, selected: Boolean, onClick: () -> Unit) {
-    val shown = t ?: resolveTheme("auto", androidx.compose.foundation.isSystemInDarkTheme())
+    val shown = ThemeFonts.apply(t ?: resolveTheme("auto", androidx.compose.foundation.isSystemInDarkTheme()))
     val cs = MaterialTheme.colorScheme
     Column(
         Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
@@ -112,6 +132,28 @@ private fun MiniSwatch(t: HTheme?, selected: Boolean, onClick: () -> Unit) {
         }
         Text(
             t?.name?.let { tr(it) } ?: tr("Auto"), fontSize = 10.sp, lineHeight = 12.sp, fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+            textAlign = TextAlign.Center, maxLines = 2, overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.fillMaxWidth().background(if (selected) cs.primary.copy(alpha = .15f) else Color.Transparent).padding(horizontal = 3.dp, vertical = 4.dp)
+        )
+    }
+}
+
+/** Une police à essayer : « Ab 123 » écrit avec elle, sur le fond du thème. */
+@Composable
+private fun FontSwatch(f: FontChoice, base: HTheme, selected: Boolean, onClick: () -> Unit) {
+    val cs = MaterialTheme.colorScheme
+    val family = if (f.id == ThemeFonts.THEME) base.num else f.family
+    val scale = if (f.id == ThemeFonts.THEME) base.numScale else f.numScale
+    Column(
+        Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
+            .border(if (selected) 2.5.dp else 1.dp, if (selected) cs.primary else cs.outlineVariant, RoundedCornerShape(12.dp))
+            .clickable { onClick() }
+    ) {
+        Box(Modifier.fillMaxWidth().height(40.dp).background(base.brush()), contentAlignment = Alignment.Center) {
+            Text("Ab 123", fontFamily = family, fontSize = (16f * scale).sp, maxLines = 1, color = base.text)
+        }
+        Text(
+            tr(f.name), fontSize = 10.sp, lineHeight = 12.sp, fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
             textAlign = TextAlign.Center, maxLines = 2, overflow = TextOverflow.Ellipsis,
             modifier = Modifier.fillMaxWidth().background(if (selected) cs.primary.copy(alpha = .15f) else Color.Transparent).padding(horizontal = 3.dp, vertical = 4.dp)
         )

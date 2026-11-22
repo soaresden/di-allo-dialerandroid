@@ -127,7 +127,7 @@ internal fun SettingsScreen(
             SectionCard(tr("Apparence & son")) {
                 val t = THEMES.firstOrNull { it.id == themeId }
                 NavRow(tr("Thème"), t?.name?.let { tr(it) } ?: tr("Auto (suit le système)"), leading = {
-                    val sh = t ?: resolveTheme("auto", androidx.compose.foundation.isSystemInDarkTheme())
+                    val sh = ThemeFonts.apply(t ?: resolveTheme("auto", androidx.compose.foundation.isSystemInDarkTheme()))
                     Box(Modifier.size(34.dp).clip(RoundedCornerShape(10.dp)).background(sh.brush())) { Box(Modifier.size(12.dp).clip(CircleShape).background(sh.primary).align(Alignment.BottomEnd)) }
                 }) { ThemePicker.open.value = true }
                 val langChoice = remember(sub, I18n.lang.value) { I18n.choice(ctx) }
@@ -234,7 +234,7 @@ private fun NavRow(title: String, value: String, leading: @Composable () -> Unit
 
 @Composable
 private fun ThemeSwatch(t: HTheme?, selected: Boolean, modifier: Modifier, onClick: () -> Unit) {
-    val shown = t ?: resolveTheme("auto", androidx.compose.foundation.isSystemInDarkTheme())
+    val shown = ThemeFonts.apply(t ?: resolveTheme("auto", androidx.compose.foundation.isSystemInDarkTheme()))
     val outline = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
     Column(
         modifier.clip(RoundedCornerShape(16.dp))
