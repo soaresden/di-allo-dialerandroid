@@ -3,6 +3,9 @@
 Les versions sont numérotées `AAAA-MM-JJ-NN` (date du build, puis numéro du build du jour).
 Chaque version est téléchargeable dans les [Releases](../../releases).
 
+## 2026-11-23-01
+- 🐞 Correction : plantage possible avec le thème Carnet de voyage (touches « tampon ») sur certains téléphones
+
 ## 2026-11-22-21
 - 🌍 **Di-Allô s'adapte au pays où tu es** (réseau connecté, sinon la SIM) : en Belgique, « 0470 12 34 56 » est lu comme un numéro belge (🇧🇪 +32 470 12 34 56, Mobile), plus comme un numéro français
 - Le drapeau du réseau connecté s'affiche en haut de l'appli (touche-le pour le détail)

@@ -525,7 +525,8 @@ internal fun Modifier.themedKey(th: HTheme, shape: androidx.compose.ui.graphics.
             .drawBehind {
                 val o = shape.createOutline(size, layoutDirection, this)
                 val inset = 3.dp.toPx()
-                inset(inset) {
+                // touche encore minuscule (apparition, aperçu) : pas de pointillés, sinon taille négative → plantage
+                if (size.width > inset * 2 + 1f && size.height > inset * 2 + 1f) inset(inset) {
                     drawOutline(shape.createOutline(this.size, layoutDirection, this), ink.copy(alpha = .75f),
                         style = androidx.compose.ui.graphics.drawscope.Stroke(1.5.dp.toPx(), pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 4.dp.toPx()))))
                 }
