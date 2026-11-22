@@ -3,6 +3,10 @@
 Les versions sont numérotées `AAAA-MM-JJ-NN` (date du build, puis numéro du build du jour).
 Chaque version est téléchargeable dans les [Releases](../../releases).
 
+## 2026-11-22-13
+- ⭐ **Appui long sur un numéro = favori** : dans la fiche d'un contact, un appui long sur un numéro l'ajoute aux favoris (ou l'en retire), avec une petite vibration
+- ⭐ Récents : « Ajouter aux favoris » / « Retirer des favoris » dans le menu de l'appui long
+
 ## 2026-11-22-12
 - ⬆️ **Mises à jour automatiques** : Di-Allô prévient quand une nouvelle version sort sur GitHub, montre les nouveautés, la télécharge et lance l'installation (désactivable dans Réglages › À propos)
 - 🎨 **Choix du thème en direct** : un volet fin à droite, l'appli reste visible à gauche (le clavier d'abord). Boutons pour voir les autres écrans, ▶ pour les faire défiler, ↺ pour annuler

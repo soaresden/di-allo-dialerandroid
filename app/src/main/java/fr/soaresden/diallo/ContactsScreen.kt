@@ -228,15 +228,19 @@ internal fun ContactsScreen(contacts: List<CallRepository.Contact>, groups: List
                 }
                 val gs = nums.flatMap { it.groups }.distinct()
                 if (gs.isNotEmpty()) Text("🏷️ " + gs.joinToString(" · ") { tr(it) }, fontSize = 12.sp, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(top = 10.dp))
-                Text(if (nums.size > 1) tr("{0} numéros · du plus appelé au moins appelé", nums.size) else tr("Numéro"), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = muted(.6f), modifier = Modifier.padding(top = 16.dp, bottom = 6.dp))
+                Text(if (nums.size > 1) tr("{0} numéros · du plus appelé au moins appelé", nums.size) else tr("Numéro"), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = muted(.6f), modifier = Modifier.padding(top = 16.dp))
+                Text(tr("Appui long sur un numéro : favori ⭐"), fontSize = 11.sp, color = muted(.5f), modifier = Modifier.padding(bottom = 6.dp))
+                val view = androidx.compose.ui.platform.LocalView.current
                 nums.forEach { n ->
-                    Row(Modifier.fillMaxWidth().padding(bottom = 8.dp).clip(RoundedCornerShape(14.dp)).background(MaterialTheme.colorScheme.surface).clickable { chooser = null; onConfirm(n.number) }.padding(horizontal = 12.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+                    val phoneStar = n.starred || n.groups.contains("⭐ Favoris")
+                    Row(Modifier.fillMaxWidth().padding(bottom = 8.dp).clip(RoundedCornerShape(14.dp)).background(MaterialTheme.colorScheme.surface)
+                        .combinedClickable(onClick = { chooser = null; onConfirm(n.number) }, onLongClick = { FavNumbers.toggle(ctx, n.number, phoneStar, view) })
+                        .padding(horizontal = 12.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
                         Text(flagOf(n.number), fontSize = 22.sp); Spacer(Modifier.width(10.dp))
                         Column(Modifier.weight(1f)) {
                             Text(displayNumber(n.number), fontWeight = FontWeight.SemiBold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onBackground)
                             Text((n.label ?: tr("Numéro")) + " · " + (lineLabel(n.number) ?: lineTypeLabel(n.number)) + " · " + (if (n.calls > 0) trn(n.calls, "{0} appel", "{0} appels") else tr("jamais appelé")), fontSize = 12.sp, color = muted())
                         }
-                        val phoneStar = n.starred || n.groups.contains("⭐ Favoris")
                         val isFav = remember(n.number, FavNumbers.version.intValue) { FavNumbers.snap(ctx).isFav(n.number, phoneStar) }
                         IconButton(onClick = { FavNumbers.set(ctx, n.number, !isFav, phoneStar) }) {
                             Text(if (isFav) "⭐" else "☆", fontSize = 20.sp, color = if (isFav) androidx.compose.ui.graphics.Color(0xFFF5B301) else muted(.6f))

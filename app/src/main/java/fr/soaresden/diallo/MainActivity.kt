@@ -181,7 +181,7 @@ private fun Root(theme: String, onTheme: (String) -> Unit) {
             update?.let { u -> Banner(MaterialTheme.colorScheme.primaryContainer, "⬆️ " + tr("Mise à jour disponible : {0}", u.version), tr("Voir")) { Updater.showDialog.value = true } }
             when (tab) {
                 0 -> DialScreen(confirm, { callVoicemail(ctx) }, data.contacts, frequent)
-                1 -> RecentsList(data.calls, confirm, onDeleted = { refresh++ }) { detail = it }
+                1 -> RecentsList(data.calls, data.contacts, confirm, onDeleted = { refresh++ }) { detail = it }
                 2 -> ContactsScreen(data.contacts, data.groups, confirm) { detail = it }
                 3 -> NotesScreen(data.contacts, confirm) { detail = it }
                 4 -> StatsScreen(data.calls, data.contacts, onWrapped = { wrapped = true }) { detail = it }
@@ -264,8 +264,13 @@ private fun bucket(ts: Long): Int { val d = daysAgo(ts); return when { d <= 0 ->
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun RecentsList(calls: List<CallRepository.CallEntry>, onConfirm: (String) -> Unit, onDeleted: () -> Unit, onDetail: (String) -> Unit) {
+private fun RecentsList(calls: List<CallRepository.CallEntry>, contacts: List<CallRepository.Contact>, onConfirm: (String) -> Unit, onDeleted: () -> Unit, onDetail: (String) -> Unit) {
     val ctx = LocalContext.current
+    val view = androidx.compose.ui.platform.LocalView.current
+    // numéros étoilés dans le téléphone (base des favoris)
+    val starredKeys = remember(contacts) { contacts.filter { it.starred || it.groups.contains("⭐ Favoris") }.map { keyOf(it.number) }.toSet() }
+    val favVer = FavNumbers.version.intValue
+    val favSnap = remember(favVer) { FavNumbers.snap(ctx) }
     val scope = rememberCoroutineScope()
     // appels supprimés : masqués tout de suite, avant le rechargement du journal
     val gone = remember { mutableStateListOf<Long>() }
@@ -336,6 +341,11 @@ private fun RecentsList(calls: List<CallRepository.CallEntry>, onConfirm: (Strin
                 DropdownMenu(menu, { menu = false }) {
                     DropdownMenuItem(text = { Text(tr("📊 Fiche de {0}", row.display)) }, onClick = { menu = false; onDetail(keyOf(row.number).ifEmpty { row.number }) })
                     Recordings.byCall.value[row.id]?.let { r -> DropdownMenuItem(text = { Text(tr("🎙️ Écouter l'enregistrement")) }, onClick = { menu = false; Recordings.open.value = r to row.display }) }
+                    if (row.number.any { it.isDigit() }) {
+                        val star = keyOf(row.number) in starredKeys
+                        val fav = favSnap.isFav(row.number, star)
+                        DropdownMenuItem(text = { Text(if (fav) "☆ " + tr("Retirer des favoris") else "⭐ " + tr("Ajouter aux favoris")) }, onClick = { menu = false; FavNumbers.toggle(ctx, row.number, star, view) })
+                    }
                     if (row.number.any { it.isDigit() }) DropdownMenuItem(text = { Text("📌 " + tr("Sur l'écran d'accueil")) }, onClick = {
                         menu = false
                         if (!WidgetPrefs.pinContact(ctx, Pick(row.display, row.number, row.photoUri))) android.widget.Toast.makeText(ctx, tr("Ton écran d'accueil ne permet pas d'ajouter le widget depuis l'appli : appui long sur l'écran d'accueil › Widgets › Di-Allô."), android.widget.Toast.LENGTH_LONG).show()

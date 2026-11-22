@@ -33,4 +33,12 @@ object FavNumbers {
         version.intValue++
         FavoritesWidget.refresh(c)
     }
+
+    /** Appui long sur un numéro : ajoute ou retire des favoris, avec vibration et message. */
+    fun toggle(c: Context, number: String, phoneStarred: Boolean, view: android.view.View? = null) {
+        val on = !snap(c).isFav(number, phoneStarred)
+        set(c, number, on, phoneStarred)
+        view?.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
+        android.widget.Toast.makeText(c, if (on) "⭐ " + tr("{0} ajouté aux favoris", displayNumber(number)) else tr("{0} retiré des favoris", displayNumber(number)), android.widget.Toast.LENGTH_SHORT).show()
+    }
 }

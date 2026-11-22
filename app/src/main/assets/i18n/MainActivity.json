@@ -229,5 +229,19 @@
   "de": "Ansehen",
   "it": "Vedi",
   "pt": "Ver"
+ },
+ "Ajouter aux favoris": {
+  "en": "Add to favourites",
+  "es": "Añadir a favoritos",
+  "de": "Zu Favoriten hinzufügen",
+  "it": "Aggiungi ai preferiti",
+  "pt": "Adicionar aos favoritos"
+ },
+ "Retirer des favoris": {
+  "en": "Remove from favourites",
+  "es": "Quitar de favoritos",
+  "de": "Aus Favoriten entfernen",
+  "it": "Rimuovi dai preferiti",
+  "pt": "Remover dos favoritos"
  }
 }

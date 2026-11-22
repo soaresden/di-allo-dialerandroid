@@ -1,0 +1,16 @@
+{
+ "{0} ajouté aux favoris": {
+  "en": "{0} added to favourites",
+  "es": "{0} añadido a favoritos",
+  "de": "{0} zu Favoriten hinzugefügt",
+  "it": "{0} aggiunto ai preferiti",
+  "pt": "{0} adicionado aos favoritos"
+ },
+ "{0} retiré des favoris": {
+  "en": "{0} removed from favourites",
+  "es": "{0} quitado de favoritos",
+  "de": "{0} aus Favoriten entfernt",
+  "it": "{0} rimosso dai preferiti",
+  "pt": "{0} removido dos favoritos"
+ }
+}
