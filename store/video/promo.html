@@ -47,11 +47,13 @@ document.getElementById("lang").value = LANG;
 
 /* ---------------- déroulé (secondes) ---------------- */
 const T_ = {
-  intro: [0, 4], dial: [4, 9.5], instr: [9.5, 13.5], ear: [13.5, 17.5], speaker: [17.5, 21], flip: [21, 24.5],
-  call: [24.5, 29], stats: [29, 33.5], wrapped: [33.5, 36.5], map: [36.5, 40], themes: [40, 44], widgets: [44, 47], outro: [47, 51],
+  intro: [0, 4], ear: [4, 8], speaker: [8, 11.5], flip: [11.5, 15], call: [15, 19.5], stats: [19.5, 24], wrapped: [24, 27],
+  map: [27, 30.5], dial: [30.5, 36], instr: [36, 40], themes: [40, 44], widgets: [44, 47], outro: [47, 51],
 };
+/** instant [o] secondes après le début de la scène [sc] */
+const at = (sc, o) => T_[sc][0] + o;
 const GROOVE = [4, 47];          // batterie
-const HITS = [4, 13.5, 21, 29, 40, 47];   // crash + coup de fond
+const HITS = [4, T_.stats[0], T_.dial[0], T_.themes[0], 47];   // crash + coup de fond
 
 /* ---------------- textes ---------------- */
 const TX = {
@@ -158,8 +160,8 @@ const themeIdx = t => { let idx = 0; THEME_AT.forEach((tt, i) => { if (t >= tt) 
 const FREQ = { "1": 261.63, "2": 293.66, "3": 329.63, "4": 349.23, "5": 392.00, "6": 440.00, "7": 493.88, "8": 523.25, "9": 587.33, "*": 659.25, "0": 698.46, "#": 783.99 };
 const DIAL = "0639985653";   // 06 39 98 xx xx : plage réservée aux fictions (ARCEP)
 const EV = [];   // {t, k, ins, d, s}
-DIAL.split("").forEach((k, i) => EV.push({ t: 4.5 + i * .5, k, ins: "piano", d: .45, s: "dial" }));
-const INST_SEL = [[10.0, 0, "piano"], [11.0, 2, "violin"], [12.0, 7, "bit8"], [13.0, 8, "ocarina"]];
+DIAL.split("").forEach((k, i) => EV.push({ t: at("dial", .5) + i * .5, k, ins: "piano", d: .45, s: "dial" }));
+const INST_SEL = [[at("instr", .5), 0, "piano"], [at("instr", 1.5), 2, "violin"], [at("instr", 2.5), 7, "bit8"], [at("instr", 3.5), 8, "ocarina"]];
 INST_SEL.forEach(([t, , ins]) => { EV.push({ t, k: "5", ins, d: .45, s: "instr" }); EV.push({ t: t + .5, k: "8", ins, d: .45, s: "instr" }); });
 
 function lit(key, t, scene) {
@@ -280,7 +282,7 @@ function scrKeypad(t, scene, th = TH.clair, w = SW) {
     txt(s, w / 2, 200, `600 ${Math.round(40 * th.ns)}px "${th.num}"`, th.text, "center");
     if (scene === "dial" && (t * 2) % 2 < 1) { g.font = `600 40px "${th.num}"`; const ww = g.measureText(s).width; g.fillStyle = th.primary; g.fillRect(w / 2 + ww / 2 + 4, 170, 2.5, 36); }
   } else txt(L().enter, w / 2, 200, "500 22px Inter", hex(th.text, .4), "center");
-  const sa = seg(t, 9.05, 9.35);
+  const sa = seg(t, at("dial", 5.05), at("dial", 5.35));
   if (sa > 0) {
     g.save(); g.globalAlpha = sa; g.translate(0, (1 - eout(sa)) * 14);
     rr(22, 238, w - 44, 70, 20); g.fillStyle = hex(th.surface, th.dark ? .75 : .95); g.fill();
@@ -297,7 +299,7 @@ function scrKeypad(t, scene, th = TH.clair, w = SW) {
 function scrInstruments(t) {
   const th = TH.clair;
   scrKeypad(t, "instr", th);
-  const up = eout(seg(t, 9.5, 9.85)) * (1 - eio(seg(t, 13.2, 13.5)));
+  const up = eout(seg(t, at("instr", 0), at("instr", .35))) * (1 - eio(seg(t, at("instr", 3.7), at("instr", 4))));
   g.fillStyle = `rgba(10,14,20,${.35 * up})`; g.fillRect(0, 0, SW, SH);
   const y0 = lerp(SH, 352, up);
   rr(0, y0, SW, SH - y0 + 40, 28); g.fillStyle = "#F6F7FA"; g.fill();
@@ -377,7 +379,7 @@ function scrCall(t, o) {
 
 /* ---- écran : stats ---- */
 const HOURS = [1, 0, 0, 0, 0, 0, 1, 3, 6, 8, 7, 9, 12, 10, 7, 8, 11, 16, 21, 17, 12, 8, 5, 2];
-const TAP_BAR = 30.8;
+const TAP_BAR = at("stats", 1.8);
 function scrStats(t) {
   const th = TH.clair, sel = t >= TAP_BAR;
   bgFill(th, SW, SH, t); statusBar(th, SW);
@@ -385,13 +387,13 @@ function scrStats(t) {
   const ca = eout(seg(t, TAP_BAR + .05, TAP_BAR + .35));
   if (ca > 0) { g.save(); g.globalAlpha = ca; rr(SW - 26 - 150, 64, 150, 32, 16); g.fillStyle = hex("#FF9F1C", .2); g.fill(); g.strokeStyle = "#FF9F1C"; g.lineWidth = 1.5; g.stroke(); txt("🕕 " + L().chipShort + "  ✕", SW - 26 - 75, 85, "700 14px " + "Inter, " + EMO, "#B4630A", "center"); g.restore(); }
   L().per.forEach((p, i) => { const x = 22 + i * 97; rr(x, 112, 90, 34, 17); g.fillStyle = i === 2 ? th.primary : "#FFFFFF"; g.fill(); txt(p, x + 45, 134, "600 14px Inter", i === 2 ? "#FFFFFF" : th.text, "center"); });
-  const cnt = Math.round(248 * eout(seg(t, 29.2, 30.2)));
+  const cnt = Math.round(248 * eout(seg(t, at("stats", .2), at("stats", 1.2))));
   L().kpi.forEach(([v, l], i) => { const x = 22 + i * 130; rr(x, 162, 122, 78, 18); g.fillStyle = "#FFFFFF"; g.fill(); txt(i === 0 ? (sel ? "42" : String(cnt)) : v, x + 14, 198, "800 22px Inter", i === 0 && sel ? "#B4630A" : th.text); txt(l, x + 14, 222, "500 12.5px Inter", "#6b7280"); });
   rr(22, 256, SW - 44, 300, 22); g.fillStyle = "#FFFFFF"; g.fill();
   txt(L().byhour, 42, 292, "700 17px Inter", th.text);
   const bx = 42, bw = (SW - 84) / 24, by = 500, mx = 21;
   HOURS.forEach((v, i) => {
-    const grow = back(seg(t, 29.15 + i * .025, 29.55 + i * .025));
+    const grow = back(seg(t, at("stats", .15) + i * .025, at("stats", .55) + i * .025));
     const hgt = (v / mx) * 170 * grow, x = bx + i * bw, on = i === 18;
     g.save();
     if (sel && on) { const p = .5 + .5 * Math.sin((t - TAP_BAR) * 6); g.shadowColor = "#FF9F1C"; g.shadowBlur = 14 + 18 * p; }
@@ -399,7 +401,7 @@ function scrStats(t) {
   });
   [0, 6, 12, 18].forEach(hh => txt(LANG === "fr" ? hh + " h" : (hh === 0 ? "12 am" : hh === 12 ? "12 pm" : (hh % 12) + (hh < 12 ? " am" : " pm")), bx + hh * bw + bw / 2, by + 22, `${sel && hh === 18 ? 800 : 500} 12px Inter`, sel && hh === 18 ? "#B4630A" : "#6b7280", "center"));
   // répartition mobile / fixe
-  rr(42, 532, SW - 84, 10, 5); g.fillStyle = "#E7EAEF"; g.fill(); rr(42, 532, (SW - 84) * .72 * eout(seg(t, 29.6, 30.4)), 10, 5); g.fillStyle = "#4C9AFF"; g.fill();
+  rr(42, 532, SW - 84, 10, 5); g.fillStyle = "#E7EAEF"; g.fill(); rr(42, 532, (SW - 84) * .72 * eout(seg(t, at("stats", .6), at("stats", 1.4))), 10, 5); g.fillStyle = "#4C9AFF"; g.fill();
   tap(bx + 18 * bw + bw / 2, by - 80, (t - TAP_BAR + .1) / .4);
   const da = eout(seg(t, TAP_BAR + .2, TAP_BAR + .6));
   if (da > 0) {
@@ -658,23 +660,24 @@ function bubble(t, ic, from, to, x = 1735, y = 360) {
    SCÈNES
    ===================================================================== */
 function screenAt(t) {
-  if (t < T_.dial[1]) return () => scrKeypad(t, "dial");
-  if (t < T_.instr[1]) return () => scrInstruments(t);
   if (t < T_.speaker[1]) {
     // sonnerie → porté à l'oreille (écran éteint) → éloigné : haut-parleur
-    if (t < 15.4) return () => scrIncoming(t, "hugo", 15.4);
-    const dim = clamp(seg(t, 15.4, 15.7) * .94) * (1 - seg(t, 17.7, 18.0));
-    return () => scrCall(t, { who: "hugo", from: 15.4, speakerFrom: 18.1, badge: [L().answered, 15.5], dim });
+    const e = T_.ear[0];
+    if (t < e + 1.9) return () => scrIncoming(t, "hugo", e + 1.9);
+    const dim = clamp(seg(t, e + 1.9, e + 2.2) * .94) * (1 - seg(t, e + 4.2, e + 4.5));
+    return () => scrCall(t, { who: "hugo", from: e + 1.9, speakerFrom: e + 4.6, badge: [L().answered, e + 2.0], dim });
   }
-  if (t < T_.flip[1]) return () => scrIncoming(t, "ines", 22.35, 22.35);
-  if (t < T_.call[1]) return () => scrCall(t, { who: "lea", from: 24.5, sec0: 38, note: true, waiting: [25.5, 27.5] });
-  if (t < T_.stats[1]) return () => scrStats(t);
-  if (t < T_.wrapped[1]) return () => scrWrapped(t);
-  if (t < T_.map[1]) return () => scrMap(t);
-  if (t < T_.themes[1]) return () => scrThemes(t);
+  if (inR(t, T_.flip)) return () => scrIncoming(t, "ines", at("flip", 1.35), at("flip", 1.35));
+  if (inR(t, T_.call)) return () => scrCall(t, { who: "lea", from: T_.call[0], sec0: 38, note: true, waiting: [at("call", 1), at("call", 3)] });
+  if (inR(t, T_.stats)) return () => scrStats(t);
+  if (inR(t, T_.wrapped)) return () => scrWrapped(t);
+  if (inR(t, T_.map)) return () => scrMap(t);
+  if (inR(t, T_.dial)) return () => scrKeypad(t, "dial");
+  if (inR(t, T_.instr)) return () => scrInstruments(t);
+  if (inR(t, T_.themes)) return () => scrThemes(t);
   return () => scrHome(t);
 }
-const XFADE = [T_.ear[0], T_.flip[0], T_.call[0], T_.stats[0], T_.wrapped[0], T_.map[0], T_.themes[0], T_.widgets[0]];
+const XFADE = [T_.flip[0], T_.call[0], T_.stats[0], T_.wrapped[0], T_.map[0], T_.dial[0], T_.themes[0], T_.widgets[0]];
 
 function frame(t) {
   g.setTransform(1, 0, 0, 1, 0, 0);
@@ -702,17 +705,17 @@ function frame(t) {
     const inK = eout(seg(t, 3.5, 4.1)), outK = eio(seg(t, 46.6, 47.2));
     let cx = lerp(W + 420, 1330, inK) + outK * 950, cy = 540, rot = 0, flip = 1, sc = .98 * (1 + .007 * kick(t));
     // à l'oreille puis éloigné
-    if (t >= 14.6 && t < 18.3) { const k = eio(seg(t, 14.7, 15.4)) * (1 - eio(seg(t, 17.5, 18.1))); cx += 105 * k; cy += 30 * k; rot = .3 * k; }
-    if (inR(t, T_.flip)) { const a = Math.PI * eio(seg(t, 22.15, 22.6)) * (1 - eio(seg(t, 23.7, 24.15))); flip = Math.cos(a) || .001; }
+    if (t >= at("ear", 1.1) && t < at("ear", 4.8)) { const k = eio(seg(t, at("ear", 1.2), at("ear", 1.9))) * (1 - eio(seg(t, at("ear", 4.0), at("ear", 4.6)))); cx += 105 * k; cy += 30 * k; rot = .3 * k; }
+    if (inR(t, T_.flip)) { const a = Math.PI * eio(seg(t, at("flip", 1.15), at("flip", 1.6))) * (1 - eio(seg(t, at("flip", 2.7), at("flip", 3.15)))); flip = Math.cos(a) || .001; }
     const scr = screenAt(t);
     phone(cx, cy, sc, rot, flip, () => {
       for (const b of XFADE) { const k = seg(t, b, b + .25); if (t >= b && k < 1) { screenAt(b - .01)(); g.globalAlpha = eout(k); scr(); g.globalAlpha = 1; return; } }
       scr();
     });
     // l'oreille, contre le haut du téléphone
-    if (t >= 13.7 && t < 17.9) bubble(t, "👂", 13.75, 17.9, 1700, 215);
-    bubble(t, "🔊", 18.15, 20.9);
-    bubble(t, "🔕", 22.5, 24.4);
+    if (t >= at("ear", .2) && t < at("ear", 4.4)) bubble(t, "👂", at("ear", .25), at("ear", 4.4), 1700, 215);
+    bubble(t, "🔊", at("ear", 4.65), at("speaker", 2.9));
+    bubble(t, "🔕", at("flip", 1.5), at("flip", 3.4));
   }
 
   // ---- légendes ----
@@ -840,13 +843,13 @@ async function renderMusic() {
       // basse : contretemps + octave
       if (q !== 0) { const root = CH[chordAt(t)][0] / 2; tone(ac, pump, t, q === 2 ? root : root * 2, [[1, 1, "sawtooth"], [.5, .6, "sine"]], .004, .22, .3, { lp: 560, q: 4 }); }
       // stabs d'accord sur « et » de 2 et 4
-      if (q === 2 && (beatNo === 1 || beatNo === 3) && t >= 20) for (const f of CH[chordAt(t)]) tone(ac, pump, t, f * 2, [[1, 1, "sawtooth"], [1, .8, "square"]], .003, .16, .045, { lp: 3200, detune: 6 });
+      if (q === 2 && (beatNo === 1 || beatNo === 3) && t >= T_.speaker[0]) for (const f of CH[chordAt(t)]) tone(ac, pump, t, f * 2, [[1, 1, "sawtooth"], [1, .8, "square"]], .003, .16, .045, { lp: 3200, detune: 6 });
     } else if (t >= 2 && t < 4 && q === 2) hatAt(t, .05);   // l'intro monte
   }
   // fills : caisse claire qui accélère avant les gros changements
-  for (const h of [13.5, 29, 40]) for (let i = 0; i < 4; i++) clapAt(h - 1 + i * .25 + (i > 1 ? .0 : 0), .22 + i * .06);
+  for (const h of [T_.stats[0], T_.dial[0], T_.themes[0]]) for (let i = 0; i < 4; i++) clapAt(h - 1 + i * .25 + (i > 1 ? .0 : 0), .22 + i * .06);
   HITS.forEach(crashAt);
-  riser(2, 4); riser(11.5, 13.5); riser(38, 40); riser(45, 47);
+  riser(2, 4); riser(T_.stats[0] - 2, T_.stats[0]); riser(T_.dial[0] - 2, T_.dial[0]); riser(38, 40); riser(45, 47);
   // fin : coup + accord final
   kickAt(47, 1); kickAt(49, .6);
 
@@ -856,19 +859,19 @@ async function renderMusic() {
   // touches du clavier
   for (const e of EV) play(ac, keys, NB, e.ins, e.t, FREQ[e.k], e.d, e.ins === "piano" ? .36 : .3);
   // sonneries (le téléphone qui sonne, en rythme)
-  for (const [a, b] of [[13.5, 15.4], [21.0, 22.35]]) for (let t = a; t < b; t += .25) { const f = Math.round(t * 4) % 2 ? 1318.5 : 1046.5; tone(ac, keys, t, f, [[1, 1, "sine"], [2, .2, "sine"]], .004, .14, .08); }
-  play(ac, keys, NB, "bell", 15.4, 1046.5, 1, .14);       // décroché
-  play(ac, keys, NB, "pluck", 18.1, 1318.5, .3, .25);     // haut-parleur
-  play(ac, keys, NB, "blip", 22.35, 523.25, .2, .25);     // retourné
+  for (const [a, b] of [[at("ear", 0), at("ear", 1.9)], [at("flip", 0), at("flip", 1.35)]]) for (let t = a; t < b; t += .25) { const f = Math.round(t * 4) % 2 ? 1318.5 : 1046.5; tone(ac, keys, t, f, [[1, 1, "sine"], [2, .2, "sine"]], .004, .14, .08); }
+  play(ac, keys, NB, "bell", at("ear", 1.9), 1046.5, 1, .14);       // décroché
+  play(ac, keys, NB, "pluck", at("ear", 4.6), 1318.5, .3, .25);     // haut-parleur
+  play(ac, keys, NB, "blip", at("flip", 1.35), 523.25, .2, .25);     // retourné
   // double appel, barre, partage
-  for (let t = 25.5; t < 27.5; t += 1) { tone(ac, keys, t, 880, [[1, 1, "sine"]], .003, .12, .07); tone(ac, keys, t + .15, 880, [[1, 1, "sine"]], .003, .12, .07); }
-  [27.5, TAP_BAR, 36.0].forEach(t => play(ac, keys, NB, "blip", t, 1046.5, .2, .22));
+  for (let t = at("call", 1); t < at("call", 3); t += 1) { tone(ac, keys, t, 880, [[1, 1, "sine"]], .003, .12, .07); tone(ac, keys, t + .15, 880, [[1, 1, "sine"]], .003, .12, .07); }
+  [at("call", 3), TAP_BAR, at("wrapped", 2.5)].forEach(t => play(ac, keys, NB, "blip", t, 1046.5, .2, .22));
   // stats : barres qui montent (arpège)
-  for (let i = 0; i < 8; i++) play(ac, keys, NB, "pluck", 29.15 + i * .125, CH[chordAt(29.2)][i % 3] * (i < 4 ? 2 : 4), .2, .14);
+  for (let i = 0; i < 8; i++) play(ac, keys, NB, "pluck", at("stats", .15) + i * .125, CH[chordAt(at("stats", .2))][i % 3] * (i < 4 ? 2 : 4), .2, .14);
   // Wrapped : cloches
-  [[33.5, 1046.5], [33.9, 1318.5], [34.4, 1568]].forEach(([t, f]) => play(ac, keys, NB, "bell", t, f, 1, .13));
+  [[at("wrapped", 0), 1046.5], [at("wrapped", .4), 1318.5], [at("wrapped", .9), 1568]].forEach(([t, f]) => play(ac, keys, NB, "bell", t, f, 1, .13));
   // carte : épingles
-  PINS.forEach((p, i) => play(ac, keys, NB, "pluck", T_.map[0] + .2 + i * .25 + .3, CH[chordAt(37)][i % 3] * 2, .2, .16));
+  PINS.forEach((p, i) => play(ac, keys, NB, "pluck", T_.map[0] + .2 + i * .25 + .3, CH[chordAt(at("map", .5))][i % 3] * 2, .2, .16));
   // thèmes : un pluck par changement
   THEME_AT.slice(1).forEach(t => { const ch = CH[chordAt(t)]; play(ac, keys, NB, "pluck", t, ch[0] * 2, .3, .2); play(ac, keys, NB, "pluck", t + .06, ch[2] * 2, .3, .16); });
   // widgets
