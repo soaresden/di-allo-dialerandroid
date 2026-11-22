@@ -167,7 +167,8 @@ private fun CallScreen(onDone: () -> Unit, onProximity: (Boolean) -> Unit) {
         Text(shown, color = cs.onBackground, fontSize = if (ringing) 28.sp else 23.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
         if (number.isNotBlank() && !conference) {
             val type = listOfNotNull(lineTypeLabel(number), frRegionLabel(number)).joinToString(" · ")
-            Text((if (contact != null) phoneText(number) + " · " else flagOf(number) + " ") + type, color = muted(), fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            val line = if (contact != null) listOf(phoneText(number), type).filter { it.isNotEmpty() }.joinToString(" · ") else (flagOf(number) + " " + type).trim()
+            Text(line, color = muted(), fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         Spacer(Modifier.height(4.dp))
         Text(stateText, color = if (state == Call.STATE_ACTIVE && !over) CallGreen else muted(), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)

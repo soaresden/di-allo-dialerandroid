@@ -238,7 +238,7 @@ internal fun ContactsScreen(contacts: List<CallRepository.Contact>, groups: List
                         Text(flagOf(n.number), fontSize = 22.sp); Spacer(Modifier.width(10.dp))
                         Column(Modifier.weight(1f)) {
                             Text(displayNumber(n.number), fontWeight = FontWeight.SemiBold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onBackground)
-                            Text((n.label ?: tr("Numéro")) + " · " + (lineLabel(n.number) ?: lineTypeLabel(n.number)) + " · " + (if (n.calls > 0) trn(n.calls, "{0} appel", "{0} appels") else tr("jamais appelé")), fontSize = 12.sp, color = muted())
+                            Text(listOfNotNull(n.label ?: tr("Numéro"), lineLabel(n.number) ?: lineTypeLabel(n.number), if (n.calls > 0) trn(n.calls, "{0} appel", "{0} appels") else tr("jamais appelé")).joinToString(" · "), fontSize = 12.sp, color = muted())
                         }
                         val isFav = remember(n.number, FavNumbers.version.intValue) { FavNumbers.snap(ctx).isFav(n.number, phoneStar) }
                         IconButton(onClick = { FavNumbers.set(ctx, n.number, !isFav, phoneStar) }) {

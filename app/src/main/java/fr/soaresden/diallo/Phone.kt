@@ -117,8 +117,9 @@ fun frRegion(n: String): String? {
     return when (nat.take(2)) { "01" -> "Île-de-France"; "02" -> "Nord-Ouest"; "03" -> "Nord-Est"; "04" -> "Sud-Est"; "05" -> "Sud-Ouest"; else -> null }
 }
 
-/** Type de ligne traduit, pour l'affichage. */
-fun lineTypeLabel(n: String): String = tr(lineType(n))
+/** Type de ligne traduit, pour l'affichage. « Étranger » n'est pas affiché : avec une SIM d'un autre pays (ou deux SIM),
+ *  ce serait faux ; le drapeau suffit. */
+fun lineTypeLabel(n: String): String? = lineType(n).takeIf { it != "Étranger" }?.let { tr(it) }
 
 /** Région traduite, pour l'affichage ; null si inconnue. */
 fun frRegionLabel(n: String): String? = frRegion(n)?.let { tr(it) }
