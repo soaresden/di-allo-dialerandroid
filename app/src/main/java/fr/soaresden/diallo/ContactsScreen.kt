@@ -151,8 +151,7 @@ internal fun ContactsScreen(contacts: List<CallRepository.Contact>, groups: List
             Text("${filtered.size}", fontSize = 12.sp, color = muted(.55f))
             IconButton(onClick = { showMap = true }, modifier = Modifier.size(38.dp)) { Icon(Icons.Filled.Map, tr("Carte des contacts"), tint = MaterialTheme.colorScheme.primary) }
         }
-        if (filtered.isEmpty()) { Empty(tr("Aucun contact.")); return@Column }
-        Box(Modifier.fillMaxSize()) {
+        if (filtered.isEmpty()) Empty(tr("Aucun contact.")) else Box(Modifier.fillMaxSize()) {
             LazyColumn(state = listState, modifier = Modifier.fillMaxSize().padding(start = 12.dp, end = if (alpha) 30.dp else 12.dp)) {
                 rows.forEach { row ->
                     if (row is String) stickyHeader(key = "h_$row") {

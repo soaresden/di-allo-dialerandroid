@@ -66,7 +66,10 @@ class HyperInCallService : InCallService() {
         if (go) rec.start(this, known?.first ?: num.ifBlank { "Numéro masqué" }, num.ifBlank { null })
     }
 
-    override fun onCreate() { super.onCreate(); CrashLog.install(this); I18n.ensure(this); instance = this; DataFolder.init(this) }
+    override fun onCreate() {
+        super.onCreate(); CrashLog.install(this); I18n.ensure(this); instance = this; DataFolder.init(this)
+        if (Companion.calls.isEmpty()) CallNotifier.cancel(this)   // reste d'un appel d'avant un plantage
+    }
     override fun onDestroy() { AutoSpeaker.stop(); RingGestures.stop(); CallNotifier.cancel(this); if (instance === this) instance = null; super.onDestroy() }
 
     override fun onCallAdded(call: Call) {
@@ -74,11 +77,9 @@ class HyperInCallService : InCallService() {
         Companion.calls.add(call)
         call.registerCallback(callback)
         val number = numberOf(call)
+        // nom du contact tout de suite : la première notification (celle qui sonne) l'affiche déjà
+        if (number.isNotBlank() && !names.containsKey(number)) lookupContact(this, number)?.let { names[number] = it }
         refresh()
-        if (number.isNotBlank() && !names.containsKey(number)) Thread {
-            val c = lookupContact(this, number)
-            main.post { if (c != null) names[number] = c; refresh() }
-        }.start()
         if (call.parent == null) startActivity(
             Intent(this, OngoingCallActivity::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)

@@ -3,6 +3,11 @@
 Les versions sont numérotées `AAAA-MM-JJ-NN` (date du build, puis numéro du build du jour).
 Chaque version est téléchargeable dans les [Releases](../../releases).
 
+## 2026-11-22-17
+- 🐞 Correction : plantage possible de l'écran d'appel pendant que ça sonne
+- 📞 La notification d'appel entrant affiche le **nom du contact** dès la première sonnerie
+- La notification d'appel ne reste plus affichée toute seule après la fin de l'appel ou un plantage
+
 ## 2026-11-22-16
 - 🎵 **Notes tenues** dans le mode composeur : garde le doigt sur une touche, la note dure (« 3- » = 2 temps, « 3-- » = 3 temps…). Le son tient tant que tu appuies (vents, cordes, orgue, synthés, 8-bit ; le piano et la guitare s'éteignent d'eux-mêmes)
 - Les mélodies gardent la durée de chaque note et la rejouent ; dans le recueil, les « - » font vraiment durer les notes

@@ -206,85 +206,85 @@ private fun CallScreen(onDone: () -> Unit, onProximity: (Boolean) -> Unit) {
                 RoundBtn(Amber, Icons.Filled.PhoneForwarded, tr("Raccrocher\net répondre"), 62.dp) { HyperInCallService.answerEndingOthers() }
             }
             Spacer(Modifier.height(30.dp))
-            return@Column
-        }
-
-        // ---- Participants de la conférence
-        if (conference && !over) call?.children?.takeIf { it.isNotEmpty() }?.let { kids ->
-            Surface(color = cs.surface, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
-                Column(Modifier.padding(horizontal = 12.dp, vertical = 6.dp)) {
-                    kids.forEach { k -> ParticipantRow(k) }
-                }
-            }
-        }
-
-        // ---- Commandes d'appel
-        if (!over) {
-            val speaker = route == CallAudioState.ROUTE_SPEAKER
-            val bt = route == CallAudioState.ROUTE_BLUETOOTH
-            val btAvail = ((audio?.supportedRouteMask ?: 0) and CallAudioState.ROUTE_BLUETOOTH) != 0
-            val muted = audio?.isMuted == true
-            val holding = state == Call.STATE_HOLDING
-            val canHold = call?.details?.can(Call.Details.CAPABILITY_HOLD) == true || holding
-            Row(Modifier.fillMaxWidth()) {
-                @Suppress("DEPRECATION")
-                Ctrl(Icons.Filled.VolumeUp, tr("Haut-parleur"), speaker, Modifier.weight(1f)) { HyperInCallService.setSpeaker(!speaker) }
-                Ctrl(if (muted) Icons.Filled.MicOff else Icons.Filled.Mic, if (muted) tr("Coupé") else tr("Muet"), muted, Modifier.weight(1f)) { HyperInCallService.setMuted(!muted) }
-                Ctrl(Icons.Filled.Dialpad, tr("Clavier"), keypad, Modifier.weight(1f)) { keypad = !keypad }
-                Ctrl(Icons.Filled.PersonAdd, tr("Ajouter"), false, Modifier.weight(1f)) {
-                    ctx.startActivity(Intent(ctx, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).putExtra("tab", 0))
-                }
-            }
-            Row(Modifier.fillMaxWidth()) {
-                Ctrl(if (holding) Icons.Filled.PlayArrow else Icons.Filled.Pause, if (holding) tr("Reprendre") else tr("Attente"), holding, Modifier.weight(1f), enabled = canHold) { HyperInCallService.setHold(!holding) }
-                Ctrl(Icons.Filled.Bluetooth, "Bluetooth", bt, Modifier.weight(1f), enabled = btAvail) { HyperInCallService.setBluetooth(!bt) }
-                Ctrl(Icons.Filled.Sensors, tr("Auto HP"), autoOn, Modifier.weight(1f)) { if (autoOn) AutoSpeaker.stop() else AutoSpeaker.start(ctx, force = true) }
-                Ctrl(Icons.Filled.CallMerge, tr("Fusionner"), false, Modifier.weight(1f), enabled = HyperInCallService.canMerge) { HyperInCallService.merge() }
-            }
-            RecStrip(shown, number, state == Call.STATE_ACTIVE || state == Call.STATE_HOLDING)
-            Spacer(Modifier.height(8.dp))
-        }
-
-        // ---- Zone : clavier DTMF ou notes / historique
-        Surface(color = cs.surface, shape = RoundedCornerShape(20.dp), modifier = Modifier.fillMaxWidth().weight(1f)) {
-            if (keypad && !over) DtmfPad(dtmf, onKey = { ch -> dtmf = (dtmf + ch).takeLast(24); HyperInCallService.dtmf(ch) }, onClose = { keypad = false })
-            else Column(Modifier.padding(10.dp)) {
-                Segmented(listOf(tr("📝 Notes") + if (notes.isNotEmpty()) " (${notes.size})" else "", tr("🕘 Historique") + (hist?.let { " (${it.size})" } ?: "")), tab, { tab = it })
-                Spacer(Modifier.height(8.dp))
-                if (tab == 0) {
-                    if (number.isBlank()) { Text(tr("Numéro masqué : impossible de ranger une note."), fontSize = 13.sp, color = muted()); return@Column }
-                    OutlinedTextField(
-                        draft, { draft = it }, Modifier.fillMaxWidth(),
-                        placeholder = { Text(tr("Note pendant l'appel…")) }, minLines = 2, maxLines = 5,
-                        trailingIcon = { if (draft.isNotBlank()) IconButton(onClick = { saveDraft() }) { Icon(Icons.Filled.Save, tr("Enregistrer"), tint = cs.primary) } }
-                    )
-                    Spacer(Modifier.height(6.dp))
-                    NoteList(notes, Modifier.fillMaxWidth().weight(1f)) { id -> NotesRepository.delete(ctx, id); notes = NotesRepository.forNumber(ctx, number) }
-                } else {
-                    val h = hist
-                    when {
-                        h == null -> Text(tr("Chargement…"), fontSize = 13.sp, color = muted())
-                        h.isEmpty() -> Text(tr("Aucun appel précédent avec ce numéro."), fontSize = 13.sp, color = muted())
-                        else -> LazyColumn(Modifier.fillMaxWidth().weight(1f)) { items(h.take(60)) { HistRow(it) } }
+        } else {
+            // ---- Participants de la conférence
+            if (conference && !over) call?.children?.takeIf { it.isNotEmpty() }?.let { kids ->
+                Surface(color = cs.surface, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
+                    Column(Modifier.padding(horizontal = 12.dp, vertical = 6.dp)) {
+                        kids.forEach { k -> ParticipantRow(k) }
                     }
                 }
             }
-        }
-        Spacer(Modifier.height(12.dp))
 
-        // ---- Bas : raccrocher / fermer
-        if (over) fr.soaresden.diallo.rec.CallRecorder.message.value?.let { Text(it, fontSize = 12.5.sp, color = muted(.75f), maxLines = 2, modifier = Modifier.padding(bottom = 8.dp)) }
-        if (over) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                OutlinedButton(onClick = { draft = ""; onDone() }, modifier = Modifier.weight(1f)) { Text(tr("Fermer")) }
-                Button(onClick = { saveDraft(); onDone() }, modifier = Modifier.weight(1.6f), enabled = draft.isNotBlank()) {
-                    Icon(Icons.Filled.Save, null, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text(tr("Enregistrer et fermer"))
+            // ---- Commandes d'appel
+            if (!over) {
+                val speaker = route == CallAudioState.ROUTE_SPEAKER
+                val bt = route == CallAudioState.ROUTE_BLUETOOTH
+                val btAvail = ((audio?.supportedRouteMask ?: 0) and CallAudioState.ROUTE_BLUETOOTH) != 0
+                val muted = audio?.isMuted == true
+                val holding = state == Call.STATE_HOLDING
+                val canHold = call?.details?.can(Call.Details.CAPABILITY_HOLD) == true || holding
+                Row(Modifier.fillMaxWidth()) {
+                    @Suppress("DEPRECATION")
+                    Ctrl(Icons.Filled.VolumeUp, tr("Haut-parleur"), speaker, Modifier.weight(1f)) { HyperInCallService.setSpeaker(!speaker) }
+                    Ctrl(if (muted) Icons.Filled.MicOff else Icons.Filled.Mic, if (muted) tr("Coupé") else tr("Muet"), muted, Modifier.weight(1f)) { HyperInCallService.setMuted(!muted) }
+                    Ctrl(Icons.Filled.Dialpad, tr("Clavier"), keypad, Modifier.weight(1f)) { keypad = !keypad }
+                    Ctrl(Icons.Filled.PersonAdd, tr("Ajouter"), false, Modifier.weight(1f)) {
+                        ctx.startActivity(Intent(ctx, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).putExtra("tab", 0))
+                    }
+                }
+                Row(Modifier.fillMaxWidth()) {
+                    Ctrl(if (holding) Icons.Filled.PlayArrow else Icons.Filled.Pause, if (holding) tr("Reprendre") else tr("Attente"), holding, Modifier.weight(1f), enabled = canHold) { HyperInCallService.setHold(!holding) }
+                    Ctrl(Icons.Filled.Bluetooth, "Bluetooth", bt, Modifier.weight(1f), enabled = btAvail) { HyperInCallService.setBluetooth(!bt) }
+                    Ctrl(Icons.Filled.Sensors, tr("Auto HP"), autoOn, Modifier.weight(1f)) { if (autoOn) AutoSpeaker.stop() else AutoSpeaker.start(ctx, force = true) }
+                    Ctrl(Icons.Filled.CallMerge, tr("Fusionner"), false, Modifier.weight(1f), enabled = HyperInCallService.canMerge) { HyperInCallService.merge() }
+                }
+                RecStrip(shown, number, state == Call.STATE_ACTIVE || state == Call.STATE_HOLDING)
+                Spacer(Modifier.height(8.dp))
+            }
+
+            // ---- Zone : clavier DTMF ou notes / historique
+            Surface(color = cs.surface, shape = RoundedCornerShape(20.dp), modifier = Modifier.fillMaxWidth().weight(1f)) {
+                if (keypad && !over) DtmfPad(dtmf, onKey = { ch -> dtmf = (dtmf + ch).takeLast(24); HyperInCallService.dtmf(ch) }, onClose = { keypad = false })
+                else Column(Modifier.padding(10.dp)) {
+                    Segmented(listOf(tr("📝 Notes") + if (notes.isNotEmpty()) " (${notes.size})" else "", tr("🕘 Historique") + (hist?.let { " (${it.size})" } ?: "")), tab, { tab = it })
+                    Spacer(Modifier.height(8.dp))
+                    if (tab == 0) {
+                        if (number.isBlank()) Text(tr("Numéro masqué : impossible de ranger une note."), fontSize = 13.sp, color = muted()) else {
+                            OutlinedTextField(
+                                draft, { draft = it }, Modifier.fillMaxWidth(),
+                                placeholder = { Text(tr("Note pendant l'appel…")) }, minLines = 2, maxLines = 5,
+                                trailingIcon = { if (draft.isNotBlank()) IconButton(onClick = { saveDraft() }) { Icon(Icons.Filled.Save, tr("Enregistrer"), tint = cs.primary) } }
+                            )
+                            Spacer(Modifier.height(6.dp))
+                            NoteList(notes, Modifier.fillMaxWidth().weight(1f)) { id -> NotesRepository.delete(ctx, id); notes = NotesRepository.forNumber(ctx, number) }
+                        }
+                    } else {
+                        val h = hist
+                        when {
+                            h == null -> Text(tr("Chargement…"), fontSize = 13.sp, color = muted())
+                            h.isEmpty() -> Text(tr("Aucun appel précédent avec ce numéro."), fontSize = 13.sp, color = muted())
+                            else -> LazyColumn(Modifier.fillMaxWidth().weight(1f)) { items(h.take(60)) { HistRow(it) } }
+                        }
+                    }
                 }
             }
-            Spacer(Modifier.height(8.dp))
-        } else {
-            RoundBtn(Red, Icons.Filled.CallEnd, null, 64.dp) { ending = draft.isBlank() && others.isEmpty(); HyperInCallService.hangup() }
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(12.dp))
+
+            // ---- Bas : raccrocher / fermer
+            if (over) fr.soaresden.diallo.rec.CallRecorder.message.value?.let { Text(it, fontSize = 12.5.sp, color = muted(.75f), maxLines = 2, modifier = Modifier.padding(bottom = 8.dp)) }
+            if (over) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    OutlinedButton(onClick = { draft = ""; onDone() }, modifier = Modifier.weight(1f)) { Text(tr("Fermer")) }
+                    Button(onClick = { saveDraft(); onDone() }, modifier = Modifier.weight(1.6f), enabled = draft.isNotBlank()) {
+                        Icon(Icons.Filled.Save, null, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text(tr("Enregistrer et fermer"))
+                    }
+                }
+                Spacer(Modifier.height(8.dp))
+            } else {
+                RoundBtn(Red, Icons.Filled.CallEnd, null, 64.dp) { ending = draft.isBlank() && others.isEmpty(); HyperInCallService.hangup() }
+                Spacer(Modifier.height(4.dp))
+            }
         }
     }
 }
@@ -353,7 +353,14 @@ private fun SmallAction(label: String, enabled: Boolean = true, onClick: () -> U
 private fun RecStrip(who: String, number: String, live: Boolean) {
     val ctx = LocalContext.current
     val rec = fr.soaresden.diallo.rec.CallRecorder
-    if (!remember { rec.enabled(ctx) }) return
+    val enabled = remember { rec.enabled(ctx) }
+    if (enabled) RecStripBody(who, number, live)
+}
+
+@Composable
+private fun RecStripBody(who: String, number: String, live: Boolean) {
+    val ctx = LocalContext.current
+    val rec = fr.soaresden.diallo.rec.CallRecorder
     val st by rec.state
     val since by rec.since
     val msg by rec.message

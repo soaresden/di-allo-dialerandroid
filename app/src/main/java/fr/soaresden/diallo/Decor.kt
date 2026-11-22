@@ -43,7 +43,11 @@ private val MOVING = setOf(Decor.GRID, Decor.STARS, Decor.SCANLINES, Decor.BUBBL
 
 @Composable
 internal fun DecorLayer(t: HTheme, modifier: Modifier, animate: Boolean = true) {
-    if (t.decor == Decor.NONE) return
+    if (t.decor != Decor.NONE) DecorCanvas(t, modifier, animate)
+}
+
+@Composable
+private fun DecorCanvas(t: HTheme, modifier: Modifier, animate: Boolean) {
     val phase: State<Float> = if (animate && t.decor in MOVING) {
         rememberInfiniteTransition(label = "decor").animateFloat(0f, 1f, infiniteRepeatable(tween(PERIOD, easing = LinearEasing)), label = "p")
     } else remember { mutableFloatStateOf(.3f) }

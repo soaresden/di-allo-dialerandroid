@@ -55,7 +55,7 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) { super.onNewIntent(intent); takeTab(intent) }
     override fun onResume() {
         super.onResume()
-        if (!HyperInCallService.inCall) DataFolder.autoBackupIfDue(this)
+        if (!HyperInCallService.inCall) { DataFolder.autoBackupIfDue(this); CallNotifier.cancel(this) }
         FavoritesWidget.refresh(this)
     }
     private fun takeTab(i: Intent?) {

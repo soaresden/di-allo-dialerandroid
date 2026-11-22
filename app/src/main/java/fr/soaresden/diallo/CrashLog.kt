@@ -42,6 +42,8 @@ object CrashLog {
                         SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.FRANCE).format(Date()) + " · thread ${t.name}\n\n" + sw
                 )
             } catch (_: Throwable) { }
+            // l'appli s'arrête : la notification d'appel ne doit pas rester affichée toute seule
+            CallNotifier.cancel(app)
             prev?.uncaughtException(t, e)
         }
     }
