@@ -76,10 +76,17 @@ internal fun ContactsScreen(contacts: List<CallRepository.Contact>, groups: List
     var sort by remember { mutableStateOf(prefs(ctx).getInt("csort", 0)) }
     var sortMenu by remember { mutableStateOf(false) }
     val alpha = sort <= 1
-    val filtered = remember(people, q, group, sort) {
+    // applis d'appel (WhatsApp, Telegram…) : filtres en plus des libellés Google
+    val appContacts by produceState<Map<String, Set<Long>>>(emptyMap(), contacts) { value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { SimChoice.appContacts(ctx) } }
+    val appKinds = remember(I18n.lang.value) { SimChoice.appKinds() }
+    fun matches(nums: List<CallRepository.Contact>, g: String): Boolean =
+        if (g.startsWith(SimChoice.APP_FILTER)) appContacts[g.removePrefix(SimChoice.APP_FILTER)]?.contains(nums.first().contactId) == true
+        else nums.any { it.groups.contains(g) }
+    fun groupLabel(g: String) = if (g.startsWith(SimChoice.APP_FILTER)) appKinds.firstOrNull { it.first == g.removePrefix(SimChoice.APP_FILTER) }?.second ?: g else tr(g)
+    val filtered = remember(people, q, group, sort, appContacts) {
         val f = people.filter { nums ->
             val c = nums.first()
-            (group == null || nums.any { it.groups.contains(group) }) &&
+            (group == null || matches(nums, group!!)) &&
                 (q.isBlank() || c.display.contains(q, true) || (qDigits.isNotEmpty() && nums.any { it.digits.contains(qDigits) || it.t9.contains(qDigits) }))
         }
         val az = compareBy<List<CallRepository.Contact>> { (if (letterOf(it.first().display) == "#") "~" else "") + sortKey(it.first().display) }
@@ -126,7 +133,7 @@ internal fun ContactsScreen(contacts: List<CallRepository.Contact>, groups: List
             Row(Modifier.clip(RoundedCornerShape(50)).background(if (group != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface).clickable { showGroups = true }.padding(start = 12.dp, end = 6.dp, top = 7.dp, bottom = 7.dp), verticalAlignment = Alignment.CenterVertically) {
                 val on = if (group != null) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
                 Icon(Icons.Filled.Label, null, tint = on, modifier = Modifier.size(16.dp)); Spacer(Modifier.width(6.dp))
-                Text(group?.let { tr(it) } ?: tr("Tous les libellés"), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = on, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.widthIn(max = 220.dp))
+                Text(group?.let { groupLabel(it) } ?: tr("Tous les libellés"), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = on, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.widthIn(max = 220.dp))
                 Icon(Icons.Filled.ArrowDropDown, null, tint = on)
             }
             if (group != null) IconButton(onClick = { group = null }, modifier = Modifier.size(34.dp)) { Icon(Icons.Filled.Close, tr("Retirer le filtre"), tint = muted()) }
@@ -266,6 +273,16 @@ internal fun ContactsScreen(contacts: List<CallRepository.Contact>, groups: List
             val shown = groups.filter { gq.isBlank() || it.contains(gq, true) }
             LazyColumn(Modifier.fillMaxWidth().heightIn(max = 520.dp).padding(horizontal = 8.dp)) {
                 item { GroupRow(tr("Tous les contacts"), people.size, group == null) { group = null; showGroups = false } }
+                // contacts qui ont WhatsApp, Telegram… (seulement les applis présentes)
+                val apps = appKinds.mapNotNull { (k, label) ->
+                    val n = people.count { nums -> appContacts[k]?.contains(nums.first().contactId) == true }
+                    if (n > 0 && (gq.isBlank() || label.contains(gq, true))) Triple(SimChoice.APP_FILTER + k, label, n) else null
+                }
+                if (apps.isNotEmpty()) {
+                    item { Text(tr("Applis d'appel"), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = muted(), modifier = Modifier.padding(start = 14.dp, top = 12.dp, bottom = 4.dp)) }
+                    items(apps) { (g, label, n) -> GroupRow(label, n, group == g) { group = g; showGroups = false } }
+                    if (shown.isNotEmpty()) item { Text(tr("Libellés Google"), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = muted(), modifier = Modifier.padding(start = 14.dp, top = 12.dp, bottom = 4.dp)) }
+                }
                 items(shown) { g -> GroupRow(tr(g), groupCounts[g] ?: 0, group == g) { group = g; showGroups = false } }
                 item { Spacer(Modifier.height(24.dp)) }
             }

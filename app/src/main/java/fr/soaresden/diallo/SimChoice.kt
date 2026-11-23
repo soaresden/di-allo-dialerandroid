@@ -155,6 +155,37 @@ internal object SimChoice {
         } catch (_: Throwable) { emptyList() }
     }
 
+    /** Filtre des contacts « a WhatsApp / Telegram… » : valeur de filtre « app:whatsapp ». */
+    const val APP_FILTER = "app:"
+    /** Applis d'appel (vocal) : (sorte, nom affiché avec son icône). */
+    fun appKinds(): List<Pair<String, String>> = APPS.filter { !it.video }.map { it.kind to (appIcon(it.kind) + " " + tr(it.label)) }
+
+    /** Pour chaque appli d'appel, les contacts (CONTACT_ID) qui l'utilisent. */
+    fun appContacts(ctx: Context): Map<String, Set<Long>> {
+        if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) return emptyMap()
+        // Par compte (RawContacts.ACCOUNT_TYPE) et non par type de donnée : sur HyperOS, une requête Data
+        // filtrée sur le seul MIMETYPE ne renvoie qu'une ligne (un seul contact Telegram sur 168).
+        val accounts = mapOf(
+            "com.whatsapp" to "whatsapp", "com.whatsapp.w4b" to "whatsapp",
+            "org.telegram.messenger" to "telegram", "org.telegram.messenger.web" to "telegram", "org.telegram.plus" to "telegram",
+            "org.thoughtcrime.securesms" to "signal", "com.viber.voip" to "viber",
+            "com.google.android.apps.tachyon" to "meet")
+        val out = HashMap<String, MutableSet<Long>>()
+        try {
+            val rc = android.provider.ContactsContract.RawContacts.CONTENT_URI
+            ctx.contentResolver.query(rc,
+                arrayOf(android.provider.ContactsContract.RawContacts.CONTACT_ID, android.provider.ContactsContract.RawContacts.ACCOUNT_TYPE),
+                "${android.provider.ContactsContract.RawContacts.ACCOUNT_TYPE} IN (${accounts.keys.joinToString(",") { "?" }}) AND ${android.provider.ContactsContract.RawContacts.DELETED} = 0",
+                accounts.keys.toTypedArray(), null)?.use { c ->
+                while (c.moveToNext()) {
+                    val kind = accounts[c.getString(1)] ?: continue
+                    if (!c.isNull(0)) out.getOrPut(kind) { HashSet() }.add(c.getLong(0))
+                }
+            }
+        } catch (_: Throwable) { }
+        return out
+    }
+
     /** Lance l'appel dans WhatsApp / Telegram. */
     fun callApp(ctx: Context, app: AppCall): Boolean = try {
         ctx.startActivity(Intent(Intent.ACTION_VIEW).setDataAndType(android.content.ContentUris.withAppendedId(android.provider.ContactsContract.Data.CONTENT_URI, app.dataId), app.mime)
@@ -298,7 +329,8 @@ fun carSimFor(ctx: Context, number: String): PhoneAccountHandle? {
     return (SimChoice.remembered(ctx, number, sims) ?: SimChoice.likely(ctx, null, number, sims))?.handle
 }
 
-private fun appIcon(a: SimChoice.AppCall) = when {
-    a.kind.startsWith("whatsapp") -> "🟢"; a.kind.startsWith("telegram") -> "✈️"; a.kind.startsWith("signal") -> "🔵"
-    a.kind.startsWith("viber") -> "🟣"; a.kind.startsWith("meet") -> "📹"; else -> "📞"
+private fun appIcon(a: SimChoice.AppCall) = appIcon(a.kind)
+private fun appIcon(kind: String) = when {
+    kind.startsWith("whatsapp") -> "🟢"; kind.startsWith("telegram") -> "✈️"; kind.startsWith("signal") -> "🔵"
+    kind.startsWith("viber") -> "🟣"; kind.startsWith("meet") -> "📹"; else -> "📞"
 }

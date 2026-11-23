@@ -3,6 +3,9 @@
 Les versions sont numérotées `AAAA-MM-JJ-NN` (date du build, puis numéro du build du jour).
 Chaque version est téléchargeable dans les [Releases](../../releases).
 
+## 2026-11-23-25
+- 🔎 **Filtrer les contacts par appli** : dans le filtre des Contacts, une section « Applis d'appel » montre ceux qui ont WhatsApp, Telegram, Signal, Viber ou Google Meet (avec leur nombre), au-dessus des libellés Google
+
 ## 2026-11-23-23
 - 💬 **Appeler par WhatsApp, Telegram, Signal, Viber ou Google Meet** depuis Di-Allô : la fenêtre d'appel les propose pour les contacts qui utilisent ces applis (même avec une seule SIM), à côté de l'appel normal. « Se souvenir pour ce contact » marche aussi pour elles
 - 🚗 Pas d'appel vidéo proposé en voiture

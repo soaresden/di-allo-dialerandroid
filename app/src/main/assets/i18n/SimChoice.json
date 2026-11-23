@@ -96,5 +96,12 @@
   "de": "Google-Meet-Video",
   "it": "Video Google Meet",
   "pt": "Vídeo Google Meet"
+ },
+ "Applis d'appel": {
+  "en": "Calling apps",
+  "es": "Apps de llamada",
+  "de": "Anruf-Apps",
+  "it": "App di chiamata",
+  "pt": "Apps de chamada"
  }
 }
