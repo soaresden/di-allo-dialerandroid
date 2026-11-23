@@ -24,6 +24,7 @@ class HyperInCallService : InCallService() {
 
     private val everActive = HashSet<Call>()
     private val recAsked = HashSet<Call>()   // appels déjà passés par l'enregistrement automatique
+    private val simAsked = HashSet<Call>()   // appels en attente de SIM déjà traités (SIM retenue / voiture)
 
     private val callback = object : Call.Callback() {
         override fun onStateChanged(call: Call, state: Int) = refresh()
@@ -37,6 +38,8 @@ class HyperInCallService : InCallService() {
     private fun refresh() {
         val live = liveCalls()
         live.filter { it.state == Call.STATE_ACTIVE }.forEach { everActive.add(it) }
+        // Android demande la SIM (appel lancé depuis Android Auto, un widget, une autre appli…)
+        live.filter { it.state == Call.STATE_SELECT_PHONE_ACCOUNT && simAsked.add(it) }.forEach { SimChoice.onSelectNeeded(this, it) }
         val top = live.filter { it.parent == null }
         val p = top.firstOrNull { it.state == Call.STATE_RINGING }
             ?: top.firstOrNull { it.state == Call.STATE_ACTIVE || it.state == Call.STATE_DIALING || it.state == Call.STATE_CONNECTING || it.state == Call.STATE_NEW || it.state == Call.STATE_SELECT_PHONE_ACCOUNT }
@@ -89,6 +92,7 @@ class HyperInCallService : InCallService() {
     override fun onCallRemoved(call: Call) {
         call.unregisterCallback(callback)
         Companion.calls.remove(call)
+        simAsked.remove(call)
         val wasActive = everActive.remove(call)
         RingGestures.onCallEnded(this, call, wasActive)
         // appel reçu sans réponse : l'appelant laisse peut-être un message, on ira voir la messagerie Free

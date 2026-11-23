@@ -97,6 +97,19 @@ private fun Root(theme: String, onTheme: (String) -> Unit) {
     val roleLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { refresh++ }
     var isDefault by remember { mutableStateOf(isDefaultDialer(ctx)) }
     LaunchedEffect(refresh) { isDefault = isDefaultDialer(ctx) }
+    // rôle « redirection d'appel » : appels d'Android Auto nettoyés + SIM choisie en voiture (proposé une fois, refus retenu)
+    val redirPrefs = remember { ctx.getSharedPreferences("sim_choice", Context.MODE_PRIVATE) }
+    var redirHeld by remember { mutableStateOf(ctx.getSystemService(RoleManager::class.java)?.isRoleHeld(RoleManager.ROLE_CALL_REDIRECTION) == true) }
+    var redirRefused by remember { mutableStateOf(redirPrefs.getBoolean("redir_refused", false)) }
+    val redirLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        redirHeld = ctx.getSystemService(RoleManager::class.java)?.isRoleHeld(RoleManager.ROLE_CALL_REDIRECTION) == true
+        if (!redirHeld) { redirRefused = true; redirPrefs.edit().putBoolean("redir_refused", true).apply() }
+    }
+    fun requestRedirect() {
+        val rm = ctx.getSystemService(RoleManager::class.java)
+        if (rm != null && rm.isRoleAvailable(RoleManager.ROLE_CALL_REDIRECTION)) redirLauncher.launch(rm.createRequestRoleIntent(RoleManager.ROLE_CALL_REDIRECTION))
+        else { redirRefused = true; redirPrefs.edit().putBoolean("redir_refused", true).apply() }
+    }
 
     var data by remember { mutableStateOf(CallRepository.Data(emptyList(), emptyList(), emptyMap())) }
     LaunchedEffect(granted, refresh) { if (granted) data = withContext(Dispatchers.IO) { CallRepository.load(ctx) } }
@@ -122,13 +135,19 @@ private fun Root(theme: String, onTheme: (String) -> Unit) {
         if (rm != null && rm.isRoleAvailable(RoleManager.ROLE_DIALER)) roleLauncher.launch(rm.createRequestRoleIntent(RoleManager.ROLE_DIALER))
     }
 
+    SimAskDialog()
     pending?.let { num ->
+        val simList = remember(num) { SimChoice.sims(ctx) }
+        val askSim = simList.size >= 2 && SimChoice.remembered(ctx, num, simList) == null
         AlertDialog(
             onDismissRequest = { pending = null },
             icon = { Icon(Icons.Filled.Call, null, tint = CallGreen) },
             title = { Text(tr("Appeler ?")) },
-            text = { Column { Text(displayOf(num), fontWeight = FontWeight.SemiBold, fontSize = 17.sp); if (displayOf(num) != num) Text(phoneText(num), fontSize = 13.sp, color = muted()) } },
-            confirmButton = { Button(onClick = { placeCall(ctx, num); pending = null }, colors = ButtonDefaults.buttonColors(containerColor = CallGreen, contentColor = Color.White)) { Icon(Icons.Filled.Call, null, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text(tr("Appeler")) } },
+            text = { Column {
+                Text(displayOf(num), fontWeight = FontWeight.SemiBold, fontSize = 17.sp); if (displayOf(num) != num) Text(phoneText(num), fontSize = 13.sp, color = muted())
+                if (askSim) { Spacer(Modifier.height(12.dp)); SimButtons(num, simList, remember(num) { SimChoice.likely(ctx, null, num, simList) }) { s -> pending = null; SimChoice.call(ctx, num, s) } }
+            } },
+            confirmButton = { if (!askSim) Button(onClick = { placeCall(ctx, num); pending = null }, colors = ButtonDefaults.buttonColors(containerColor = CallGreen, contentColor = Color.White)) { Icon(Icons.Filled.Call, null, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text(tr("Appeler")) } },
             dismissButton = { TextButton(onClick = { pending = null }) { Text(tr("Annuler")) } }
         )
     }
@@ -190,6 +209,7 @@ private fun Root(theme: String, onTheme: (String) -> Unit) {
             Header()
             if (!isDefault) Banner(MaterialTheme.colorScheme.primaryContainer, tr("Définir Di-Allô comme téléphone par défaut"), tr("Activer")) { requestDefault() }
             if (!granted) Banner(MaterialTheme.colorScheme.surfaceVariant, tr("Autoriser le journal d'appels et les contacts"), tr("Autoriser")) { permLauncher.launch(PERMS) }
+            if (isDefault && granted && !redirHeld && !redirRefused) Banner(MaterialTheme.colorScheme.surfaceVariant, tr("🚗 Appels depuis Android Auto ou d'autres applis : numéro composé proprement et SIM choisie en voiture"), tr("Activer")) { requestRedirect() }
             recProblem?.let { Banner(MaterialTheme.colorScheme.surfaceVariant, it, tr("Régler")) { fr.soaresden.diallo.rec.RecHealth.wizard.value = true } }
             update?.let { u -> Banner(MaterialTheme.colorScheme.primaryContainer, "⬆️ " + tr("Mise à jour disponible : {0}", u.version), tr("Voir")) { Updater.showDialog.value = true } }
             when (tab) {
@@ -366,6 +386,10 @@ private fun RecentsList(calls: List<CallRepository.CallEntry>, contacts: List<Ca
                         val fav = favSnap.isFav(row.number, star)
                         DropdownMenuItem(text = { Text(if (fav) "☆ " + tr("Retirer des favoris") else "⭐ " + tr("Ajouter aux favoris")) }, onClick = { menu = false; FavNumbers.toggle(ctx, row.number, star, view) })
                     }
+                    @Suppress("UNUSED_VARIABLE") val simVer = SimChoice.version.intValue
+                    if (row.number.any { it.isDigit() }) SimChoice.remembered(ctx, row.number)?.let { s ->
+                        DropdownMenuItem(text = { Text(tr("📶 SIM retenue : {0} · Demander à chaque fois", s.title)) }, onClick = { menu = false; SimChoice.remember(ctx, row.number, null) })
+                    }
                     if (row.number.any { it.isDigit() }) DropdownMenuItem(text = { Text("📌 " + tr("Sur l'écran d'accueil")) }, onClick = {
                         menu = false
                         if (!WidgetPrefs.pinContact(ctx, Pick(row.display, row.number, row.photoUri))) android.widget.Toast.makeText(ctx, tr("Ton écran d'accueil ne permet pas d'ajouter le widget depuis l'appli : appui long sur l'écran d'accueil › Widgets › Di-Allô."), android.widget.Toast.LENGTH_LONG).show()
@@ -401,7 +425,15 @@ private fun RecentsList(calls: List<CallRepository.CallEntry>, contacts: List<Ca
 private val PERMS = arrayOf(Manifest.permission.READ_CALL_LOG, Manifest.permission.WRITE_CALL_LOG, Manifest.permission.READ_CONTACTS, Manifest.permission.READ_PHONE_STATE, Manifest.permission.CALL_PHONE, Manifest.permission.POST_NOTIFICATIONS)
 private fun hasPerms(c: Context): Boolean = ContextCompat.checkSelfPermission(c, Manifest.permission.READ_CALL_LOG) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(c, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED
 private fun isDefaultDialer(c: Context): Boolean = c.getSystemService(RoleManager::class.java)?.isRoleHeld(RoleManager.ROLE_DIALER) == true
-internal fun placeCall(c: Context, number: String) { try { val a = if (ContextCompat.checkSelfPermission(c, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) Intent.ACTION_CALL else Intent.ACTION_DIAL; c.startActivity(Intent(a, telUri(number)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) } catch (_: Throwable) {} }
+internal fun placeCall(c: Context, number: String) {
+    // double SIM : SIM retenue pour ce contact, sinon on demande laquelle (fenêtre SimAskDialog)
+    if (ContextCompat.checkSelfPermission(c, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED && number.any { it.isDigit() }) {
+        val sims = SimChoice.sims(c)
+        if (sims.size >= 2) { SimChoice.remembered(c, number, sims)?.let { SimChoice.call(c, number, it) } ?: run { SimChoice.ask.value = number }; return }
+    }
+    placeCallDirect(c, number)
+}
+private fun placeCallDirect(c: Context, number: String) { try { val a = if (ContextCompat.checkSelfPermission(c, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) Intent.ACTION_CALL else Intent.ACTION_DIAL; c.startActivity(Intent(a, telUri(number)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) } catch (_: Throwable) {} }
 /** Numéro à composer sans espaces ni tirets (« +32 470 12 34 56 » → « +32470123456 »), comme le fait le téléphone de Google.
  *  Avec les espaces, la vérification « faux appel » de Google chez la personne appelée peut croire que ce n'est pas toi. */
 internal fun telUri(number: String): Uri = Uri.fromParts("tel", android.telephony.PhoneNumberUtils.stripSeparators(number)?.takeIf { it.isNotEmpty() } ?: number, null)

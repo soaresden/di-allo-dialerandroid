@@ -3,6 +3,11 @@
 Les versions sont numérotées `AAAA-MM-JJ-NN` (date du build, puis numéro du build du jour).
 Chaque version est téléchargeable dans les [Releases](../../releases).
 
+## 2026-11-23-19
+- 📶 **Double SIM : Di-Allô demande la SIM à chaque appel**, avec « Se souvenir pour ce contact ». La SIM retenue s'oublie par appui long sur l'appel dans Récents
+- 🚗 **Android Auto** : en voiture, plus besoin de prendre le téléphone pour choisir la SIM. Di-Allô prend la SIM retenue pour le contact, sinon celle du pays du numéro, sinon celle du dernier appel avec lui, sinon la SIM par défaut
+- 🚗 Les appels lancés depuis Android Auto (ou un widget, une autre appli) sont composés sans espaces : plus d'alerte « Ce n'est peut-être pas … » chez la personne appelée. À activer une fois avec le bandeau 🚗 en haut de Di-Allô (rôle « redirection d'appel » d'Android)
+
 ## 2026-11-23-15
 - 🔔 Messagerie : la notification d'un nouveau message vocal arrive bien, même quand Di-Allô est resté sur l'onglet Messagerie en arrière-plan
 - 📞 Après un appel manqué ou refusé, Di-Allô va voir s'il y a un message (en plus de l'alerte que Free envoie)

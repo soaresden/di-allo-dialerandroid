@@ -182,6 +182,18 @@ private fun CallScreen(onDone: () -> Unit, onProximity: (Boolean) -> Unit) {
         }
         Spacer(Modifier.height(12.dp))
 
+        // ---- Android demande la SIM (appel lancé hors de Di-Allô) : choix ici
+        if (!over && state == Call.STATE_SELECT_PHONE_ACCOUNT) call?.let { c ->
+            val sims = remember(c) { SimChoice.forCall(ctx, c) }
+            if (sims.isNotEmpty()) Surface(color = cs.surface, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
+                Column(Modifier.padding(12.dp)) {
+                    Text(tr("Appeler avec quelle SIM ?"), fontWeight = FontWeight.SemiBold, fontSize = 15.sp, color = cs.onSurface)
+                    Spacer(Modifier.height(6.dp))
+                    SimButtons(number, sims, remember(c) { SimChoice.likely(ctx, c, number, sims) }) { s -> try { c.phoneAccountSelected(s.handle, false) } catch (_: Throwable) { } }
+                }
+            }
+        }
+
         if (ringing) {
             // Dernière note : utile pour savoir de quoi on parlait avant de décrocher
             notes.firstOrNull()?.let { n ->
