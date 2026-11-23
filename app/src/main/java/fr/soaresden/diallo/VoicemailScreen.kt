@@ -48,7 +48,19 @@ internal fun VoicemailScreen(contacts: List<CallRepository.Contact>, onCall: (St
     val app = ctx.applicationContext
     val scope = rememberCoroutineScope()
     LaunchedEffect(Unit) { withContext(Dispatchers.IO) { Vvm.load(app) } }
-    DisposableEffect(Unit) { Vvm.screenOpen = true; Vvm.cancelNotification(app); onDispose { Vvm.screenOpen = false } }
+    // « écran ouvert » seulement quand l'appli est au premier plan : en arrière-plan sur cet onglet, on notifie quand même
+    val lifecycle = androidx.compose.ui.platform.LocalLifecycleOwner.current.lifecycle
+    DisposableEffect(lifecycle) {
+        val obs = androidx.lifecycle.LifecycleEventObserver { _, e ->
+            when (e) {
+                androidx.lifecycle.Lifecycle.Event.ON_RESUME -> { Vvm.screenOpen = true; Vvm.cancelNotification(app) }
+                androidx.lifecycle.Lifecycle.Event.ON_PAUSE -> Vvm.screenOpen = false
+                else -> {}
+            }
+        }
+        lifecycle.addObserver(obs)
+        onDispose { lifecycle.removeObserver(obs); Vvm.screenOpen = false }
+    }
 
     val msgs by Vvm.messages
     val progress by Vvm.progress
@@ -64,6 +76,13 @@ internal fun VoicemailScreen(contacts: List<CallRepository.Contact>, onCall: (St
         if (Omtp.hasSmsPerms(app)) Vvm.requestStatus(app) else Vvm.error.value = tr("Sans l'autorisation SMS, Di-Allô ne peut pas demander tes messages à Free.")
     }
     fun activate() { if (Omtp.hasSmsPerms(app)) Vvm.requestStatus(app) else smsPerms.launch(arrayOf(Manifest.permission.SEND_SMS, Manifest.permission.RECEIVE_SMS)) }
+
+    fun sendLog() {
+        val t = fr.soaresden.diallo.vvm.VvmLog.report(app)
+        val send = android.content.Intent(android.content.Intent.ACTION_SEND).setType("text/plain")
+            .putExtra(android.content.Intent.EXTRA_SUBJECT, tr("Journal messagerie Di-Allô")).putExtra(android.content.Intent.EXTRA_TEXT, t)
+        try { ctx.startActivity(android.content.Intent.createChooser(send, tr("Envoyer le journal"))) } catch (_: Throwable) { }
+    }
 
     val byKey = remember(contacts) { contacts.associateBy { keyOf(it.number) } }
     var open by remember { mutableStateOf<Long?>(null) }
@@ -130,7 +149,10 @@ internal fun VoicemailScreen(contacts: List<CallRepository.Contact>, onCall: (St
         }
         error?.let { e ->
             Surface(color = Red.copy(alpha = .14f), shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
-                Text(e, Modifier.padding(12.dp), fontSize = 13.sp, color = MaterialTheme.colorScheme.onBackground)
+                Column(Modifier.padding(start = 12.dp, end = 4.dp, top = 12.dp)) {
+                    Text(e, fontSize = 13.sp, color = MaterialTheme.colorScheme.onBackground)
+                    TextButton(onClick = { sendLog() }, modifier = Modifier.align(Alignment.End)) { Text(tr("Envoyer le journal")) }
+                }
             }
         }
         if (!ready) {
@@ -145,10 +167,16 @@ internal fun VoicemailScreen(contacts: List<CallRepository.Contact>, onCall: (St
                         Text(tr("En attente de la réponse de Free…"), fontSize = 13.sp)
                         Spacer(Modifier.weight(1f)); TextButton(onClick = { activate() }) { Text(tr("Renvoyer")) }
                     } else Button(onClick = { activate() }) { Text(tr("Activer")) }
+                    TextButton(onClick = { sendLog() }) { Text(tr("Envoyer le journal"), fontSize = 12.sp) }
                 }
             }
         } else if (shown.isEmpty()) {
-            Empty(if (progress != null) tr("Recherche des messages…") else tr("Aucun message vocal."))
+            Box(Modifier.fillMaxSize()) {
+                Empty(if (progress != null) tr("Recherche des messages…") else tr("Aucun message vocal."))
+                TextButton(onClick = { sendLog() }, modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 12.dp)) {
+                    Text(tr("Un souci ? Envoyer le journal"), fontSize = 12.sp, color = muted())
+                }
+            }
         } else LazyColumn(Modifier.fillMaxSize()) {
             items(shown, key = { it.uid }) { m ->
                 val c = byKey[keyOf(m.from)]
@@ -205,7 +233,11 @@ internal fun VoicemailScreen(contacts: List<CallRepository.Contact>, onCall: (St
                     }
                 }
             }
-            item { Spacer(Modifier.height(12.dp)) }
+            item {
+                Box(Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 12.dp), contentAlignment = Alignment.Center) {
+                    TextButton(onClick = { sendLog() }) { Text(tr("Un souci ? Envoyer le journal"), fontSize = 12.sp, color = muted()) }
+                }
+            }
         }
     }
 }

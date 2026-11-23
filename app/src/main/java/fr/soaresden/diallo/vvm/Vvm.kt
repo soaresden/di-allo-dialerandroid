@@ -147,9 +147,18 @@ internal object Vvm {
         val user = f["u"].orEmpty(); val pass = f["pw"].orEmpty()
         if (rc.isNotEmpty() && rc != "0") { error.value = tr("Free refuse la messagerie visuelle (code {0}).", rc); return }
         if (host.isBlank() || user.isBlank() || pass.isBlank()) {
+            // ligne jamais inscrite (pas d'appli Free avant) : demande d'activation standard, une fois par heure au plus
+            val lastAct = prefs(ctx).getLong("last_activate", 0L)
+            if (st != "B" && System.currentTimeMillis() - lastAct > 3_600_000L && Omtp.sendActivate(ctx)) {
+                prefs(ctx).edit().putLong("last_activate", System.currentTimeMillis()).apply()
+                waitingStatus.value = true
+                error.value = tr("Messagerie visuelle pas encore active chez Free : demande d'activation envoyée, réponse attendue par SMS.")
+                return
+            }
             error.value = if (st == "B") tr("Messagerie visuelle bloquée chez Free.") else tr("Messagerie visuelle pas encore active chez Free (état « {0} »).", st.ifBlank { "?" })
             return
         }
+        VvmLog.add(ctx, "Identifiants reçus (serveur $host, port ${f["ipt"] ?: "993"})")
         writeAccount(ctx, Account(host, f["ipt"]?.toIntOrNull() ?: 993, user, pass, f["tui"]))
         error.value = null
         scheduleSync(ctx)
@@ -158,7 +167,8 @@ internal object Vvm {
     fun onSync(ctx: Context, f: Map<String, String>) {
         load(ctx)
         if (account == null) { Omtp.sendStatus(ctx); return }
-        scheduleSync(ctx, notify = f["ev"] == "NM")
+        // quel que soit le type annoncé par Free : la notification ne part que s'il y a vraiment un message nouveau
+        scheduleSync(ctx)
     }
 
     /** Bouton « Activer » : demande les identifiants à Free. */
@@ -198,8 +208,25 @@ internal object Vvm {
     }
 
     /* ---------- synchronisation ---------- */
-    fun scheduleSync(ctx: Context, notify: Boolean = false) {
-        if (notify) prefs(ctx).edit().putBoolean("notify_next", true).apply()
+    /**
+     * Après un appel manqué ou refusé : Free envoie d'habitude un SMS dès qu'un message est laissé, mais s'il se
+     * perd, deux vérifications de secours (1 min 30 puis 3 min). Pas toutes les 2 s : chaque connexion au serveur
+     * de Free met ~30 s à s'ouvrir.
+     */
+    fun afterMissedCall(ctx: Context) {
+        val app = ctx.applicationContext
+        if (!fr.soaresden.diallo.BuildConfig.FULL) return
+        load(app)
+        if (account == null) return
+        VvmLog.add(app, "Appel manqué : vérifications prévues dans 1 min 30 et 3 min")
+        val js = app.getSystemService(JobScheduler::class.java) ?: return
+        val comp = ComponentName(app, VvmSyncJob::class.java)
+        listOf(JOB_ID + 1 to 90_000L, JOB_ID + 2 to 180_000L).forEach { (id, wait) ->
+            try { js.schedule(JobInfo.Builder(id, comp).setMinimumLatency(wait).setOverrideDeadline(wait + 30_000).build()) } catch (_: Throwable) { }
+        }
+    }
+
+    fun scheduleSync(ctx: Context) {
         val js = ctx.getSystemService(JobScheduler::class.java) ?: return
         val comp = ComponentName(ctx, VvmSyncJob::class.java)
         // tâche « urgente » si le quota le permet, sinon tâche normale lancée dans la seconde
@@ -219,24 +246,30 @@ internal object Vvm {
             // 1er essai par la connexion en cours (Wi-Fi, VoWiFi…) : le serveur de Free répond aussi par Internet.
             // Ensuite, par le réseau mobile (si le Wi-Fi bloque le port 993, ou si la connexion lâche en route,
             // « Software caused connection abort »). 3 essais en tout, chacun sur une nouvelle connexion.
+            VvmLog.add(ctx, "Synchro : début (réseau ${VvmLog.network(ctx)})")
             for (attempt in 1..3) {
                 val active = if (attempt == 1) cm.activeNetwork else null
                 var cb: ConnectivityManager.NetworkCallback? = null
                 val net = active ?: run {
                     progress.value = tr("Connexion au réseau mobile…")
                     val (n, c) = cellular(cm) ?: run {
+                        VvmLog.add(ctx, "Essai $attempt : réseau mobile indisponible")
                         error.value = if (last != null) tr("Échec de la synchro : {0}", last?.message ?: last?.javaClass?.simpleName ?: "?")
                             else tr("Pas de connexion : la messagerie de Free a besoin d'Internet (Wi-Fi ou données mobiles).")
                         return false
                     }
                     cb = c; n
                 }
+                val t0 = System.currentTimeMillis()
                 try {
                     return syncOnce(ctx, acc, net)
                 } catch (e: java.io.IOException) {
                     last = e
+                    VvmLog.add(ctx, "Essai $attempt (${if (active != null) "connexion en cours" else "réseau mobile"}) : ${e.javaClass.simpleName} ${e.message} après ${(System.currentTimeMillis() - t0) / 1000} s")
                 } catch (e: Throwable) {
-                    last = e; break
+                    last = e
+                    VvmLog.add(ctx, "Essai $attempt : erreur ${e.javaClass.simpleName} ${e.message}")
+                    break
                 } finally {
                     cb?.let { try { cm.unregisterNetworkCallback(it) } catch (_: Throwable) { } }
                 }
@@ -258,11 +291,16 @@ internal object Vvm {
         val addr = try {
             net.getAllByName(acc.host).first().also { a -> a.hostAddress?.let { prefs(ctx).edit().putString("last_ip", it).apply() } }
         } catch (e: java.net.UnknownHostException) {
+            VvmLog.add(ctx, "DNS : ${acc.host} introuvable, adresse de secours")
             android.net.InetAddresses.parseNumericAddress(prefs(ctx).getString("last_ip", null) ?: FREE_IMAP_IP)
         }
+        val t0 = System.currentTimeMillis()
         val plain = Imap.connectPlain(net.socketFactory, InetSocketAddress(addr, acc.port))
+        VvmLog.add(ctx, "Connecté à ${addr.hostAddress}:${acc.port} en ${System.currentTimeMillis() - t0} ms, ouverture TLS…")
         Imap.open(plain, acc.host, acc.port).use { imap ->
+            VvmLog.add(ctx, "TLS ouvert après ${(System.currentTimeMillis() - t0) / 1000} s")
             val login = imap.cmd("LOGIN " + Imap.quote(acc.user) + " " + Imap.quote(acc.pass))
+            VvmLog.add(ctx, "Connexion au compte : ${if (login.ok) "OK" else "refusée"}")
             if (!login.ok) {
                 // mot de passe changé chez Free : on redemande les identifiants
                 writeAccount(ctx, null); Omtp.sendStatus(ctx); waitingStatus.value = true
@@ -296,13 +334,12 @@ internal object Vvm {
             // messages effacés ailleurs (web, appli Free) : on retire le fichier local, sauf ceux de la corbeille
             // (gardés sur le téléphone jusqu'à ce qu'on vide la corbeille)
             messages.value.filter { it.uid !in uids }.forEach { if (it.trashed > 0 && audioFile(ctx, it) != null) result += it else audioFile(ctx, it)?.delete() }
+            VvmLog.add(ctx, "Synchro OK : ${uids.size} message(s) chez Free, $fresh nouveau(x), ${result.count { it.trashed > 0 }} à la corbeille")
             writeIndex(ctx, result)
             lastSync.value = System.currentTimeMillis()
             prefs(ctx).edit().putLong("last_sync", lastSync.value).apply()
-            if (prefs(ctx).getBoolean("notify_next", false)) {
-                prefs(ctx).edit().putBoolean("notify_next", false).apply()
-                if (fresh > 0 && !screenOpen) notifyNew(ctx, result.filter { !it.seen && it.trashed == 0L })
-            }
+            // nouveau message et écran Messagerie pas devant les yeux : notification
+            if (fresh > 0 && !screenOpen) notifyNew(ctx, result.filter { !it.seen && it.trashed == 0L })
         }
         return true
     }

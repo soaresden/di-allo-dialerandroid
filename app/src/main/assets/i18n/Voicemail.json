@@ -313,5 +313,33 @@
   "de": "In den Papierkorb",
   "it": "Sposta nel cestino",
   "pt": "Mover para o lixo"
+ },
+ "Messagerie visuelle pas encore active chez Free : demande d'activation envoyée, réponse attendue par SMS.": {
+  "en": "Visual voicemail not active at Free yet: activation request sent, waiting for the SMS reply.",
+  "es": "El buzón de voz visual aún no está activo en Free: solicitud de activación enviada, esperando la respuesta por SMS.",
+  "de": "Visuelle Mailbox bei Free noch nicht aktiv: Aktivierungsanfrage gesendet, Antwort per SMS erwartet.",
+  "it": "Segreteria visiva non ancora attiva da Free: richiesta di attivazione inviata, risposta attesa via SMS.",
+  "pt": "Correio de voz visual ainda não ativo na Free: pedido de ativação enviado, resposta esperada por SMS."
+ },
+ "Journal messagerie Di-Allô": {
+  "en": "Di-Allô voicemail log",
+  "es": "Registro del buzón de Di-Allô",
+  "de": "Di-Allô Mailbox-Protokoll",
+  "it": "Registro segreteria Di-Allô",
+  "pt": "Registo do correio de voz Di-Allô"
+ },
+ "Envoyer le journal": {
+  "en": "Send the log",
+  "es": "Enviar el registro",
+  "de": "Protokoll senden",
+  "it": "Invia il registro",
+  "pt": "Enviar o registo"
+ },
+ "Un souci ? Envoyer le journal": {
+  "en": "A problem? Send the log",
+  "es": "¿Algún problema? Enviar el registro",
+  "de": "Ein Problem? Protokoll senden",
+  "it": "Un problema? Invia il registro",
+  "pt": "Algum problema? Enviar o registo"
  }
 }

@@ -3,6 +3,12 @@
 Les versions sont numérotées `AAAA-MM-JJ-NN` (date du build, puis numéro du build du jour).
 Chaque version est téléchargeable dans les [Releases](../../releases).
 
+## 2026-11-23-15
+- 🔔 Messagerie : la notification d'un nouveau message vocal arrive bien, même quand Di-Allô est resté sur l'onglet Messagerie en arrière-plan
+- 📞 Après un appel manqué ou refusé, Di-Allô va voir s'il y a un message (en plus de l'alerte que Free envoie)
+- 📝 **Journal de la messagerie** : bouton « Envoyer le journal » (étapes, durées, erreurs ; jamais d'identifiant, de mot de passe ni de numéro) pour aider à corriger un souci
+- Ligne Free jamais passée par l'appli de Free : Di-Allô demande lui-même l'activation de la messagerie visuelle
+
 ## 2026-11-23-11
 - 📼 **Messagerie vocale visuelle Free dans Di-Allô** (nouvel onglet « Messagerie », avec une SIM Free) : la liste de tes messages vocaux, l'écoute directe, Rappeler. Remplace l'appli « Messagerie Vocale Visuelle » de Free, qui ne chargeait plus les messages (le serveur de Free met ~30 s à répondre, l'appli abandonnait avant)
 - « Activer » demande l'accès à Free par un SMS gratuit au 2051, puis les messages se téléchargent par Internet (Wi-Fi ou réseau mobile, avec nouvel essai automatique si la connexion lâche)

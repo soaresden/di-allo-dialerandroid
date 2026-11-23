@@ -89,7 +89,10 @@ class HyperInCallService : InCallService() {
     override fun onCallRemoved(call: Call) {
         call.unregisterCallback(callback)
         Companion.calls.remove(call)
-        RingGestures.onCallEnded(this, call, everActive.remove(call))
+        val wasActive = everActive.remove(call)
+        RingGestures.onCallEnded(this, call, wasActive)
+        // appel reçu sans réponse : l'appelant laisse peut-être un message, on ira voir la messagerie Free
+        if (!wasActive && call.details?.callDirection == Call.Details.DIRECTION_INCOMING) fr.soaresden.diallo.vvm.Vvm.afterMissedCall(this)
         if (Companion.calls.isEmpty()) {
             current.value = null; callState.intValue = Call.STATE_DISCONNECTED; version.intValue++
             AutoSpeaker.stop(); RingGestures.stop(); CallNotifier.cancel(this)

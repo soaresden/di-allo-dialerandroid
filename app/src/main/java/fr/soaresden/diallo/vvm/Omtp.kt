@@ -25,6 +25,8 @@ internal object Omtp {
     private val FREE_MCC_MNC = setOf("20815", "20816")
 
     fun statusRequest() = "STATUS:pv=$PROTOCOL;ct=$CLIENT;pt=$PORT;//VVM"
+    /** Demande d'activation OMTP standard (ce qu'envoie aussi l'appli de Free) : pour une ligne pas encore inscrite. */
+    fun activateRequest() = "Activate:pv=$PROTOCOL;ct=$CLIENT;pt=$PORT;//VVM"
 
     /** Abonnement (SIM) Free actif, s'il y en a un. */
     fun freeSubId(ctx: Context): Int? = try {
@@ -38,15 +40,20 @@ internal object Omtp {
         .all { ctx.checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED }
 
     /** Demande à Free l'état de la messagerie (et les identifiants IMAP). La réponse arrive dans [VvmSmsReceiver]. */
-    fun sendStatus(ctx: Context): Boolean {
-        val sub = freeSubId(ctx) ?: return false
-        if (!hasSmsPerms(ctx)) return false
+    fun sendStatus(ctx: Context): Boolean = send(ctx, statusRequest())
+    fun sendActivate(ctx: Context): Boolean = send(ctx, activateRequest())
+
+    private fun send(ctx: Context, text: String): Boolean {
+        val what = text.substringBefore(':')
+        val sub = freeSubId(ctx) ?: run { VvmLog.add(ctx, "$what pas envoyé : aucune SIM Free trouvée"); return false }
+        if (!hasSmsPerms(ctx)) { VvmLog.add(ctx, "$what pas envoyé : autorisation SMS refusée"); return false }
         return try {
             val sms = ctx.getSystemService(SmsManager::class.java).createForSubscriptionId(sub)
             val sent = PendingIntent.getBroadcast(ctx, 0, Intent("fr.soaresden.diallo.VVM_SENT").setPackage(ctx.packageName), PendingIntent.FLAG_IMMUTABLE)
-            sms.sendDataMessage(DEST, null, PORT, statusRequest().toByteArray(Charsets.UTF_8), sent, null)
+            sms.sendDataMessage(DEST, null, PORT, text.toByteArray(Charsets.UTF_8), sent, null)
+            VvmLog.add(ctx, "SMS $what envoyé au $DEST (port $PORT, client $CLIENT)")
             true
-        } catch (_: Throwable) { false }
+        } catch (e: Throwable) { VvmLog.add(ctx, "SMS $what : échec d'envoi ${e.javaClass.simpleName} ${e.message}"); false }
     }
 
     /** « //VVM:STATUS:st=R;rc=0;… » → ("STATUS", {st=R, rc=0, …}). */
@@ -68,8 +75,9 @@ class VvmSmsReceiver : BroadcastReceiver() {
         if (intent.action != Telephony.Sms.Intents.DATA_SMS_RECEIVED_ACTION) return
         val parts = try { Telephony.Sms.Intents.getMessagesFromIntent(intent) } catch (_: Throwable) { null } ?: return
         val bytes = parts.filterNotNull().fold(ByteArray(0)) { acc, m -> acc + (m.userData ?: ByteArray(0)) }
-        val (kind, map) = Omtp.parse(String(bytes, Charsets.UTF_8)) ?: return
         val app = ctx.applicationContext
+        val (kind, map) = Omtp.parse(String(bytes, Charsets.UTF_8)) ?: run { VvmLog.add(app, "SMS port 5499 reçu mais illisible (${bytes.size} octets)"); return }
+        VvmLog.add(app, VvmLog.sms(kind, map))
         when (kind) {
             "STATUS" -> Vvm.onStatus(app, map)
             "SYNC" -> Vvm.onSync(app, map)
