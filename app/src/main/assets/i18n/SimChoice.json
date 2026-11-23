@@ -13,18 +13,88 @@
   "it": "Chiamare con quale SIM?",
   "pt": "Ligar com que SIM?"
  },
- "📶 SIM retenue : {0} · Demander à chaque fois": {
-  "en": "📶 Saved SIM: {0} · Ask every time",
-  "es": "📶 SIM guardada: {0} · Preguntar siempre",
-  "de": "📶 Gemerkte SIM: {0} · Jedes Mal fragen",
-  "it": "📶 SIM ricordata: {0} · Chiedi ogni volta",
-  "pt": "📶 SIM guardado: {0} · Perguntar sempre"
- },
  "🚗 Appels depuis Android Auto ou d'autres applis : numéro composé proprement et SIM choisie en voiture": {
   "en": "🚗 Calls from Android Auto or other apps: clean number dialing and SIM chosen in the car",
   "es": "🚗 Llamadas desde Android Auto u otras apps: número marcado limpio y SIM elegida en el coche",
   "de": "🚗 Anrufe aus Android Auto oder anderen Apps: sauber gewählte Nummer und SIM-Wahl im Auto",
   "it": "🚗 Chiamate da Android Auto o altre app: numero composto pulito e SIM scelta in auto",
   "pt": "🚗 Chamadas do Android Auto ou de outras apps: número marcado limpo e SIM escolhido no carro"
+ },
+ "📶 Retenu : {0} · Demander à chaque fois": {
+  "en": "📶 Saved: {0} · Ask every time",
+  "es": "📶 Guardado: {0} · Preguntar siempre",
+  "de": "📶 Gemerkt: {0} · Jedes Mal fragen",
+  "it": "📶 Ricordato: {0} · Chiedi ogni volta",
+  "pt": "📶 Guardado: {0} · Perguntar sempre"
+ },
+ "Appeler comment ?": {
+  "en": "Call how?",
+  "es": "¿Llamar cómo?",
+  "de": "Wie anrufen?",
+  "it": "Chiamare come?",
+  "pt": "Ligar como?"
+ },
+ "Appel normal": {
+  "en": "Regular call",
+  "es": "Llamada normal",
+  "de": "Normaler Anruf",
+  "it": "Chiamata normale",
+  "pt": "Chamada normal"
+ },
+ "WhatsApp": {
+  "en": "WhatsApp",
+  "es": "WhatsApp",
+  "de": "WhatsApp",
+  "it": "WhatsApp",
+  "pt": "WhatsApp"
+ },
+ "WhatsApp vidéo": {
+  "en": "WhatsApp video",
+  "es": "Vídeo WhatsApp",
+  "de": "WhatsApp-Video",
+  "it": "Video WhatsApp",
+  "pt": "Vídeo WhatsApp"
+ },
+ "Telegram": {
+  "en": "Telegram",
+  "es": "Telegram",
+  "de": "Telegram",
+  "it": "Telegram",
+  "pt": "Telegram"
+ },
+ "Telegram vidéo": {
+  "en": "Telegram video",
+  "es": "Vídeo Telegram",
+  "de": "Telegram-Video",
+  "it": "Video Telegram",
+  "pt": "Vídeo Telegram"
+ },
+ "Signal": {
+  "en": "Signal",
+  "es": "Signal",
+  "de": "Signal",
+  "it": "Signal",
+  "pt": "Signal"
+ },
+ "Viber": {
+  "en": "Viber",
+  "es": "Viber",
+  "de": "Viber",
+  "it": "Viber",
+  "pt": "Viber"
+ },
+ "Google Meet": {
+  "en": "Google Meet",
+  "es": "Google Meet",
+  "de": "Google Meet",
+  "it": "Google Meet",
+  "pt": "Google Meet"
+ },
+ "Google Meet vidéo": {
+  "en": "Google Meet video",
+  "es": "Vídeo Google Meet",
+  "de": "Google-Meet-Video",
+  "it": "Video Google Meet",
+  "pt": "Vídeo Google Meet"
  }
 }

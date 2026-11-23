@@ -138,14 +138,15 @@ private fun Root(theme: String, onTheme: (String) -> Unit) {
     SimAskDialog()
     pending?.let { num ->
         val simList = remember(num) { SimChoice.sims(ctx) }
-        val askSim = simList.size >= 2 && SimChoice.remembered(ctx, num, simList) == null
+        val appList = remember(num) { SimChoice.appCalls(ctx, num) }
+        val askSim = SimChoice.needsAsk(ctx, num, simList, appList)
         AlertDialog(
             onDismissRequest = { pending = null },
             icon = { Icon(Icons.Filled.Call, null, tint = CallGreen) },
             title = { Text(tr("Appeler ?")) },
             text = { Column {
                 Text(displayOf(num), fontWeight = FontWeight.SemiBold, fontSize = 17.sp); if (displayOf(num) != num) Text(phoneText(num), fontSize = 13.sp, color = muted())
-                if (askSim) { Spacer(Modifier.height(12.dp)); SimButtons(num, simList, remember(num) { SimChoice.likely(ctx, null, num, simList) }) { s -> pending = null; SimChoice.call(ctx, num, s) } }
+                if (askSim) { Spacer(Modifier.height(12.dp)); SimButtons(num, simList, remember(num) { SimChoice.likely(ctx, null, num, simList) }, appList, onApp = { a -> pending = null; SimChoice.callApp(ctx, a) }) { s -> pending = null; SimChoice.call(ctx, num, s) } }
             } },
             confirmButton = { if (!askSim) Button(onClick = { placeCall(ctx, num); pending = null }, colors = ButtonDefaults.buttonColors(containerColor = CallGreen, contentColor = Color.White)) { Icon(Icons.Filled.Call, null, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text(tr("Appeler")) } },
             dismissButton = { TextButton(onClick = { pending = null }) { Text(tr("Annuler")) } }
@@ -387,8 +388,8 @@ private fun RecentsList(calls: List<CallRepository.CallEntry>, contacts: List<Ca
                         DropdownMenuItem(text = { Text(if (fav) "☆ " + tr("Retirer des favoris") else "⭐ " + tr("Ajouter aux favoris")) }, onClick = { menu = false; FavNumbers.toggle(ctx, row.number, star, view) })
                     }
                     @Suppress("UNUSED_VARIABLE") val simVer = SimChoice.version.intValue
-                    if (row.number.any { it.isDigit() }) SimChoice.remembered(ctx, row.number)?.let { s ->
-                        DropdownMenuItem(text = { Text(tr("📶 SIM retenue : {0} · Demander à chaque fois", s.title)) }, onClick = { menu = false; SimChoice.remember(ctx, row.number, null) })
+                    if (row.number.any { it.isDigit() }) SimChoice.rememberedLabel(ctx, row.number)?.let { l ->
+                        DropdownMenuItem(text = { Text(tr("📶 Retenu : {0} · Demander à chaque fois", l)) }, onClick = { menu = false; SimChoice.remember(ctx, row.number, null) })
                     }
                     if (row.number.any { it.isDigit() }) DropdownMenuItem(text = { Text("📌 " + tr("Sur l'écran d'accueil")) }, onClick = {
                         menu = false
@@ -429,7 +430,10 @@ internal fun placeCall(c: Context, number: String) {
     // double SIM : SIM retenue pour ce contact, sinon on demande laquelle (fenêtre SimAskDialog)
     if (ContextCompat.checkSelfPermission(c, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED && number.any { it.isDigit() }) {
         val sims = SimChoice.sims(c)
-        if (sims.size >= 2) { SimChoice.remembered(c, number, sims)?.let { SimChoice.call(c, number, it) } ?: run { SimChoice.ask.value = number }; return }
+        val apps = SimChoice.appCalls(c, number)
+        SimChoice.rememberedApp(c, number, apps)?.let { if (SimChoice.callApp(c, it)) return }
+        SimChoice.remembered(c, number, sims)?.let { SimChoice.call(c, number, it); return }
+        if (SimChoice.needsAsk(c, number, sims, apps)) { SimChoice.ask.value = number; return }
     }
     placeCallDirect(c, number)
 }

@@ -84,8 +84,83 @@ internal object SimChoice {
     /** Incrémenté quand une SIM retenue change (menus qui l'affichent). */
     val version = mutableIntStateOf(0)
 
-    /** Faut-il demander la SIM avant d'appeler ce numéro ? */
-    fun needsAsk(ctx: Context, number: String): Boolean { val s = sims(ctx); return s.size >= 2 && remembered(ctx, number, s) == null }
+    /** Appli retenue pour ce numéro (« Se souvenir » sur WhatsApp / Telegram), si le contact l'a toujours. */
+    fun rememberedApp(ctx: Context, number: String, apps: List<AppCall> = appCalls(ctx, number)): AppCall? {
+        if (number.none { it.isDigit() }) return null
+        val v = prefs(ctx).getString(keyFor(number), null)?.takeIf { it.startsWith("app:") }?.removePrefix("app:") ?: return null
+        return apps.firstOrNull { it.kind == v }
+    }
+    fun rememberApp(ctx: Context, number: String, app: AppCall) {
+        if (number.none { it.isDigit() }) return
+        prefs(ctx).edit().putString(keyFor(number), "app:" + app.kind).apply()
+        version.intValue++
+    }
+    /** Ce qui est retenu pour ce numéro, en clair (menu des récents), ou null. */
+    fun rememberedLabel(ctx: Context, number: String): String? {
+        val v = prefs(ctx).getString(keyFor(number), null) ?: return null
+        return if (v.startsWith("app:")) APPS.firstOrNull { it.kind == v.removePrefix("app:") }?.label?.let { tr(it) }
+        else sims(ctx).firstOrNull { it.handle.id == v }?.title
+    }
+
+    /** Faut-il demander avant d'appeler ce numéro ? (deux SIM, ou une SIM + WhatsApp / Telegram, et rien de retenu) */
+    fun needsAsk(ctx: Context, number: String, sims: List<Sim> = sims(ctx), apps: List<AppCall> = appCalls(ctx, number)): Boolean =
+        remembered(ctx, number, sims) == null && rememberedApp(ctx, number, apps) == null && (sims.size >= 2 || (sims.isNotEmpty() && apps.isNotEmpty()))
+
+    /* ---------- Appels WhatsApp / Telegram ---------- */
+    /** Ligne « appel » qu'une messagerie ajoute au contact (c'est ce qu'utilise l'appli Contacts). */
+    data class AppCall(val kind: String, val label: String, val video: Boolean, val dataId: Long, val mime: String)
+    private class AppDef(val kind: String, val label: String, val video: Boolean, val mimes: List<String>, val jid: Boolean)
+    private val APPS = listOf(
+        AppDef("whatsapp", "WhatsApp", false, listOf("vnd.android.cursor.item/vnd.com.whatsapp.voip.call", "vnd.android.cursor.item/vnd.com.whatsapp.w4b.voip.call"), true),
+        AppDef("whatsapp_video", "WhatsApp vidéo", true, listOf("vnd.android.cursor.item/vnd.com.whatsapp.video.call", "vnd.android.cursor.item/vnd.com.whatsapp.w4b.video.call"), true),
+        AppDef("telegram", "Telegram", false, listOf("vnd.android.cursor.item/vnd.org.telegram.messenger.android.call"), false),
+        AppDef("telegram_video", "Telegram vidéo", true, listOf("vnd.android.cursor.item/vnd.org.telegram.messenger.android.call.video"), false),
+        AppDef("signal", "Signal", false, listOf("vnd.android.cursor.item/vnd.org.thoughtcrime.securesms.call"), false),
+        AppDef("viber", "Viber", false, listOf("vnd.android.cursor.item/vnd.com.viber.voip.viber_number_call"), false),
+        AppDef("meet", "Google Meet", false, listOf("vnd.android.cursor.item/com.google.android.apps.tachyon.phone.meet.audio"), false),
+        AppDef("meet_video", "Google Meet vidéo", true, listOf("vnd.android.cursor.item/com.google.android.apps.tachyon.phone.meet"), false),
+    )
+
+    /** Appels WhatsApp / Telegram possibles vers ce numéro (contact enregistré qui utilise l'appli). */
+    fun appCalls(ctx: Context, number: String): List<AppCall> {
+        if (number.count { it.isDigit() } < 6) return emptyList()
+        if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) return emptyList()
+        return try {
+            val cr = ctx.contentResolver
+            val ids = HashSet<Long>()
+            cr.query(android.net.Uri.withAppendedPath(android.provider.ContactsContract.PhoneLookup.CONTENT_FILTER_URI, android.net.Uri.encode(number)),
+                arrayOf(android.provider.ContactsContract.PhoneLookup._ID), null, null, null)?.use { c -> while (c.moveToNext()) ids.add(c.getLong(0)) }
+            if (ids.isEmpty()) return emptyList()
+            val mimes = APPS.flatMap { it.mimes }
+            val sel = "${android.provider.ContactsContract.Data.CONTACT_ID} IN (${ids.joinToString(",")}) AND ${android.provider.ContactsContract.Data.MIMETYPE} IN (${mimes.joinToString(",") { "?" }})"
+            val key = keyOf(number)
+            val out = ArrayList<AppCall>()
+            cr.query(android.provider.ContactsContract.Data.CONTENT_URI, arrayOf(android.provider.ContactsContract.Data._ID, android.provider.ContactsContract.Data.MIMETYPE, android.provider.ContactsContract.Data.DATA1),
+                sel, mimes.toTypedArray(), null)?.use { c ->
+                while (c.moveToNext()) {
+                    val mime = c.getString(1) ?: continue
+                    val def = APPS.firstOrNull { mime in it.mimes } ?: continue
+                    // WhatsApp : « 33612345678@s.whatsapp.net » doit être ce numéro-là (un contact peut en avoir plusieurs)
+                    // la ligne doit concerner ce numéro-là (un contact peut en avoir plusieurs) :
+                    // WhatsApp « 33612345678@s.whatsapp.net », Meet / Viber / Signal souvent le numéro lui-même
+                    val raw = c.getString(2) ?: ""
+                    if (def.jid) { val d = raw.substringBefore('@').filter { it.isDigit() }; if (d.isEmpty() || keyOf("+$d") != key) continue }
+                    else if (raw.count { it.isDigit() } >= 6 && !raw.contains('@') && keyOf(raw) != key && keyOf("+" + raw.filter { it.isDigit() }) != key) continue
+                    if (out.none { it.kind == def.kind }) out.add(AppCall(def.kind, def.label, def.video, c.getLong(0), mime))
+                }
+            }
+            // en voiture : pas d'appel vidéo
+            val car = isCarMode(ctx)
+            out.filter { !car || !it.video }.sortedBy { APPS.indexOfFirst { a -> a.kind == it.kind } }
+        } catch (_: Throwable) { emptyList() }
+    }
+
+    /** Lance l'appel dans WhatsApp / Telegram. */
+    fun callApp(ctx: Context, app: AppCall): Boolean = try {
+        ctx.startActivity(Intent(Intent.ACTION_VIEW).setDataAndType(android.content.ContentUris.withAppendedId(android.provider.ContactsContract.Data.CONTENT_URI, app.dataId), app.mime)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        true
+    } catch (_: Throwable) { false }
 
     /** Appelle avec cette SIM (null = celle du système). */
     fun call(ctx: Context, number: String, sim: Sim?) {
@@ -161,15 +236,16 @@ internal fun SimAskDialog() {
     val ctx = LocalContext.current
     val num = SimChoice.ask.value ?: return
     val sims = remember(num) { SimChoice.sims(ctx) }
+    val apps = remember(num) { SimChoice.appCalls(ctx, num) }
     val guess = remember(num) { SimChoice.likely(ctx, null, num, sims) }
     AlertDialog(
         onDismissRequest = { SimChoice.ask.value = null },
-        title = { Text(tr("Appeler avec quelle SIM ?")) },
+        title = { Text(if (sims.size >= 2) tr("Appeler avec quelle SIM ?") else tr("Appeler comment ?")) },
         text = {
             Column {
                 Text(phoneText(num), fontSize = 14.sp, color = muted())
                 Spacer(Modifier.height(10.dp))
-                SimButtons(num, sims, guess) { s -> SimChoice.ask.value = null; SimChoice.call(ctx, num, s) }
+                SimButtons(num, sims, guess, apps, onApp = { a -> SimChoice.ask.value = null; SimChoice.callApp(ctx, a) }) { s -> SimChoice.ask.value = null; SimChoice.call(ctx, num, s) }
             }
         },
         confirmButton = {},
@@ -179,18 +255,30 @@ internal fun SimAskDialog() {
 
 /** Choix de la SIM : un bouton par SIM + « Se souvenir pour ce contact ». */
 @Composable
-internal fun SimButtons(number: String, sims: List<SimChoice.Sim>, suggested: SimChoice.Sim?, onPick: (SimChoice.Sim) -> Unit) {
+internal fun SimButtons(number: String, sims: List<SimChoice.Sim>, suggested: SimChoice.Sim?, apps: List<SimChoice.AppCall> = emptyList(),
+                        onApp: (SimChoice.AppCall) -> Unit = {}, onPick: (SimChoice.Sim) -> Unit) {
     val ctx = LocalContext.current
     var keep by remember { mutableStateOf(false) }
     Column(Modifier.fillMaxWidth()) {
         sims.forEach { s ->
-            val main = s == suggested
+            val main = s == suggested || sims.size == 1
             val content: @Composable RowScope.() -> Unit = {
-                Text(s.title, maxLines = 1, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.SemiBold)
+                Text(if (sims.size == 1) "📞 " + tr("Appel normal") else s.title, maxLines = 1, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.SemiBold)
             }
             val act = { if (keep) SimChoice.remember(ctx, number, s); onPick(s) }
             if (main) Button(onClick = act, modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp), colors = ButtonDefaults.buttonColors(containerColor = CallGreen, contentColor = androidx.compose.ui.graphics.Color.White), content = content)
             else OutlinedButton(onClick = act, modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp), content = content)
+        }
+        // WhatsApp / Telegram : appel vocal en bouton, vidéo en lien plus discret
+        apps.filter { !it.video }.forEach { a ->
+            OutlinedButton(onClick = { if (keep) SimChoice.rememberApp(ctx, number, a); onApp(a) }, modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp)) {
+                Text(appIcon(a) + " " + tr(a.label), maxLines = 1, fontWeight = FontWeight.SemiBold)
+            }
+        }
+        apps.filter { it.video }.takeIf { it.isNotEmpty() }?.let { vids ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                vids.forEach { a -> TextButton(onClick = { if (keep) SimChoice.rememberApp(ctx, number, a); onApp(a) }) { Text("🎥 " + tr(a.label), fontSize = 13.sp) } }
+            }
         }
         if (number.any { it.isDigit() }) Row(Modifier.fillMaxWidth().clickable { keep = !keep }.padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             Checkbox(keep, { keep = it })
@@ -208,4 +296,9 @@ fun carSimFor(ctx: Context, number: String): PhoneAccountHandle? {
     val sims = SimChoice.sims(ctx)
     if (sims.size < 2) return null
     return (SimChoice.remembered(ctx, number, sims) ?: SimChoice.likely(ctx, null, number, sims))?.handle
+}
+
+private fun appIcon(a: SimChoice.AppCall) = when {
+    a.kind.startsWith("whatsapp") -> "🟢"; a.kind.startsWith("telegram") -> "✈️"; a.kind.startsWith("signal") -> "🔵"
+    a.kind.startsWith("viber") -> "🟣"; a.kind.startsWith("meet") -> "📹"; else -> "📞"
 }

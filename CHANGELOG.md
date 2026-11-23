@@ -3,6 +3,10 @@
 Les versions sont numérotées `AAAA-MM-JJ-NN` (date du build, puis numéro du build du jour).
 Chaque version est téléchargeable dans les [Releases](../../releases).
 
+## 2026-11-23-23
+- 💬 **Appeler par WhatsApp, Telegram, Signal, Viber ou Google Meet** depuis Di-Allô : la fenêtre d'appel les propose pour les contacts qui utilisent ces applis (même avec une seule SIM), à côté de l'appel normal. « Se souvenir pour ce contact » marche aussi pour elles
+- 🚗 Pas d'appel vidéo proposé en voiture
+
 ## 2026-11-23-19
 - 📶 **Double SIM : Di-Allô demande la SIM à chaque appel**, avec « Se souvenir pour ce contact ». La SIM retenue s'oublie par appui long sur l'appel dans Récents
 - 🚗 **Android Auto** : en voiture, plus besoin de prendre le téléphone pour choisir la SIM. Di-Allô prend la SIM retenue pour le contact, sinon celle du pays du numéro, sinon celle du dernier appel avec lui, sinon la SIM par défaut
