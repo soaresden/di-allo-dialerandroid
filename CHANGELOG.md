@@ -3,6 +3,9 @@
 Les versions sont numérotées `AAAA-MM-JJ-NN` (date du build, puis numéro du build du jour).
 Chaque version est téléchargeable dans les [Releases](../../releases).
 
+## 2026-11-23-28
+- 🏪 Version bêta pour le Play Store, avec toutes les nouveautés ci-dessous sauf la messagerie visuelle (pour l'instant)
+
 ## 2026-11-23-27
 - 🔎 Filtre « Applis d'appel » des Contacts : tous les contacts Telegram sont trouvés, même quand Telegram a créé sa propre fiche à part (avant, seuls ceux dont la fiche était fusionnée apparaissaient)
 - 💬 Fenêtre d'appel : Telegram est proposé aussi pour ces contacts-là
