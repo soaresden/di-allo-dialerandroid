@@ -77,10 +77,10 @@ internal fun ContactsScreen(contacts: List<CallRepository.Contact>, groups: List
     var sortMenu by remember { mutableStateOf(false) }
     val alpha = sort <= 1
     // applis d'appel (WhatsApp, Telegram…) : filtres en plus des libellés Google
-    val appContacts by produceState<Map<String, Set<Long>>>(emptyMap(), contacts) { value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { SimChoice.appContacts(ctx) } }
+    val appContacts by produceState(SimChoice.AppIndex(), contacts) { value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { SimChoice.appContacts(ctx) } }
     val appKinds = remember(I18n.lang.value) { SimChoice.appKinds() }
     fun matches(nums: List<CallRepository.Contact>, g: String): Boolean =
-        if (g.startsWith(SimChoice.APP_FILTER)) appContacts[g.removePrefix(SimChoice.APP_FILTER)]?.contains(nums.first().contactId) == true
+        if (g.startsWith(SimChoice.APP_FILTER)) appContacts.has(g.removePrefix(SimChoice.APP_FILTER), nums.first().contactId, nums.map { it.number })
         else nums.any { it.groups.contains(g) }
     fun groupLabel(g: String) = if (g.startsWith(SimChoice.APP_FILTER)) appKinds.firstOrNull { it.first == g.removePrefix(SimChoice.APP_FILTER) }?.second ?: g else tr(g)
     val filtered = remember(people, q, group, sort, appContacts) {
@@ -275,7 +275,7 @@ internal fun ContactsScreen(contacts: List<CallRepository.Contact>, groups: List
                 item { GroupRow(tr("Tous les contacts"), people.size, group == null) { group = null; showGroups = false } }
                 // contacts qui ont WhatsApp, Telegram… (seulement les applis présentes)
                 val apps = appKinds.mapNotNull { (k, label) ->
-                    val n = people.count { nums -> appContacts[k]?.contains(nums.first().contactId) == true }
+                    val n = people.count { nums -> appContacts.has(k, nums.first().contactId, nums.map { it.number }) }
                     if (n > 0 && (gq.isBlank() || label.contains(gq, true))) Triple(SimChoice.APP_FILTER + k, label, n) else null
                 }
                 if (apps.isNotEmpty()) {

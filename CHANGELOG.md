@@ -3,6 +3,10 @@
 Les versions sont numérotées `AAAA-MM-JJ-NN` (date du build, puis numéro du build du jour).
 Chaque version est téléchargeable dans les [Releases](../../releases).
 
+## 2026-11-23-27
+- 🔎 Filtre « Applis d'appel » des Contacts : tous les contacts Telegram sont trouvés, même quand Telegram a créé sa propre fiche à part (avant, seuls ceux dont la fiche était fusionnée apparaissaient)
+- 💬 Fenêtre d'appel : Telegram est proposé aussi pour ces contacts-là
+
 ## 2026-11-23-25
 - 🔎 **Filtrer les contacts par appli** : dans le filtre des Contacts, une section « Applis d'appel » montre ceux qui ont WhatsApp, Telegram, Signal, Viber ou Google Meet (avec leur nombre), au-dessus des libellés Google
 

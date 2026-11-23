@@ -1,5 +1,6 @@
 package fr.soaresden.diallo
 
+import android.provider.ContactsContract.Data as CData
 import android.Manifest
 import android.app.UiModeManager
 import android.content.Context
@@ -121,6 +122,18 @@ internal object SimChoice {
         AppDef("meet_video", "Google Meet vidéo", true, listOf("vnd.android.cursor.item/com.google.android.apps.tachyon.phone.meet"), false),
     )
 
+    /** Numéro de téléphone d'une ligne d'appli, ou null s'il n'y en a pas.
+     *  WhatsApp : DATA1 = « 33612345678@s.whatsapp.net ». Telegram : DATA1 = identifiant Telegram,
+     *  le numéro est dans DATA3 (« Voice call +33… »). Signal / Viber / Meet : souvent le numéro dans DATA1. */
+    private fun appNumber(def: AppDef, d1: String?, d3: String?): String? {
+        if (def.jid) return d1?.substringBefore('@')?.filter { it.isDigit() }?.takeIf { it.length >= 6 }?.let { "+$it" }
+        val plus = d3?.indexOf('+') ?: -1
+        if (plus >= 0) return "+" + d3!!.substring(plus).filter { it.isDigit() }.takeIf { it.length >= 6 }.orEmpty().ifEmpty { return null }
+        if (def.kind.startsWith("telegram")) return null
+        val raw = d1 ?: return null
+        return if (raw.count { it.isDigit() } >= 6 && !raw.contains('@')) raw else null
+    }
+
     /** Appels WhatsApp / Telegram possibles vers ce numéro (contact enregistré qui utilise l'appli). */
     fun appCalls(ctx: Context, number: String): List<AppCall> {
         if (number.count { it.isDigit() } < 6) return emptyList()
@@ -130,22 +143,22 @@ internal object SimChoice {
             val ids = HashSet<Long>()
             cr.query(android.net.Uri.withAppendedPath(android.provider.ContactsContract.PhoneLookup.CONTENT_FILTER_URI, android.net.Uri.encode(number)),
                 arrayOf(android.provider.ContactsContract.PhoneLookup._ID), null, null, null)?.use { c -> while (c.moveToNext()) ids.add(c.getLong(0)) }
-            if (ids.isEmpty()) return emptyList()
             val mimes = APPS.flatMap { it.mimes }
-            val sel = "${android.provider.ContactsContract.Data.CONTACT_ID} IN (${ids.joinToString(",")}) AND ${android.provider.ContactsContract.Data.MIMETYPE} IN (${mimes.joinToString(",") { "?" }})"
+            // Telegram crée souvent sa propre fiche, sans numéro, non fusionnée avec le contact : on les lit toutes
+            val tg = APPS.filter { it.kind.startsWith("telegram") }.flatMap { it.mimes }
+            val byId = if (ids.isEmpty()) "" else "${CData.CONTACT_ID} IN (${ids.joinToString(",")}) AND ${CData.MIMETYPE} IN (${mimes.joinToString(",") { "?" }}) OR "
+            val sel = byId + "${CData.MIMETYPE} IN (${tg.joinToString(",") { "?" }})"
+            val args = (if (ids.isEmpty()) emptyList() else mimes) + tg
             val key = keyOf(number)
             val out = ArrayList<AppCall>()
-            cr.query(android.provider.ContactsContract.Data.CONTENT_URI, arrayOf(android.provider.ContactsContract.Data._ID, android.provider.ContactsContract.Data.MIMETYPE, android.provider.ContactsContract.Data.DATA1),
-                sel, mimes.toTypedArray(), null)?.use { c ->
+            cr.query(CData.CONTENT_URI, arrayOf(CData._ID, CData.MIMETYPE, CData.DATA1, CData.DATA3, CData.CONTACT_ID), sel, args.toTypedArray(), null)?.use { c ->
                 while (c.moveToNext()) {
                     val mime = c.getString(1) ?: continue
                     val def = APPS.firstOrNull { mime in it.mimes } ?: continue
-                    // WhatsApp : « 33612345678@s.whatsapp.net » doit être ce numéro-là (un contact peut en avoir plusieurs)
-                    // la ligne doit concerner ce numéro-là (un contact peut en avoir plusieurs) :
-                    // WhatsApp « 33612345678@s.whatsapp.net », Meet / Viber / Signal souvent le numéro lui-même
-                    val raw = c.getString(2) ?: ""
-                    if (def.jid) { val d = raw.substringBefore('@').filter { it.isDigit() }; if (d.isEmpty() || keyOf("+$d") != key) continue }
-                    else if (raw.count { it.isDigit() } >= 6 && !raw.contains('@') && keyOf(raw) != key && keyOf("+" + raw.filter { it.isDigit() }) != key) continue
+                    // la ligne doit concerner ce numéro-là (un contact peut en avoir plusieurs) ;
+                    // sans numéro, seulement si elle est sur la fiche de ce contact
+                    val n = appNumber(def, c.getString(2), c.getString(3))
+                    if (n != null) { if (keyOf(n) != key) continue } else if (c.getLong(4) !in ids || def.jid) continue
                     if (out.none { it.kind == def.kind }) out.add(AppCall(def.kind, def.label, def.video, c.getLong(0), mime))
                 }
             }
@@ -160,30 +173,30 @@ internal object SimChoice {
     /** Applis d'appel (vocal) : (sorte, nom affiché avec son icône). */
     fun appKinds(): List<Pair<String, String>> = APPS.filter { !it.video }.map { it.kind to (appIcon(it.kind) + " " + tr(it.label)) }
 
-    /** Pour chaque appli d'appel, les contacts (CONTACT_ID) qui l'utilisent. */
-    fun appContacts(ctx: Context): Map<String, Set<Long>> {
-        if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) return emptyMap()
-        // Par compte (RawContacts.ACCOUNT_TYPE) et non par type de donnée : sur HyperOS, une requête Data
-        // filtrée sur le seul MIMETYPE ne renvoie qu'une ligne (un seul contact Telegram sur 168).
-        val accounts = mapOf(
-            "com.whatsapp" to "whatsapp", "com.whatsapp.w4b" to "whatsapp",
-            "org.telegram.messenger" to "telegram", "org.telegram.messenger.web" to "telegram", "org.telegram.plus" to "telegram",
-            "org.thoughtcrime.securesms" to "signal", "com.viber.voip" to "viber",
-            "com.google.android.apps.tachyon" to "meet")
-        val out = HashMap<String, MutableSet<Long>>()
+    /** Qui utilise chaque appli d'appel : par fiche (CONTACT_ID) et par numéro (clé keyOf),
+     *  car Telegram crée souvent sa propre fiche, non fusionnée avec celle qui porte le numéro. */
+    class AppIndex(val ids: Map<String, Set<Long>> = emptyMap(), val keys: Map<String, Set<String>> = emptyMap()) {
+        fun has(kind: String, contactId: Long, numbers: List<String>): Boolean =
+            ids[kind]?.contains(contactId) == true || keys[kind]?.let { k -> numbers.any { keyOf(it) in k } } == true
+    }
+
+    fun appContacts(ctx: Context): AppIndex {
+        if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) return AppIndex()
+        val defs = APPS.filter { !it.video }
+        val mimes = defs.flatMap { it.mimes }
+        val ids = HashMap<String, MutableSet<Long>>()
+        val keys = HashMap<String, MutableSet<String>>()
         try {
-            val rc = android.provider.ContactsContract.RawContacts.CONTENT_URI
-            ctx.contentResolver.query(rc,
-                arrayOf(android.provider.ContactsContract.RawContacts.CONTACT_ID, android.provider.ContactsContract.RawContacts.ACCOUNT_TYPE),
-                "${android.provider.ContactsContract.RawContacts.ACCOUNT_TYPE} IN (${accounts.keys.joinToString(",") { "?" }}) AND ${android.provider.ContactsContract.RawContacts.DELETED} = 0",
-                accounts.keys.toTypedArray(), null)?.use { c ->
+            ctx.contentResolver.query(CData.CONTENT_URI, arrayOf(CData.CONTACT_ID, CData.MIMETYPE, CData.DATA1, CData.DATA3, CData._ID),
+                "${CData.MIMETYPE} IN (${mimes.joinToString(",") { "?" }})", mimes.toTypedArray(), null)?.use { c ->
                 while (c.moveToNext()) {
-                    val kind = accounts[c.getString(1)] ?: continue
-                    if (!c.isNull(0)) out.getOrPut(kind) { HashSet() }.add(c.getLong(0))
+                    val def = defs.firstOrNull { c.getString(1) in it.mimes } ?: continue
+                    ids.getOrPut(def.kind) { HashSet() }.add(c.getLong(0))
+                    appNumber(def, c.getString(2), c.getString(3))?.let { keyOf(it) }?.takeIf { it.isNotEmpty() }?.let { keys.getOrPut(def.kind) { HashSet() }.add(it) }
                 }
             }
         } catch (_: Throwable) { }
-        return out
+        return AppIndex(ids, keys)
     }
 
     /** Lance l'appel dans WhatsApp / Telegram. */
