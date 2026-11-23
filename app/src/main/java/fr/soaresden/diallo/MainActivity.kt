@@ -138,7 +138,7 @@ private fun Root(theme: String, onTheme: (String) -> Unit) {
     val recFolder by Recordings.folderVersion
     LaunchedEffect(data.calls, recFolder) { if (data.calls.isNotEmpty()) withContext(Dispatchers.IO) { Recordings.refresh(ctx, data) } }
     val recAll by Recordings.all
-    val showRec = remember(recFolder, recAll) { recAll.isNotEmpty() || fr.soaresden.diallo.rec.CallRecorder.enabled(ctx) }
+    val showRec = remember(recFolder, recAll) { BuildConfig.FULL && (recAll.isNotEmpty() || fr.soaresden.diallo.rec.CallRecorder.enabled(ctx)) }
     RecordingPlayer()
     // enregistreur intégré : tout est-il en règle ? (relance le service au besoin)
     val recProblem by fr.soaresden.diallo.rec.RecHealth.problem

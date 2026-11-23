@@ -22,3 +22,7 @@ Set-HyperOS-Dialer.ps1
 
 # vidéos exportées (lourdes)
 store/video/out/
+
+# Clé d'envoi Play Store (à sauvegarder ailleurs, jamais dans git)
+*.jks
+keystore.properties

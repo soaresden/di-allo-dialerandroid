@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -310,7 +311,12 @@ fun HyperTheme(themeId: String, content: @Composable () -> Unit) {
                 // ombre douce sous le texte quand un décor sombre est derrière
                 val legible = if (t.dark && t.decor != Decor.NONE) androidx.compose.material3.LocalTextStyle.current.copy(shadow = Shadow(Color.Black.copy(alpha = .7f), androidx.compose.ui.geometry.Offset(0f, 1.5f), 6f))
                     else androidx.compose.material3.LocalTextStyle.current
-                CompositionLocalProvider(androidx.compose.material3.LocalTextStyle provides legible, androidx.compose.material3.LocalContentColor provides t.text) { content() }
+                // Android 15+ avec une appli qui le vise (version Play) : l'écran passe sous les barres système,
+                // on garde le décor en plein écran mais le contenu (et le clavier virtuel) hors des barres
+                val edge = androidx.compose.runtime.remember { ctx.applicationInfo.targetSdkVersion >= 35 && android.os.Build.VERSION.SDK_INT >= 35 }
+                Box(if (edge) Modifier.fillMaxSize().safeDrawingPadding() else Modifier.fillMaxSize()) {
+                    CompositionLocalProvider(androidx.compose.material3.LocalTextStyle provides legible, androidx.compose.material3.LocalContentColor provides t.text) { content() }
+                }
             }
         }
     }

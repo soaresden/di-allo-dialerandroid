@@ -705,5 +705,19 @@
   "de": "Nach Updates suchen",
   "it": "Cerca aggiornamenti",
   "pt": "Procurar atualizações"
+ },
+ "Cette version de Di-Allô ne gère que les appels : la restauration des SMS n'est pas disponible.": {
+  "en": "This version of Di-Allô only handles calls: SMS restore is not available.",
+  "es": "Esta versión de Di-Allô solo gestiona llamadas: la restauración de SMS no está disponible.",
+  "de": "Diese Version von Di-Allô verwaltet nur Anrufe: SMS-Wiederherstellung ist nicht verfügbar.",
+  "it": "Questa versione di Di-Allô gestisce solo le chiamate: il ripristino degli SMS non è disponibile.",
+  "pt": "Esta versão do Di-Allô só gere chamadas: o restauro de SMS não está disponível."
+ },
+ "♻️ Restaurer les appels": {
+  "en": "♻️ Restore calls",
+  "es": "♻️ Restaurar llamadas",
+  "de": "♻️ Anrufe wiederherstellen",
+  "it": "♻️ Ripristina chiamate",
+  "pt": "♻️ Restaurar chamadas"
  }
 }

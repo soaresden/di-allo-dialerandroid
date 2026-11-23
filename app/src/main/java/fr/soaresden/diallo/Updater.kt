@@ -60,6 +60,7 @@ object Updater {
 
     /** Vérification en arrière-plan toutes les ~6 h (JobScheduler, réseau requis), même appli fermée. */
     fun schedule(c: Context) {
+        if (!BuildConfig.FULL) return   // version Play Store : c'est le Store qui met à jour
         val js = c.getSystemService(android.app.job.JobScheduler::class.java) ?: return
         if (!auto(c)) { js.cancel(JOB_ID); return }
         if (js.getPendingJob(JOB_ID) != null) return
@@ -92,6 +93,7 @@ object Updater {
 
     /** Interroge GitHub (au plus toutes les [minHours] h, sauf [force]). Retourne la release plus récente, ou null. Hors fil principal. */
     fun check(ctx: Context, force: Boolean = false, minHours: Int = 6): Release? {
+        if (!BuildConfig.FULL) return null
         val now = System.currentTimeMillis()
         if (!force && (!auto(ctx) || now - p(ctx).getLong("last", 0) < minHours * 3_600_000L)) return (available.value ?: stored(ctx))?.also { available.value = it }
         p(ctx).edit().putLong("last", now).apply()

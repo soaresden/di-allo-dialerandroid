@@ -201,5 +201,12 @@
   "de": "„Wiederherstellen“ holt Notizen und Einstellungen zurück. Anrufliste und SMS werden in der Tabelle unten wiederhergestellt.",
   "it": "«Ripristina» recupera note e impostazioni. Il registro chiamate e gli SMS si ripristinano nella tabella qui sotto.",
   "pt": "“Restaurar” recupera as notas e as configurações. O registro de chamadas e os SMS são restaurados na tabela abaixo."
+ },
+ "Une fois par jour : journal d'appels complet. Les 7 dernières sont gardées.": {
+  "en": "Once a day: full call log. The last 7 are kept.",
+  "es": "Una vez al día: registro de llamadas completo. Se guardan las 7 últimas.",
+  "de": "Einmal täglich: vollständige Anrufliste. Die letzten 7 werden behalten.",
+  "it": "Una volta al giorno: registro chiamate completo. Si tengono le ultime 7.",
+  "pt": "Uma vez por dia: registo de chamadas completo. As 7 últimas são guardadas."
  }
 }

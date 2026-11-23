@@ -33,7 +33,7 @@ object CallRecorder {
     @Volatile private var session: Session? = null
 
     fun prefs(ctx: Context) = ctx.getSharedPreferences("recorder", Context.MODE_PRIVATE)
-    fun enabled(ctx: Context) = prefs(ctx).getBoolean("enabled", false)
+    fun enabled(ctx: Context) = fr.soaresden.diallo.BuildConfig.FULL && prefs(ctx).getBoolean("enabled", false)
     fun setEnabled(ctx: Context, on: Boolean) = prefs(ctx).edit().putBoolean("enabled", on).apply()
     fun mode(ctx: Context): String = prefs(ctx).getString("mode", MANUAL) ?: MANUAL
     fun setMode(ctx: Context, m: String) = prefs(ctx).edit().putString("mode", m).apply()
@@ -43,9 +43,12 @@ object CallRecorder {
     fun token(ctx: Context): String = prefs(ctx).getString("token", null)
         ?: ByteArray(16).also { SecureRandom().nextBytes(it) }.joinToString("") { "%02x".format(it) }.also { prefs(ctx).edit().putString("token", it).apply() }
 
-    /** Commande qui lance le serveur (via ADB, en shell). */
+    /**
+     * Commande qui lance le serveur (via ADB, en shell). Le « sleep » garde la connexion ouverte le temps que
+     * le serveur se détache : si elle se ferme tout de suite, Android tue le serveur avant qu'il démarre.
+     */
     fun launchCommand(ctx: Context): String =
-        "CLASSPATH=${ctx.applicationInfo.sourceDir} setsid app_process / ${RecServer::class.java.name} ${port(ctx)} ${token(ctx)} </dev/null >/dev/null 2>&1 &"
+        "CLASSPATH=${ctx.applicationInfo.sourceDir} setsid app_process / ${RecServer::class.java.name} ${port(ctx)} ${token(ctx)} </dev/null >/dev/null 2>&1 & sleep 3"
 
     /** Le serveur répond-il ? (à appeler hors fil principal) */
     fun serverVersion(ctx: Context): Int? = ask(ctx, "PING")?.takeIf { it.startsWith("PONG") }?.substringAfter(' ')?.trim()?.toIntOrNull()

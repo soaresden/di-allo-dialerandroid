@@ -101,7 +101,7 @@ internal fun FolderCard() {
     val status by DataFolder.status
     var auto by remember { mutableStateOf(DataFolder.autoBackup(ctx)) }
     val pick = rememberFolderPicker { (ctx as? Activity)?.recreate() }
-    var smsOk by remember { mutableStateOf(ContextCompat.checkSelfPermission(ctx, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED) }
+    var smsOk by remember { mutableStateOf(!BuildConfig.FULL || ContextCompat.checkSelfPermission(ctx, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED) }
     val smsPerm = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok -> smsOk = ok; if (ok) DataFolder.backupNowAsync(ctx) }
 
     SectionCard(tr("📁 Dossier & sauvegardes"), id = "folder") {
@@ -114,7 +114,7 @@ internal fun FolderCard() {
         }
         if (name != null) {
             Spacer(Modifier.height(10.dp))
-            SwitchLine(tr("Sauvegarde automatique"), tr("Une fois par jour : journal d'appels complet + SMS + MMS (photos comprises). Les 7 dernières sont gardées."), auto) { auto = it; DataFolder.setAutoBackup(ctx, it) }
+            SwitchLine(tr("Sauvegarde automatique"), if (BuildConfig.FULL) tr("Une fois par jour : journal d'appels complet + SMS + MMS (photos comprises). Les 7 dernières sont gardées.") else tr("Une fois par jour : journal d'appels complet. Les 7 dernières sont gardées."), auto) { auto = it; DataFolder.setAutoBackup(ctx, it) }
             if (!smsOk) Text(tr("⚠️ Autorise la lecture des SMS pour les sauvegarder aussi."), fontSize = 12.sp, color = Amber, modifier = Modifier.padding(top = 4.dp))
             Spacer(Modifier.height(10.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

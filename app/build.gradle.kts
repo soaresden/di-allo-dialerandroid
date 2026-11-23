@@ -29,7 +29,7 @@ rootProject.file("CHANGELOG.md").takeIf { it.exists() }?.let { src ->
 android {
     namespace = "fr.soaresden.diallo"
     sourceSets.getByName("main").assets.srcDir(changelogDir)
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "fr.soaresden.diallo"
@@ -40,11 +40,39 @@ android {
         ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
     }
 
+    // ---- Clé d'envoi Play Store (fichier keystore.properties à la racine, jamais dans git) ----
+    val ksFile = rootProject.file("keystore.properties")
+    signingConfigs {
+        if (ksFile.exists()) create("upload") {
+            val k = Properties().apply { ksFile.inputStream().use { load(it) } }
+            storeFile = rootProject.file(k.getProperty("storeFile"))
+            storePassword = k.getProperty("storePassword")
+            keyAlias = k.getProperty("keyAlias")
+            keyPassword = k.getProperty("keyPassword")
+        }
+    }
+
+    // ---- Deux versions : « github » complète (APK des Releases), « play » pour le Play Store ----
+    flavorDimensions += "dist"
+    productFlavors {
+        create("github") {
+            dimension = "dist"
+            buildConfigField("boolean", "FULL", "true")
+            signingConfig = signingConfigs.getByName("debug")   // même signature qu'avant : les mises à jour continuent
+        }
+        create("play") {
+            dimension = "dist"
+            // Play Store : sans mise à jour automatique, sans enregistrement d'appels, sans SMS
+            buildConfigField("boolean", "FULL", "false")
+            targetSdk = 36
+            signingConfig = signingConfigs.findByName("upload") ?: signingConfigs.getByName("debug")
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            signingConfig = signingConfigs.getByName("debug")
         }
     }
 
@@ -57,6 +85,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.4"

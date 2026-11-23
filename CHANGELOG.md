@@ -3,6 +3,10 @@
 Les versions sont numérotées `AAAA-MM-JJ-NN` (date du build, puis numéro du build du jour).
 Chaque version est téléchargeable dans les [Releases](../../releases).
 
+## 2026-11-23-02
+- 🎙️ Correction : le service d'enregistrement ne se lançait plus (« Le service ne répond pas ») sur certains téléphones après une mise à jour du système
+- 🏪 Première version préparée pour le Play Store (bêta fermée), centrée sur les appels
+
 ## 2026-11-23-01
 - 🐞 Correction : plantage possible avec le thème Carnet de voyage (touches « tampon ») sur certains téléphones
 

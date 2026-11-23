@@ -154,7 +154,7 @@ internal fun SettingsScreen(
                 }) { sub = "qsms" }
                 val recN = Recordings.all.value.size
                 val recOn = remember(sub) { fr.soaresden.diallo.rec.CallRecorder.enabled(ctx) }
-                NavRow(tr("Enregistrement des appels"), (if (recOn) tr("Activé") else tr("Désactivé")) + " · " + trn(recN, "{0} enregistrement", "{0} enregistrements"), leading = {
+                if (BuildConfig.FULL) NavRow(tr("Enregistrement des appels"), (if (recOn) tr("Activé") else tr("Désactivé")) + " · " + trn(recN, "{0} enregistrement", "{0} enregistrements"), leading = {
                     Box(Modifier.size(34.dp).clip(RoundedCornerShape(10.dp)).background(if (recOn) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant), contentAlignment = Alignment.Center) { Text("🎙️", fontSize = 18.sp) }
                 }) { sub = "rec" }
             }
@@ -183,28 +183,34 @@ internal fun SettingsScreen(
                 Text(tr("Di-Allô — version {0}", appVersion(ctx)), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onBackground)
                 Text("by Soaresden · github.com/soaresden/di-allo-dialerandroid", fontSize = 12.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium); Spacer(Modifier.height(6.dp))
                 Text(tr("Dialer avec clavier musical."), fontSize = 12.5.sp, color = muted()); Spacer(Modifier.height(6.dp))
-                var autoUp by remember { mutableStateOf(Updater.auto(ctx)) }
-                var upMsg by remember { mutableStateOf<String?>(null) }
-                val upScope = rememberCoroutineScope()
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Text(tr("Prévenir des mises à jour (GitHub)"), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
-                    Switch(autoUp, { autoUp = it; Updater.setAuto(ctx, it) })
-                }
-                TextButton(onClick = {
-                    upMsg = tr("Recherche…")
-                    upScope.launch {
-                        val r = withContext(Dispatchers.IO) { Updater.check(ctx.applicationContext, force = true) }
-                        if (r != null) { upMsg = null; Updater.showDialog.value = true } else upMsg = tr("Tu as la dernière version ✅")
-                    }
-                }, contentPadding = PaddingValues(0.dp)) { Text("🔄 " + tr("Rechercher une mise à jour")) }
-                upMsg?.let { Text(it, fontSize = 12.sp, color = muted(.6f)) }
+                if (BuildConfig.FULL) UpdateControls(ctx)
                 Spacer(Modifier.height(6.dp))
-                Text(tr("🎙️ Enregistrement des appels en MP3 via le débogage sans fil (Réglages › Pendant l'appel)."), fontSize = 12.sp, color = muted()); Spacer(Modifier.height(6.dp))
+                if (BuildConfig.FULL) { Text(tr("🎙️ Enregistrement des appels en MP3 via le débogage sans fil (Réglages › Pendant l'appel)."), fontSize = 12.sp, color = muted()); Spacer(Modifier.height(6.dp)) }
                 Text(tr("Bibliothèques : libadb-android (Apache-2.0), Conscrypt (Apache-2.0), jump3r / LAME (LGPL), osmdroid (Apache-2.0), Coil (Apache-2.0). Emoji 3D Fluent (Microsoft, MIT). Polices Google Fonts (SIL OFL / Apache-2.0)."), fontSize = 11.5.sp, color = muted(.55f))
             }
             Spacer(Modifier.height(16.dp))
         }
     }
+}
+
+/** Mises à jour depuis GitHub (version GitHub seulement : sur le Play Store, c'est le Store qui s'en charge). */
+@Composable
+private fun UpdateControls(ctx: Context) {
+    var autoUp by remember { mutableStateOf(Updater.auto(ctx)) }
+    var upMsg by remember { mutableStateOf<String?>(null) }
+    val upScope = rememberCoroutineScope()
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text(tr("Prévenir des mises à jour (GitHub)"), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
+        Switch(autoUp, { autoUp = it; Updater.setAuto(ctx, it) })
+    }
+    TextButton(onClick = {
+        upMsg = tr("Recherche…")
+        upScope.launch {
+            val r = withContext(Dispatchers.IO) { Updater.check(ctx.applicationContext, force = true) }
+            if (r != null) { upMsg = null; Updater.showDialog.value = true } else upMsg = tr("Tu as la dernière version ✅")
+        }
+    }, contentPadding = PaddingValues(0.dp)) { Text("🔄 " + tr("Rechercher une mise à jour")) }
+    upMsg?.let { Text(it, fontSize = 12.sp, color = muted(.6f)) }
 }
 
 internal fun appVersion(ctx: Context): String = try { ctx.packageManager.getPackageInfo(ctx.packageName, 0).versionName ?: "?" } catch (_: Throwable) { "?" }
@@ -333,7 +339,8 @@ private fun BackupSection(ctx: Context, isDefault: Boolean, onRefresh: () -> Uni
                 }
                 BackupRepository.Kind.SMS -> {
                     busy = null
-                    if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED) analyzeSms(uri)
+                    if (!BuildConfig.FULL) msg = tr("Cette version de Di-Allô ne gère que les appels : la restauration des SMS n'est pas disponible.")
+                    else if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED) analyzeSms(uri)
                     else { pendingSmsUri = uri; smsPerm.launch(Manifest.permission.READ_SMS) }
                 }
                 else -> { busy = null; msg = tr("Fichier non reconnu : il faut une sauvegarde d'appels (calls-….xml) ou de SMS (sms-….xml).") }
@@ -347,7 +354,7 @@ private fun BackupSection(ctx: Context, isDefault: Boolean, onRefresh: () -> Uni
     var showAll by remember { mutableStateOf(false) }
     val rows = remember(saved) { pairBackups(saved) }
 
-    SectionCard(tr("♻️ Restaurer appels & SMS")) {
+    SectionCard(if (BuildConfig.FULL) tr("♻️ Restaurer appels & SMS") else tr("♻️ Restaurer les appels")) {
         Text(tr("Choisis une sauvegarde : Di-Allô la compare avec le téléphone et ne rajoute que ce qui manque."), fontSize = 12.5.sp, color = muted(.7f))
         Spacer(Modifier.height(10.dp))
         if (rows.isEmpty()) Text(if (DataFolder.uri(ctx) == null) tr("Choisis un dossier de travail (au-dessus) pour avoir des sauvegardes automatiques.") else tr("Pas encore de sauvegarde dans le dossier : touche « Sauvegarder » au-dessus."), fontSize = 12.5.sp, color = muted(.6f))

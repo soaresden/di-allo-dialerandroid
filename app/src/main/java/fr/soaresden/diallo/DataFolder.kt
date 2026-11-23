@@ -210,7 +210,8 @@ object DataFolder {
             out.createFile("application/octet-stream", "calls-$stamp.xml")?.let { f ->
                 ctx.contentResolver.openOutputStream(f.uri, "wt")?.use { val n = exportCalls(ctx, it); parts.add(trn(n, "{0} appel", "{0} appels")) }
             }
-            if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED) {
+            if (!BuildConfig.FULL) Unit
+            else if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED) {
                 busy.value = tr("Sauvegarde des SMS / MMS…")
                 out.createFile("application/octet-stream", "sms-$stamp.xml")?.let { f ->
                     ctx.contentResolver.openOutputStream(f.uri, "wt")?.use { val (s, m) = exportSms(ctx, it); parts.add(tr("{0} SMS, {1} MMS", s, m)) }
