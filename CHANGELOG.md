@@ -3,6 +3,13 @@
 Les versions sont numérotées `AAAA-MM-JJ-NN` (date du build, puis numéro du build du jour).
 Chaque version est téléchargeable dans les [Releases](../../releases).
 
+## 2026-11-23-11
+- 📼 **Messagerie vocale visuelle Free dans Di-Allô** (nouvel onglet « Messagerie », avec une SIM Free) : la liste de tes messages vocaux, l'écoute directe, Rappeler. Remplace l'appli « Messagerie Vocale Visuelle » de Free, qui ne chargeait plus les messages (le serveur de Free met ~30 s à répondre, l'appli abandonnait avant)
+- « Activer » demande l'accès à Free par un SMS gratuit au 2051, puis les messages se téléchargent par Internet (Wi-Fi ou réseau mobile, avec nouvel essai automatique si la connexion lâche)
+- 🔔 Notification et pastille sur l'onglet quand un nouveau message arrive
+- ⬇️ **Enregistrer** un message dans le dossier de travail (sous-dossier Messagerie) et **Partager** (WhatsApp, mail…)
+- 🗑️ **Corbeille** : « Supprimer » met le message de côté sans l'effacer chez Free ; Restaurer, ou Supprimer définitivement (aussi chez Free)
+
 ## 2026-11-23-02
 - 🎙️ Correction : le service d'enregistrement ne se lançait plus (« Le service ne répond pas ») sur certains téléphones après une mise à jour du système
 - 🏪 Première version préparée pour le Play Store (bêta fermée), centrée sur les appels

@@ -140,6 +140,10 @@ private fun Root(theme: String, onTheme: (String) -> Unit) {
     val recAll by Recordings.all
     val showRec = remember(recFolder, recAll) { BuildConfig.FULL && (recAll.isNotEmpty() || fr.soaresden.diallo.rec.CallRecorder.enabled(ctx)) }
     RecordingPlayer()
+    // messagerie visuelle Free : onglet si la SIM est chez Free (version GitHub seulement : SMS)
+    val showVvm = remember(granted, refresh) { BuildConfig.FULL && fr.soaresden.diallo.vvm.Omtp.isFree(ctx) }
+    LaunchedEffect(showVvm) { if (showVvm) withContext(Dispatchers.IO) { fr.soaresden.diallo.vvm.Vvm.load(ctx.applicationContext) } }
+    val vvmUnread = fr.soaresden.diallo.vvm.Vvm.messages.value.count { !it.seen && it.trashed == 0L }
     // enregistreur intégré : tout est-il en règle ? (relance le service au besoin)
     val recProblem by fr.soaresden.diallo.rec.RecHealth.problem
     val recWizard by fr.soaresden.diallo.rec.RecHealth.wizard
@@ -159,14 +163,18 @@ private fun Root(theme: String, onTheme: (String) -> Unit) {
         bottomBar = {
             NavigationBar(containerColor = MaterialTheme.colorScheme.surface, tonalElevation = 0.dp) {
                 // id d'onglet stable (le widget ouvre 2, l'appel en cours 0) ; REC = 6, affiché avant Réglages s'il sert
+                // Messagerie = 7 : messagerie visuelle Free (SIM Free, version GitHub : elle passe par SMS)
                 val tabs = listOfNotNull(
-                    Triple(0, tr("Clavier"), Icons.Filled.Dialpad), Triple(1, tr("Récents"), Icons.Filled.Schedule), Triple(2, tr("Contacts"), Icons.Filled.Person),
+                    Triple(0, tr("Clavier"), Icons.Filled.Dialpad), Triple(1, tr("Récents"), Icons.Filled.Schedule),
+                    if (showVvm) Triple(7, tr("Messagerie"), Icons.Filled.Voicemail) else null, Triple(2, tr("Contacts"), Icons.Filled.Person),
                     Triple(3, tr("Notes"), Icons.Filled.EditNote), Triple(4, tr("Stats"), Icons.Filled.BarChart),
                     if (showRec) Triple(6, "REC", Icons.Filled.Mic) else null, Triple(5, tr("Réglages"), Icons.Filled.Settings)
                 )
                 tabs.forEach { (i, label, icon) ->
                     NavigationBarItem(
-                        selected = tab == i, onClick = { tab = i }, icon = { Icon(icon, label) }, label = { Text(label, fontSize = 10.sp, maxLines = 1) },
+                        selected = tab == i, onClick = { tab = i },
+                        icon = { if (i == 7 && vvmUnread > 0) BadgedBox(badge = { Badge { Text("$vvmUnread") } }) { Icon(icon, label) } else Icon(icon, label) },
+                        label = { Text(label, fontSize = 10.sp, maxLines = 1) },
                         colors = NavigationBarItemDefaults.colors(
                             indicatorColor = MaterialTheme.colorScheme.primaryContainer, selectedIconColor = MaterialTheme.colorScheme.primary, selectedTextColor = MaterialTheme.colorScheme.primary,
                             // thèmes sombres : icônes non sélectionnées bien lisibles
@@ -191,6 +199,7 @@ private fun Root(theme: String, onTheme: (String) -> Unit) {
                 3 -> NotesScreen(data.contacts, confirm) { detail = it }
                 4 -> StatsScreen(data.calls, data.contacts, onWrapped = { wrapped = true }) { detail = it }
                 6 -> RecScreen(data.contacts, confirm) { settingsSub.value = "rec"; tab = 5 }
+                7 -> VoicemailScreen(data.contacts, confirm)
                 else -> SettingsScreen(theme, onTheme, granted, { permLauncher.launch(PERMS) }, isDefault, { requestDefault() }, data.calls.size, { refresh++ })
             }
         }
