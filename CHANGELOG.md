@@ -3,6 +3,9 @@
 Les versions sont numérotées `AAAA-MM-JJ-NN` (date du build, puis numéro du build du jour).
 Chaque version est téléchargeable dans les [Releases](../../releases).
 
+## 2026-11-24-01
+- 🔊 **Messagerie : écouter au haut-parleur ou à l'oreille**, avec un bouton dans le lecteur (jamais de bascule automatique). Le choix est retenu, et basculer en pleine écoute reprend au même endroit
+
 ## 2026-11-23-28
 - 🏪 Version bêta pour le Play Store, avec toutes les nouveautés ci-dessous sauf la messagerie visuelle (pour l'instant)
 

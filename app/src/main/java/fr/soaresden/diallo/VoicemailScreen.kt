@@ -1,6 +1,9 @@
 package fr.soaresden.diallo
 
 import android.Manifest
+import android.media.AudioAttributes
+import android.media.AudioDeviceInfo
+import android.media.AudioManager
 import android.media.MediaPlayer
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -18,6 +21,8 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.RestoreFromTrash
 import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Hearing
+import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
@@ -99,17 +104,68 @@ internal fun VoicemailScreen(contacts: List<CallRepository.Contact>, onCall: (St
     var pos by remember { mutableIntStateOf(0) }
     var len by remember { mutableIntStateOf(0) }
     var paused by remember { mutableStateOf(false) }
-    fun stop() { player[0]?.run { try { stop() } catch (_: Throwable) { }; release() }; player[0] = null; playing = null; pos = 0; paused = false }
+    // haut-parleur ou écouteur (à l'oreille) : au choix, jamais automatique ; le choix est retenu
+    val am = remember { app.getSystemService(AudioManager::class.java) }
+    val playerPrefs = remember { app.getSharedPreferences("vvm_player", android.content.Context.MODE_PRIVATE) }
+    var earpiece by remember { mutableStateOf(playerPrefs.getBoolean("earpiece", false)) }
+    val path = remember { arrayOfNulls<String>(1) }
+    val routed = remember { booleanArrayOf(false) }
+    fun unroute() {
+        if (!routed[0]) return
+        routed[0] = false
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= 31) am.clearCommunicationDevice()
+            if (am.mode == AudioManager.MODE_IN_COMMUNICATION) am.mode = AudioManager.MODE_NORMAL
+        } catch (_: Throwable) { }
+    }
+    fun route(ear: Boolean) {
+        if (!ear) { unroute(); return }
+        if (am.mode == AudioManager.MODE_IN_CALL) return // pendant un appel, on ne touche à rien
+        try {
+            am.mode = AudioManager.MODE_IN_COMMUNICATION
+            if (android.os.Build.VERSION.SDK_INT >= 31) am.availableCommunicationDevices.firstOrNull { it.type == AudioDeviceInfo.TYPE_BUILTIN_EARPIECE }?.let { am.setCommunicationDevice(it) }
+            else @Suppress("DEPRECATION") { am.isSpeakerphoneOn = false }
+            routed[0] = true
+        } catch (_: Throwable) { }
+    }
+    fun newPlayer(p: String, ear: Boolean) = MediaPlayer().apply {
+        setAudioAttributes(AudioAttributes.Builder()
+            .setUsage(if (ear) AudioAttributes.USAGE_VOICE_COMMUNICATION else AudioAttributes.USAGE_MEDIA)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH).build())
+        setDataSource(p); prepare()
+        setOnCompletionListener { pos = 0; playing = null; unroute() }
+    }
+    fun stop() { player[0]?.run { try { stop() } catch (_: Throwable) { }; release() }; player[0] = null; playing = null; pos = 0; paused = false; unroute() }
     DisposableEffect(Unit) { onDispose { stop() } }
     LaunchedEffect(playing) { while (playing != null) { player[0]?.let { try { pos = it.currentPosition } catch (_: Throwable) { } }; delay(200) } }
     fun play(m: Vvm.Msg) {
-        if (playing == m.uid) { player[0]?.let { if (it.isPlaying) { it.pause(); paused = true } else { it.start(); paused = false } }; return }
+        if (playing == m.uid) { player[0]?.let { if (it.isPlaying) { it.pause(); paused = true } else { route(earpiece); it.start(); paused = false } }; return }
         stop()
         val f = Vvm.audioFile(app, m) ?: run { Vvm.error.value = tr("Audio pas encore téléchargé : relance la synchro."); return }
         try {
-            player[0] = MediaPlayer().apply { setDataSource(f.path); prepare(); setOnCompletionListener { pos = 0; playing = null }; start() }
+            path[0] = f.path
+            player[0] = newPlayer(f.path, earpiece)
+            route(earpiece); player[0]!!.start()
             len = player[0]!!.duration; playing = m.uid
             Vvm.markSeen(app, m)
+        } catch (_: Throwable) { stop(); Vvm.error.value = tr("Lecture impossible de ce message.") }
+    }
+
+    // bascule à la main ; en pleine lecture, on reprend au même endroit sur l'autre sortie
+    fun toggleEar() {
+        earpiece = !earpiece; playerPrefs.edit().putBoolean("earpiece", earpiece).apply()
+        val p = player[0] ?: return
+        val f = path[0] ?: return
+        if (playing == null) return
+        val at = try { p.currentPosition } catch (_: Throwable) { pos }
+        val wasPaused = paused
+        try { p.stop() } catch (_: Throwable) { }
+        p.release(); player[0] = null
+        try {
+            player[0] = newPlayer(f, earpiece).apply { seekTo(at) }
+            route(earpiece)
+            if (!wasPaused) player[0]!!.start()
+            pos = at
         } catch (_: Throwable) { stop(); Vvm.error.value = tr("Lecture impossible de ce message.") }
     }
 
@@ -207,6 +263,11 @@ internal fun VoicemailScreen(contacts: List<CallRepository.Contact>, onCall: (St
                                 modifier = Modifier.weight(1f).padding(horizontal = 8.dp)
                             )
                             Text(clockOf(if (playing == m.uid) pos else 0) + " / " + clockOf(total), fontSize = 11.5.sp, color = muted())
+                            IconButton(onClick = { toggleEar() }) {
+                                Icon(if (earpiece) Icons.Filled.Hearing else Icons.Filled.VolumeUp,
+                                    if (earpiece) tr("À l'oreille (toucher pour le haut-parleur)") else tr("Haut-parleur (toucher pour écouter à l'oreille)"),
+                                    tint = if (earpiece) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
                         }
                         Row(Modifier.fillMaxWidth().padding(start = 6.dp, end = 6.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                             if (showTrash) TextButton(onClick = { Vvm.restore(app, m); open = null }) { Icon(Icons.Filled.RestoreFromTrash, null, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text(tr("Restaurer")) }

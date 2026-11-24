@@ -341,5 +341,19 @@
   "de": "Ein Problem? Protokoll senden",
   "it": "Un problema? Invia il registro",
   "pt": "Algum problema? Enviar o registo"
+ },
+ "À l'oreille (toucher pour le haut-parleur)": {
+  "en": "Earpiece (tap for speaker)",
+  "es": "Auricular (toca para el altavoz)",
+  "de": "Hörmuschel (tippen für Lautsprecher)",
+  "it": "Auricolare (tocca per l'altoparlante)",
+  "pt": "Auricular (toque para o altifalante)"
+ },
+ "Haut-parleur (toucher pour écouter à l'oreille)": {
+  "en": "Speaker (tap to listen at your ear)",
+  "es": "Altavoz (toca para escuchar al oído)",
+  "de": "Lautsprecher (tippen, um am Ohr zu hören)",
+  "it": "Altoparlante (tocca per ascoltare all'orecchio)",
+  "pt": "Altifalante (toque para ouvir ao ouvido)"
  }
 }
