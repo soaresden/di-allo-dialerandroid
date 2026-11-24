@@ -3,6 +3,9 @@
 Les versions sont numérotées `AAAA-MM-JJ-NN` (date du build, puis numéro du build du jour).
 Chaque version est téléchargeable dans les [Releases](../../releases).
 
+## 2026-11-24-03
+- ⬆️ **Mises à jour plus rapides** : Di-Allô regarde s'il y a une nouvelle version à chaque ouverture de l'appli ou des Réglages (au plus toutes les 2 minutes), et toutes les heures en arrière-plan. La fenêtre de mise à jour s'ouvre d'elle-même, avec un bouton « Plus tard »
+
 ## 2026-11-24-02
 - 👆 **Glisser pour répondre ou refuser** un appel entrant (à droite pour répondre, à gauche pour refuser), et **glisser pour raccrocher** pendant l'appel : plus d'appui involontaire
 - 🔊 Écran d'appel : le bouton « Auto HP » est maintenant à côté du haut-parleur, et passe en haut-parleur dès qu'on le touche

@@ -49,6 +49,7 @@ internal fun SettingsScreen(
     isDefault: Boolean, onSetDefault: () -> Unit, callCount: Int, onRefresh: () -> Unit
 ) {
     val ctx = LocalContext.current
+    LaunchedEffect(Unit) { Updater.checkAndPop(ctx) }   // ouvrir les Réglages vérifie aussi les mises à jour
     var inst by remember { mutableStateOf(Synth.currentId) }
     var smsDefault by remember { mutableStateOf(isDefaultSms(ctx)) }
     LaunchedEffect(callCount) { smsDefault = isDefaultSms(ctx) }

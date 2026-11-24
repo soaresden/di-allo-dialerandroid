@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -58,6 +59,7 @@ class MainActivity : ComponentActivity() {
         Home.detect(this)
         if (!HyperInCallService.inCall) { DataFolder.autoBackupIfDue(this); CallNotifier.cancel(this) }
         FavoritesWidget.refresh(this)
+        if (!HyperInCallService.inCall) lifecycleScope.launch { Updater.checkAndPop(this@MainActivity) }   // nouvelle version ? fenêtre tout de suite
     }
     private fun takeTab(i: Intent?) {
         i?.getIntExtra("tab", -1)?.takeIf { it >= 0 }?.let { openTab.intValue = it }
@@ -170,8 +172,6 @@ private fun Root(theme: String, onTheme: (String) -> Unit) {
     LaunchedEffect(Unit) { withContext(Dispatchers.IO) { fr.soaresden.diallo.rec.RecHealth.check(ctx.applicationContext) } }
     if (recWizard) fr.soaresden.diallo.rec.RecSetupWizard { fr.soaresden.diallo.rec.RecHealth.wizard.value = false; withContextRecCheck(ctx) }
 
-    // nouvelle version sur GitHub ? (au plus toutes les 6 h)
-    LaunchedEffect(Unit) { withContext(Dispatchers.IO) { Updater.check(ctx.applicationContext) } }
     val update by Updater.available
     UpdateDialog()
     val picking by ThemePicker.open

@@ -58,21 +58,34 @@ object Updater {
         return Release(v, p(c).getString("rel_apk", "") ?: "", p(c).getString("rel_notes", "") ?: "", p(c).getString("rel_page", "") ?: "")
     }
 
-    /** Vérification en arrière-plan toutes les ~6 h (JobScheduler, réseau requis), même appli fermée. */
+    /** Vérification en arrière-plan toutes les heures environ (JobScheduler, réseau requis), même appli fermée. */
     fun schedule(c: Context) {
         if (!BuildConfig.FULL) return   // version Play Store : c'est le Store qui met à jour
         val js = c.getSystemService(android.app.job.JobScheduler::class.java) ?: return
         if (!auto(c)) { js.cancel(JOB_ID); return }
-        if (js.getPendingJob(JOB_ID) != null) return
+        if (js.getPendingJob(JOB_ID)?.intervalMillis == PERIOD) return
         try {
             js.schedule(android.app.job.JobInfo.Builder(JOB_ID, android.content.ComponentName(c, UpdateJob::class.java))
                 .setRequiredNetworkType(android.app.job.JobInfo.NETWORK_TYPE_ANY)
-                .setPeriodic(6 * 3_600_000L, 2 * 3_600_000L)
+                .setPeriodic(PERIOD, 20 * 60_000L)
                 .setPersisted(true)
                 .build())
         } catch (_: Throwable) { }
     }
     private const val JOB_ID = 4207
+    private const val PERIOD = 3_600_000L
+
+    private val popped = HashSet<String>()   // versions déjà proposées en fenêtre depuis le lancement
+
+    /**
+     * Vérification rapide (ouverture de l'appli, des Réglages) : GitHub au plus toutes les [minMinutes] min,
+     * et la fenêtre de mise à jour s'ouvre d'elle-même, une fois par version et par lancement.
+     */
+    suspend fun checkAndPop(ctx: Context, minMinutes: Int = 2) {
+        if (!BuildConfig.FULL) return
+        val r = withContext(Dispatchers.IO) { check(ctx.applicationContext, minMinutes = minMinutes) } ?: return
+        if (popped.add(r.version)) showDialog.value = true
+    }
 
     /** Notification « mise à jour disponible », une seule fois par version. */
     fun notify(c: Context, r: Release) {
@@ -91,11 +104,11 @@ object Updater {
         } catch (_: Throwable) { }
     }
 
-    /** Interroge GitHub (au plus toutes les [minHours] h, sauf [force]). Retourne la release plus récente, ou null. Hors fil principal. */
-    fun check(ctx: Context, force: Boolean = false, minHours: Int = 6): Release? {
+    /** Interroge GitHub (au plus toutes les [minMinutes] min, sauf [force]). Retourne la release plus récente, ou null. Hors fil principal. */
+    fun check(ctx: Context, force: Boolean = false, minMinutes: Int = 360): Release? {
         if (!BuildConfig.FULL) return null
         val now = System.currentTimeMillis()
-        if (!force && (!auto(ctx) || now - p(ctx).getLong("last", 0) < minHours * 3_600_000L)) return (available.value ?: stored(ctx))?.also { available.value = it }
+        if (!force && (!auto(ctx) || now - p(ctx).getLong("last", 0) < minMinutes * 60_000L)) return (available.value ?: stored(ctx))?.also { available.value = it }
         p(ctx).edit().putLong("last", now).apply()
         return try {
             val c = (URL(API).openConnection() as HttpURLConnection).apply {
@@ -165,7 +178,7 @@ object Updater {
 class UpdateJob : android.app.job.JobService() {
     override fun onStartJob(params: android.app.job.JobParameters): Boolean {
         Thread {
-            try { Updater.check(applicationContext, minHours = 1)?.let { Updater.notify(applicationContext, it) } } catch (_: Throwable) { }
+            try { Updater.check(applicationContext, minMinutes = 30)?.let { Updater.notify(applicationContext, it) } } catch (_: Throwable) { }
             jobFinished(params, false)
         }.start()
         return true
@@ -202,7 +215,10 @@ internal fun UpdateDialog() {
             Button(onClick = { scope.launch { Updater.install(ctx, r) } }, enabled = prog == null) { Text(tr("Télécharger et installer"), fontWeight = FontWeight.SemiBold) }
         },
         dismissButton = {
-            TextButton(onClick = { Updater.skip(ctx, r.version); Updater.showDialog.value = false }) { Text(tr("Ignorer cette version")) }
+            Row {
+                TextButton(onClick = { Updater.skip(ctx, r.version); Updater.showDialog.value = false }) { Text(tr("Ignorer cette version")) }
+                TextButton(onClick = { Updater.showDialog.value = false }) { Text(tr("Plus tard")) }
+            }
         }
     )
 }
