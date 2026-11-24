@@ -3,6 +3,10 @@
 Les versions sont numérotées `AAAA-MM-JJ-NN` (date du build, puis numéro du build du jour).
 Chaque version est téléchargeable dans les [Releases](../../releases).
 
+## 2026-11-24-02
+- 👆 **Glisser pour répondre ou refuser** un appel entrant (à droite pour répondre, à gauche pour refuser), et **glisser pour raccrocher** pendant l'appel : plus d'appui involontaire
+- 🔊 Écran d'appel : le bouton « Auto HP » est maintenant à côté du haut-parleur, et passe en haut-parleur dès qu'on le touche
+
 ## 2026-11-24-01
 - 🔊 **Messagerie : écouter au haut-parleur ou à l'oreille**, avec un bouton dans le lecteur (jamais de bascule automatique). Le choix est retenu, et basculer en pleine écoute reprend au même endroit
 

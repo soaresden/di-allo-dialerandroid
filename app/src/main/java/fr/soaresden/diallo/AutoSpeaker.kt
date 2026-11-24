@@ -63,6 +63,8 @@ object AutoSpeaker : SensorEventListener {
         val cf = cfg(ctx)
         if (!cf.on && !force) return
         listen(ctx, cf, test = false)
+        // Bouton touché pendant l'appel : le téléphone est dans la main, loin de l'oreille → haut-parleur tout de suite
+        if (force && active.value && !cf.flat && routeOk()) HyperInCallService.setSpeaker(true, manual = false)
     }
 
     /** Mode test (écran des réglages) : lit les capteurs sans toucher à l'audio. */

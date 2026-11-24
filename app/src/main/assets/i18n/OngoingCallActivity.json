@@ -411,5 +411,12 @@
   "de": "Anruf",
   "it": "Chiamata",
   "pt": "Chamada"
+ },
+ "Glisser pour raccrocher": {
+  "en": "Slide to hang up",
+  "es": "Desliza para colgar",
+  "de": "Zum Auflegen schieben",
+  "it": "Scorri per riagganciare",
+  "pt": "Deslize para desligar"
  }
 }

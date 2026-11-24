@@ -9,7 +9,10 @@ import android.telecom.Call
 import android.telecom.CallAudioState
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,6 +28,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -35,7 +45,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.abs
+import kotlin.math.roundToInt
 
 class OngoingCallActivity : ComponentActivity() {
     private var wake: PowerManager.WakeLock? = null
@@ -210,10 +223,11 @@ private fun CallScreen(onDone: () -> Unit, onProximity: (Boolean) -> Unit) {
                 if (number.isNotBlank()) SmallAction(tr("💬 Message")) { smsSheet = true }
             }
             Spacer(Modifier.height(22.dp))
-            if (others.isEmpty()) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                RoundBtn(Red, Icons.Filled.CallEnd, tr("Refuser")) { ending = true; HyperInCallService.hangup() }
-                RoundBtn(CallGreen, Icons.Filled.Call, tr("Répondre")) { HyperInCallService.answer() }
-            } else Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.Top) {
+            if (others.isEmpty()) SlideCall(
+                left = SlideEnd(tr("Refuser"), Icons.Filled.CallEnd, Red) { ending = true; HyperInCallService.hangup() },
+                right = SlideEnd(tr("Répondre"), Icons.Filled.Call, CallGreen) { HyperInCallService.answer() },
+                knobIcon = Icons.Filled.Call
+            ) else Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.Top) {
                 RoundBtn(Red, Icons.Filled.CallEnd, tr("Refuser"), 62.dp) { HyperInCallService.hangup() }
                 RoundBtn(CallGreen, Icons.Filled.PhonePaused, tr("Mettre en attente\net répondre"), 62.dp) { HyperInCallService.answer() }
                 RoundBtn(Amber, Icons.Filled.PhoneForwarded, tr("Raccrocher\net répondre"), 62.dp) { HyperInCallService.answerEndingOthers() }
@@ -240,16 +254,16 @@ private fun CallScreen(onDone: () -> Unit, onProximity: (Boolean) -> Unit) {
                 Row(Modifier.fillMaxWidth()) {
                     @Suppress("DEPRECATION")
                     Ctrl(Icons.Filled.VolumeUp, tr("Haut-parleur"), speaker, Modifier.weight(1f)) { HyperInCallService.setSpeaker(!speaker) }
+                    Ctrl(Icons.Filled.Sensors, tr("Auto HP"), autoOn, Modifier.weight(1f)) { if (autoOn) AutoSpeaker.stop() else AutoSpeaker.start(ctx, force = true) }
                     Ctrl(if (muted) Icons.Filled.MicOff else Icons.Filled.Mic, if (muted) tr("Coupé") else tr("Muet"), muted, Modifier.weight(1f)) { HyperInCallService.setMuted(!muted) }
                     Ctrl(Icons.Filled.Dialpad, tr("Clavier"), keypad, Modifier.weight(1f)) { keypad = !keypad }
-                    Ctrl(Icons.Filled.PersonAdd, tr("Ajouter"), false, Modifier.weight(1f)) {
-                        ctx.startActivity(Intent(ctx, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).putExtra("tab", 0))
-                    }
                 }
                 Row(Modifier.fillMaxWidth()) {
                     Ctrl(if (holding) Icons.Filled.PlayArrow else Icons.Filled.Pause, if (holding) tr("Reprendre") else tr("Attente"), holding, Modifier.weight(1f), enabled = canHold) { HyperInCallService.setHold(!holding) }
                     Ctrl(Icons.Filled.Bluetooth, "Bluetooth", bt, Modifier.weight(1f), enabled = btAvail) { HyperInCallService.setBluetooth(!bt) }
-                    Ctrl(Icons.Filled.Sensors, tr("Auto HP"), autoOn, Modifier.weight(1f)) { if (autoOn) AutoSpeaker.stop() else AutoSpeaker.start(ctx, force = true) }
+                    Ctrl(Icons.Filled.PersonAdd, tr("Ajouter"), false, Modifier.weight(1f)) {
+                        ctx.startActivity(Intent(ctx, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).putExtra("tab", 0))
+                    }
                     Ctrl(Icons.Filled.CallMerge, tr("Fusionner"), false, Modifier.weight(1f), enabled = HyperInCallService.canMerge) { HyperInCallService.merge() }
                 }
                 RecStrip(shown, number, state == Call.STATE_ACTIVE || state == Call.STATE_HOLDING)
@@ -295,7 +309,7 @@ private fun CallScreen(onDone: () -> Unit, onProximity: (Boolean) -> Unit) {
                 }
                 Spacer(Modifier.height(8.dp))
             } else {
-                RoundBtn(Red, Icons.Filled.CallEnd, null, 64.dp) { ending = draft.isBlank() && others.isEmpty(); HyperInCallService.hangup() }
+                SlideCall(left = null, right = SlideEnd(tr("Glisser pour raccrocher"), Icons.Filled.CallEnd, Red) { ending = draft.isBlank() && others.isEmpty(); HyperInCallService.hangup() }, knobIcon = Icons.Filled.CallEnd)
                 Spacer(Modifier.height(4.dp))
             }
         }
@@ -453,6 +467,82 @@ private fun HistRow(h: Hist) {
             Text(label, fontSize = 11.5.sp, color = muted(.55f))
         }
         if (h.dur > 0) Text(fmtDur(h.dur), fontSize = 13.sp, color = muted())
+    }
+}
+
+private class SlideEnd(val label: String, val icon: ImageVector, val color: Color, val action: () -> Unit)
+
+/**
+ * Curseur à glisser : à deux sens (← refuser / répondre →) quand [left] est donné,
+ * sinon à un sens (glisser vers la droite, ex. pour raccrocher). Évite les appuis involontaires.
+ */
+@Composable
+private fun SlideCall(left: SlideEnd?, right: SlideEnd, knobIcon: ImageVector) {
+    val cs = MaterialTheme.colorScheme
+    val scope = rememberCoroutineScope()
+    val off = remember { Animatable(0f) }
+    var fired by remember { mutableStateOf(false) }
+    val knob = 60.dp; val pad = 6.dp
+    BoxWithConstraints(
+        Modifier.fillMaxWidth().height(knob + pad * 2).clip(RoundedCornerShape(50)).background(cs.surfaceVariant)
+            .semantics {
+                customActions = listOfNotNull(
+                    CustomAccessibilityAction(right.label) { right.action(); true },
+                    left?.let { l -> CustomAccessibilityAction(l.label) { l.action(); true } }
+                )
+            }
+    ) {
+        val density = LocalDensity.current
+        val range = with(density) { (if (left != null) (maxWidth - knob) / 2 - pad else maxWidth - knob - pad * 2).toPx() }.coerceAtLeast(1f)
+        val lo = if (left != null) -range else 0f
+        val f = (off.value / range).coerceIn(-1f, 1f)
+        val txt = cs.onSurfaceVariant
+        // Libellés de la piste (s'effacent quand on glisse)
+        Row(Modifier.fillMaxSize().padding(horizontal = 18.dp), verticalAlignment = Alignment.CenterVertically) {
+            if (left != null) {
+                Icon(left.icon, null, tint = left.color.copy(alpha = 1f - f.coerceAtLeast(0f)), modifier = Modifier.size(22.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(left.label, color = txt.copy(alpha = 1f - abs(f)), fontSize = 13.sp, fontWeight = FontWeight.Medium, maxLines = 1)
+                Spacer(Modifier.weight(1f))
+                Text(right.label, color = txt.copy(alpha = 1f - abs(f)), fontSize = 13.sp, fontWeight = FontWeight.Medium, maxLines = 1)
+            } else {
+                Spacer(Modifier.width(knob))
+                Text(right.label + "  ›", color = txt.copy(alpha = 1f - f), fontSize = 14.sp, fontWeight = FontWeight.Medium, maxLines = 1, textAlign = TextAlign.Center, modifier = Modifier.weight(1f))
+            }
+            Spacer(Modifier.width(6.dp))
+            Icon(right.icon, null, tint = right.color.copy(alpha = 1f - (-f).coerceAtLeast(0f)), modifier = Modifier.size(22.dp))
+        }
+        // Poignée
+        val base = if (left == null) right.color else cs.primary
+        val kc = when { left != null && f > 0 -> lerp(base, right.color, f); left != null && f < 0 -> lerp(base, left.color, -f); else -> base }
+        val ic = if (left == null) Color.White else lerp(cs.onPrimary, Color.White, abs(f))
+        Box(
+            Modifier.align(if (left != null) Alignment.Center else Alignment.CenterStart)
+                .padding(start = if (left != null) 0.dp else pad)
+                .offset { IntOffset(off.value.roundToInt(), 0) }
+                .size(knob).clip(CircleShape).background(kc)
+                .pointerInput(range, left != null) {
+                    detectHorizontalDragGestures(
+                        onDragEnd = {
+                            scope.launch {
+                                val end = when { off.value >= range * .8f -> right; left != null && off.value <= -range * .8f -> left; else -> null }
+                                if (end != null && !fired) {
+                                    fired = true
+                                    off.animateTo(if (end === right) range else -range)
+                                    end.action()
+                                    delay(1500); fired = false   // si l'action n'a pas fermé l'écran, on revient au départ
+                                }
+                                off.animateTo(0f, spring(dampingRatio = .6f))
+                            }
+                        },
+                        onDragCancel = { scope.launch { off.animateTo(0f) } }
+                    ) { ch, d -> ch.consume(); scope.launch { off.snapTo((off.value + d).coerceIn(lo, range)) } }
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            val icon = when { left != null && f < -.15f -> left.icon; f > .15f -> right.icon; else -> knobIcon }
+            Icon(icon, null, tint = ic, modifier = Modifier.size(28.dp))
+        }
     }
 }
 
