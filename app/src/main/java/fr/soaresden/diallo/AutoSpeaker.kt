@@ -46,10 +46,28 @@ object AutoSpeaker : SensorEventListener {
     private val h = Handler(Looper.getMainLooper())
 
     private val toSpeaker = Runnable {
-        if (!testOnly && routeOk() && near.value == false && (!c.flat || resting.value) && !manual) HyperInCallService.setSpeaker(true, manual = false)
+        if (!testOnly && inCall() && routeOk() && near.value == false && (!c.flat || resting.value) && !manual) HyperInCallService.setSpeaker(true, manual = false)
     }
     private val toEar = Runnable {
-        if (!testOnly && routeOk() && near.value == true && !manual) HyperInCallService.setSpeaker(false, manual = false)
+        if (!testOnly && inCall() && routeOk() && near.value == true && !manual) HyperInCallService.setSpeaker(false, manual = false)
+    }
+
+    /** Pendant la sonnerie on écoute déjà les capteurs, mais on ne touche à l'audio qu'une fois en ligne. */
+    private fun inCall() = HyperInCallService.callState.intValue == android.telecom.Call.STATE_ACTIVE
+
+    /** Décroché (ou l'autre a répondu) : la bonne sortie tout de suite, sans attendre le délai. */
+    private val applyNow = Runnable {
+        if (!active.value || testOnly || manual || !routeOk()) return@Runnable
+        when {
+            near.value == true -> { if (c.back) HyperInCallService.setSpeaker(false, manual = false) }
+            !c.flat || resting.value -> HyperInCallService.setSpeaker(true, manual = false)
+        }
+    }
+    fun onConnected() {
+        if (!active.value || testOnly) return
+        h.removeCallbacks(toSpeaker); h.removeCallbacks(toEar); h.removeCallbacks(applyNow)
+        h.post(applyNow)
+        h.postDelayed(applyNow, 600)    // Android remet parfois l'écouteur juste après la connexion
     }
 
     /** Seulement écouteur <-> haut-parleur : on ne touche pas au Bluetooth ni au casque filaire. */
@@ -85,12 +103,12 @@ object AutoSpeaker : SensorEventListener {
 
     fun stop() {
         sm?.unregisterListener(this); sm = null
-        h.removeCallbacks(toSpeaker); h.removeCallbacks(toEar)
+        h.removeCallbacks(toSpeaker); h.removeCallbacks(toEar); h.removeCallbacks(applyNow)
         active.value = false; near.value = null; resting.value = false; testOnly = false
     }
 
     /** Appelé quand l'utilisateur change la sortie à la main : on suspend jusqu'au prochain mouvement oreille. */
-    fun manualOverride() { manual = true; h.removeCallbacks(toSpeaker); h.removeCallbacks(toEar) }
+    fun manualOverride() { manual = true; h.removeCallbacks(toSpeaker); h.removeCallbacks(toEar); h.removeCallbacks(applyNow) }
 
     override fun onSensorChanged(e: SensorEvent) {
         when (e.sensor.type) {

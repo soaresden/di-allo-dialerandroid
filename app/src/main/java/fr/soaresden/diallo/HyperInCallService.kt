@@ -37,7 +37,7 @@ class HyperInCallService : InCallService() {
     /** Recalcule l'appel « principal » affiché et l'état de tout le monde. */
     private fun refresh() {
         val live = liveCalls()
-        live.filter { it.state == Call.STATE_ACTIVE }.forEach { everActive.add(it) }
+        val justAnswered = live.filter { it.state == Call.STATE_ACTIVE }.filter { everActive.add(it) }.isNotEmpty()
         // Android demande la SIM (appel lancé depuis Android Auto, un widget, une autre appli…)
         live.filter { it.state == Call.STATE_SELECT_PHONE_ACCOUNT && simAsked.add(it) }.forEach { SimChoice.onSelectNeeded(this, it) }
         val top = live.filter { it.parent == null }
@@ -50,7 +50,9 @@ class HyperInCallService : InCallService() {
         version.intValue++
 
         if (top.any { it.state == Call.STATE_RINGING }) RingGestures.start(this) else RingGestures.stop()
-        if (live.any { it.state == Call.STATE_ACTIVE }) { if (!AutoSpeaker.active.value) AutoSpeaker.start(this) }
+        // haut-parleur auto : capteurs lancés dès la sonnerie / la numérotation, pour être prêt au décroché
+        if (live.isNotEmpty() && !AutoSpeaker.active.value) AutoSpeaker.start(this)
+        if (justAnswered) AutoSpeaker.onConnected()
         if (live.isEmpty()) AutoSpeaker.stop()
         autoRecord(live)
         CallNotifier.update(this)

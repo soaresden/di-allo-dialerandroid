@@ -3,6 +3,9 @@
 Les versions sont numérotées `AAAA-MM-JJ-NN` (date du build, puis numéro du build du jour).
 Chaque version est téléchargeable dans les [Releases](../../releases).
 
+## 2026-11-24-04
+- 🔊 **Haut-parleur auto prêt dès le décroché** : quand il est activé, Di-Allô suit déjà le téléphone pendant la sonnerie, et met la bonne sortie (haut-parleur ou écouteur) au moment même où l'appel commence, sans attendre
+
 ## 2026-11-24-03
 - ⬆️ **Mises à jour plus rapides** : Di-Allô regarde s'il y a une nouvelle version à chaque ouverture de l'appli ou des Réglages (au plus toutes les 2 minutes), et toutes les heures en arrière-plan. La fenêtre de mise à jour s'ouvre d'elle-même, avec un bouton « Plus tard »
 
