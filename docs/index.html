@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Di-Allô</title>
 <meta name="description" content="Di-Allô, l'appli Téléphone pour Android qui fait ce que les autres ne font pas : enregistrement d'appels en MP3 sans root, 23 thèmes animés, touches musicales, Wrapped, carte, notes d'appel. Gratuite, sans pub, sans pisteur.">
-<link rel="icon" href="icon.png">
+<link rel="icon" href="icon-f.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Pacifico&family=Bebas+Neue&display=swap">
 <style>
@@ -83,6 +83,10 @@
   .tbl th{background:var(--chip);font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
   .tbl td:not(:first-child),.tbl th:not(:first-child){text-align:center;white-space:nowrap}
   .yes{color:var(--accent2);font-weight:800}.no{color:var(--muted)}
+  .tbl td:nth-child(2){white-space:normal;min-width:110px}
+  .tbl th.app{vertical-align:bottom;line-height:1.15}
+  .tbl th.app img{display:block;width:40px;height:40px;border-radius:12px;margin:0 auto 6px}
+  .tbl th.app span{display:block}.tbl th.app small{display:block;font-weight:500;color:var(--muted);font-size:.8em}
   .scrollx{overflow-x:auto;-webkit-overflow-scrolling:touch}
 
   /* features */
@@ -118,7 +122,7 @@
 <header class="hero">
   <div class="wrap">
     <div>
-      <div class="brand"><img src="icon.png" alt=""><div><b>Di-Allô</b><small>by Soaresden</small></div></div>
+      <div class="brand"><img src="icon-f.png" alt=""><div><b>Di-Allô F</b><small>by Soaresden</small></div></div>
       <h1>Le téléphone qui fait ce que les autres ne font pas.</h1>
       <p>Une appli Téléphone complète pour Android : enregistrement des appels en MP3 sans root, 23 thèmes animés, touches musicales, ton année en stories. Gratuite, sans pub, sans compte, sans pisteur.</p>
       <div class="cta">
@@ -131,7 +135,7 @@
       <div class="phone" aria-label="Aperçu du clavier Di-Allô">
         <div class="scr" id="scr">
           <svg class="decor" id="decor" viewBox="0 0 266 560" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
-          <div class="top"><img src="icon.png" alt=""><b>Di-Allô</b><i>v2026-11-22</i></div>
+          <div class="top"><img src="icon-f.png" alt=""><b>Di-Allô F</b><i>v2026-11-26</i></div>
           <div class="num" id="num"></div>
           <div class="hint" id="hint">Touche les chiffres, ça joue de la musique 🎵</div>
           <div class="keys" id="keys"></div>
@@ -165,22 +169,26 @@
 <section style="padding-top:0">
   <div class="wrap">
     <h2>En face des applis habituelles</h2>
-    <p class="lead">Ce que propose Di-Allô à côté des applis Téléphone fournies avec les téléphones Android.</p>
+    <p class="lead">Ce que propose Di-Allô à côté des applis Téléphone fournies avec les téléphones Android. Deux versions, installables côte à côte : <b>Di-Allô</b> sur le Play Store, et <b>Di-Allô F</b> sur GitHub, la version complète avec l'enregistrement des appels, la messagerie visuelle et la sauvegarde des SMS.</p>
     <div class="scrollx">
       <table class="tbl">
-        <thead><tr><th>Fonction</th><th>Di-Allô</th><th>Applis habituelles</th></tr></thead>
+        <thead><tr><th>Fonction</th><th>Applis habituelles</th><th class="app"><img src="icon.png" alt=""><span>Di-Allô</span><small>Play Store</small></th><th class="app"><img src="icon-f.png" alt=""><span>Di-Allô F</span><small>GitHub</small></th></tr></thead>
         <tbody>
-          <tr><td>Enregistrement des appels en MP3, sans root</td><td class="yes">✓</td><td class="no">selon le pays et la marque</td></tr>
-          <tr><td>Thèmes complets avec décors animés</td><td class="yes">23</td><td class="no">clair / sombre</td></tr>
-          <tr><td>Touches musicales et compositeur de mélodies</td><td class="yes">✓</td><td class="no">—</td></tr>
-          <tr><td>Statistiques détaillées et Wrapped annuel</td><td class="yes">✓</td><td class="no">—</td></tr>
-          <tr><td>Notes d'appel par contact</td><td class="yes">✓</td><td class="no">—</td></tr>
-          <tr><td>Carte des adresses des contacts</td><td class="yes">✓</td><td class="no">—</td></tr>
-          <tr><td>Recherche T9 dans les chiffres du numéro</td><td class="yes">✓</td><td class="no">partielle</td></tr>
-          <tr><td>Numérotation rapide (appui long sur 2…9)</td><td class="yes">✓</td><td class="no">parfois</td></tr>
-          <tr><td>Widget contact 1×1 et widget Favoris réglables</td><td class="yes">✓</td><td class="no">parfois</td></tr>
-          <tr><td>Sauvegarde appels + SMS/MMS automatique</td><td class="yes">✓</td><td class="no">via un compte cloud</td></tr>
-          <tr><td>Sans pub, sans compte, sans pisteur, open source</td><td class="yes">✓</td><td class="no">rarement les quatre</td></tr>
+          <tr><td>Thèmes complets avec décors animés</td><td class="no">clair / sombre</td><td class="yes">23</td><td class="yes">23</td></tr>
+          <tr><td>Touches musicales et compositeur de mélodies</td><td class="no">—</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+          <tr><td>Statistiques détaillées et Wrapped annuel</td><td class="no">—</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+          <tr><td>Notes d'appel par contact</td><td class="no">—</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+          <tr><td>Carte des adresses des contacts</td><td class="no">—</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+          <tr><td>Recherche T9 dans les chiffres du numéro</td><td class="no">partielle</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+          <tr><td>Numérotation rapide (appui long sur 2…9)</td><td class="no">parfois</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+          <tr><td>Widget contact 1×1 et widget Favoris réglables</td><td class="no">parfois</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+          <tr><td>Haut-parleur auto, décrocher à l’oreille, retourner pour couper</td><td class="no">rarement</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+          <tr><td>Sauvegarde automatique du journal d’appels</td><td class="no">via un compte cloud</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+          <tr><td>🎙️ Enregistrement des appels en MP3, sans root</td><td class="no">selon le pays et la marque</td><td class="no">—</td><td class="yes">✓</td></tr>
+          <tr><td>📼 Messagerie visuelle (Free)</td><td class="no">selon l’opérateur</td><td class="no">—</td><td class="yes">✓</td></tr>
+          <tr><td>💬 Sauvegarde des SMS / MMS</td><td class="no">via un compte cloud</td><td class="no">—</td><td class="yes">✓</td></tr>
+          <tr><td>Mises à jour</td><td class="no">par le Store</td><td class="yes">Play Store</td><td class="yes">intégrées</td></tr>
+          <tr><td>Sans pub, sans compte, sans pisteur, open source</td><td class="no">rarement les quatre</td><td class="yes">✓</td><td class="yes">✓</td></tr>
         </tbody>
       </table>
     </div>
@@ -300,7 +308,8 @@
   <div class="wrap">
     <h2>Installer</h2>
     <ol class="steps">
-      <li>Télécharge <b>Di-Allo-github-…apk</b> (Di-Allô F, version complète) dans les <a href="https://github.com/soaresden/di-allo-dialerandroid/releases/latest">Releases</a>.</li>
+      <li><b>Di-Allô</b> : depuis le Play Store (en test fermé pour l'instant). <b>Di-Allô F</b>, la version complète : télécharge <b>Di-Allo-github-…apk</b> dans les <a href="https://github.com/soaresden/di-allo-dialerandroid/releases/latest">Releases</a>.</li>
+      <li>⚠️ <b>Suspends temporairement Google Play Protect</b>, sinon Android refuse l'installation : Play Store › ta photo de profil › <b>Play Protect</b> › ⚙️ › désactive « Analyser les applis avec Play Protect » (ou touche <b>Suspendre</b> si Android le propose). Réactive-le après.</li>
       <li>Installe-le (autorise l'installation depuis ton navigateur si Android le demande).</li>
       <li>Ouvre Di-Allô et choisis <b>« Définir comme téléphone par défaut »</b>.</li>
       <li>Choisis un dossier de travail pour tes notes, enregistrements et sauvegardes.</li>

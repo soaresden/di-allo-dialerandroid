@@ -90,6 +90,7 @@ c'est elle qui affiche l'écran d'appel.
 
 **Di-Allô** : depuis le Play Store. **Di-Allô F** :
 
+0. ⚠️ **Suspends temporairement Google Play Protect**, sinon Android refuse l'installation : Play Store › ta photo de profil › **Play Protect** › ⚙️ › désactive « Analyser les applis avec Play Protect » (ou touche **Suspendre** si Android le propose). Réactive-le une fois Di-Allô F installé.
 1. Télécharge le dernier `Di-Allo-github-<version>.apk` dans les [Releases](../../releases) (pas `Di-Allo-Ancienne-version.apk`, réservé aux anciennes installations).
 2. Installe-le (autorise l'installation depuis ton navigateur ou ton gestionnaire de fichiers si Android le demande).
 3. Ouvre Di-Allô, accepte les autorisations, puis **« Définir comme téléphone par défaut »**.
