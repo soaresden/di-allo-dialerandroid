@@ -3,6 +3,9 @@
 Les versions sont numérotées `AAAA-MM-JJ-NN` (date du build, puis numéro du build du jour).
 Chaque version est téléchargeable dans les [Releases](../../releases).
 
+## 2026-11-26-04
+- 🎼 Éditeur de mélodie : on choisit l'instrument de la mélodie en touchant son nom en haut. Soit **🎚️ Son des touches** (la mélodie suit l'instrument choisi dans Réglages), soit un instrument précis, gardé avec la mélodie
+
 ## 2026-11-26-03
 - 🏷️ Les numéros de version finissent maintenant par une lettre : **f** pour la version complète (GitHub), **p** pour la version du Play Store
 
