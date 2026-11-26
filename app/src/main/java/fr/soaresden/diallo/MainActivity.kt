@@ -75,7 +75,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun App() {
     val ctx = LocalContext.current
-    var theme by rememberSaveable { mutableStateOf(loadTheme(ctx)) }
+    // remember (pas rememberSaveable) : après « Restaurer », recreate() doit relire le thème restauré, pas garder l'ancien
+    var theme by remember { mutableStateOf(loadTheme(ctx)) }
     LaunchedEffect(Unit) { Synth.setInstrument(loadInst(ctx)) }
     HyperTheme(theme) { Root(theme) { next -> theme = next; saveTheme(ctx, next) } }
 }

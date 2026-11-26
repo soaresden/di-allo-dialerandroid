@@ -137,6 +137,8 @@ object ThemeFonts {
     private val chosen = androidx.compose.runtime.mutableStateMapOf<String, String>()
     @Volatile private var loaded = false
 
+    /** Après une restauration : relire les polices au prochain affichage. */
+    fun reload() { loaded = false; chosen.clear() }
     fun load(c: Context) {
         if (loaded) return
         loaded = true

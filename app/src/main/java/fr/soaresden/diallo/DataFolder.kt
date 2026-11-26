@@ -38,7 +38,7 @@ object DataFolder {
     private const val KEY = "workdir"
     private const val LAST = "last_backup"
     private val IGNORED = setOf(KEY, LAST)
-    private const val KEEP = 7                      // nombre de sauvegardes gardées par type
+    private const val KEEP_DAYS = 30                // sauvegardes gardées un mois (la plus récente l'est toujours)
     private val F = BuildConfig.FULL && !BuildConfig.LEGACY
     private val NOTES = if (F) "notes-f.json" else "notes.json"
     private val NOTES_OTHER = if (F) "notes.json" else "notes-f.json"
@@ -177,6 +177,7 @@ object DataFolder {
                 val files = root.optJSONObject("files")
                 EXTRA.forEach { (name, skip) -> files?.optJSONObject(name)?.let { n += load(ctx.getSharedPreferences(name, Context.MODE_PRIVATE), it, skip) } }
             } finally { restoring = false }
+            ThemeFonts.reload()
         }
         hold = false
         status.value = trn(added, "♻️ Restauré : {0} note, {1} réglages · {2}", "♻️ Restauré : {0} notes, {1} réglages · {2}", n, now())
@@ -272,8 +273,12 @@ object DataFolder {
     }
 
     private fun rotate(dir: DocumentFile, prefix: String) {
+        val fmt = SimpleDateFormat("yyyyMMddHHmmss", Locale.US)
+        val limit = System.currentTimeMillis() - KEEP_DAYS * 86_400_000L
         dir.listFiles().filter { it.name?.startsWith(prefix) == true && it.name?.endsWith(".xml") == true }
-            .sortedByDescending { it.name }.drop(KEEP).forEach { try { it.delete() } catch (_: Throwable) { } }
+            .sortedByDescending { it.name }.drop(1)
+            .filter { f -> (try { fmt.parse(f.name!!.removePrefix(prefix).substringBefore('.'))?.time } catch (_: Throwable) { null } ?: f.lastModified()) < limit }
+            .forEach { try { it.delete() } catch (_: Throwable) { } }
     }
 
     private fun readable(ms: Long) = SimpleDateFormat("d MMM yyyy HH:mm:ss", Locale.FRANCE).format(Date(ms))

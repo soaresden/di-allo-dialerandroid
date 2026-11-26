@@ -167,12 +167,12 @@
   "it": "Backup automatico",
   "pt": "Backup automático"
  },
- "Une fois par jour : journal d'appels complet + SMS + MMS (photos comprises). Les 7 dernières sont gardées.": {
-  "en": "Once a day: full call log + SMS + MMS (photos included). The last 7 are kept.",
-  "es": "Una vez al día: registro de llamadas completo + SMS + MMS (fotos incluidas). Se guardan las 7 últimas.",
-  "de": "Einmal täglich: komplette Anrufliste + SMS + MMS (inkl. Fotos). Die letzten 7 werden behalten.",
-  "it": "Una volta al giorno: registro chiamate completo + SMS + MMS (foto incluse). Vengono tenuti gli ultimi 7.",
-  "pt": "Uma vez por dia: registro de chamadas completo + SMS + MMS (fotos incluídas). Os 7 últimos são mantidos."
+ "Une fois par jour : journal d'appels complet + SMS + MMS (photos comprises). Un mois de sauvegardes est gardé.": {
+  "en": "Once a day: full call log + SMS + MMS (photos included). A month of backups is kept.",
+  "es": "Una vez al día: registro de llamadas completo + SMS + MMS (fotos incluidas). Se guarda un mes de copias.",
+  "de": "Einmal täglich: komplette Anrufliste + SMS + MMS (inkl. Fotos). Ein Monat an Sicherungen wird behalten.",
+  "it": "Una volta al giorno: registro chiamate completo + SMS + MMS (foto incluse). Si tiene un mese di backup.",
+  "pt": "Uma vez por dia: registro de chamadas completo + SMS + MMS (fotos incluídas). Um mês de backups é mantido."
  },
  "⚠️ Autorise la lecture des SMS pour les sauvegarder aussi.": {
   "en": "⚠️ Allow reading SMS to back them up too.",
@@ -202,12 +202,12 @@
   "it": "«Ripristina» recupera note e impostazioni. Il registro chiamate e gli SMS si ripristinano nella tabella qui sotto.",
   "pt": "“Restaurar” recupera as notas e as configurações. O registro de chamadas e os SMS são restaurados na tabela abaixo."
  },
- "Une fois par jour : journal d'appels complet. Les 7 dernières sont gardées.": {
-  "en": "Once a day: full call log. The last 7 are kept.",
-  "es": "Una vez al día: registro de llamadas completo. Se guardan las 7 últimas.",
-  "de": "Einmal täglich: vollständige Anrufliste. Die letzten 7 werden behalten.",
-  "it": "Una volta al giorno: registro chiamate completo. Si tengono le ultime 7.",
-  "pt": "Uma vez por dia: registro de chamadas completo. Os 7 últimos são mantidos."
+ "Une fois par jour : journal d'appels complet. Un mois de sauvegardes est gardé.": {
+  "en": "Once a day: full call log. A month of backups is kept.",
+  "es": "Una vez al día: registro de llamadas completo. Se guarda un mes de copias.",
+  "de": "Einmal täglich: vollständige Anrufliste. Ein Monat an Sicherungen wird behalten.",
+  "it": "Una volta al giorno: registro chiamate completo. Si tiene un mese di backup.",
+  "pt": "Uma vez por dia: registro de chamadas completo. Um mês de backups é mantido."
  },
  "{0} sauvegarde d'appels": {
   "en": "{0} call log backup",

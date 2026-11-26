@@ -3,6 +3,10 @@
 Les versions sont numérotées `AAAA-MM-JJ-NN` (date du build, puis numéro du build du jour).
 La dernière version est dans les [Releases](../../releases). Seules les versions récentes sont listées ici.
 
+## 2026-11-26-08
+- 🎨 Restauration : le thème et les polices choisies reviennent tout de suite. L'écran gardait l'ancien thème après « Restaurer »
+- 💾 Les sauvegardes sont gardées un mois (au lieu des 7 dernières), dans les deux versions
+
 ## 2026-11-26-07
 - 🏷️ Fichiers renommés : `Di-Allo-github-<version>.apk` (Di-Allô F) et `Di-Allo-playstore-<version>.aab`. Le système de mise à jour de Di-Allô F reconnaît le fichier « github »
 
