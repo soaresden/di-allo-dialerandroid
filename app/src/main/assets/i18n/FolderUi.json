@@ -208,5 +208,33 @@
   "de": "Einmal täglich: vollständige Anrufliste. Die letzten 7 werden behalten.",
   "it": "Una volta al giorno: registro chiamate completo. Si tengono le ultime 7.",
   "pt": "Uma vez por dia: registo de chamadas completo. As 7 últimas são guardadas."
+ },
+ "{0} sauvegarde d'appels": {
+  "en": "{0} call log backup",
+  "es": "{0} copia de llamadas",
+  "de": "{0} Anruf-Sicherung",
+  "it": "{0} backup delle chiamate",
+  "pt": "{0} backup de chamadas"
+ },
+ "{0} sauvegardes d'appels": {
+  "en": "{0} call log backups",
+  "es": "{0} copias de llamadas",
+  "de": "{0} Anruf-Sicherungen",
+  "it": "{0} backup delle chiamate",
+  "pt": "{0} backups de chamadas"
+ },
+ "Di-Allô y range automatiquement tes notes, tes réglages et une sauvegarde complète du journal d'appels.": {
+  "en": "Di-Allô automatically stores your notes, your settings and a full backup of your call log there.",
+  "es": "Di-Allô guarda ahí automáticamente tus notas, tus ajustes y una copia completa del registro de llamadas.",
+  "de": "Di-Allô legt dort automatisch deine Notizen, deine Einstellungen und eine vollständige Sicherung der Anrufliste ab.",
+  "it": "Di-Allô ci salva automaticamente le tue note, le tue impostazioni e un backup completo del registro chiamate.",
+  "pt": "O Di-Allô guarda ali automaticamente suas notas, suas configurações e um backup completo do histórico de chamadas."
+ },
+ "« Restaurer » remet les notes et les réglages. Le journal d'appels se restaure dans le tableau ci-dessous.": {
+  "en": "“Restore” brings back notes and settings. The call log is restored in the table below.",
+  "es": "«Restaurar» recupera las notas y los ajustes. El registro de llamadas se restaura en la tabla de abajo.",
+  "de": "„Wiederherstellen“ holt Notizen und Einstellungen zurück. Die Anrufliste wird in der Tabelle unten wiederhergestellt.",
+  "it": "«Ripristina» recupera note e impostazioni. Il registro chiamate si ripristina nella tabella qui sotto.",
+  "pt": "“Restaurar” traz de volta as notas e as configurações. O histórico de chamadas é restaurado na tabela abaixo."
  }
 }

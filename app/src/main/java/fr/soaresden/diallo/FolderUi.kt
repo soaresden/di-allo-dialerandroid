@@ -46,7 +46,7 @@ internal fun rememberFolderPicker(onRestored: () -> Unit): () -> Unit {
             text = {
                 Text(
                     tr("Ce dossier contient :") + "\n• " + trn(f.notes, "{0} note", "{0} notes") + "\n• " + trn(f.settings, "{0} réglage", "{0} réglages") +
-                        (if (f.date > 0) " " + tr("(du {0})", fmtDate(f.date)) else "") + "\n• " + trn(f.backups, "{0} sauvegarde d'appels / SMS", "{0} sauvegardes d'appels / SMS") + "\n\n" +
+                        (if (f.date > 0) " " + tr("(du {0})", fmtDate(f.date)) else "") + "\n• " + (if (BuildConfig.FULL) trn(f.backups, "{0} sauvegarde d'appels / SMS", "{0} sauvegardes d'appels / SMS") else trn(f.backups, "{0} sauvegarde d'appels", "{0} sauvegardes d'appels")) + "\n\n" +
                         tr("Restaurer les notes et les réglages ? (les notes actuelles sont gardées)")
                 )
             },
@@ -81,7 +81,7 @@ internal fun FolderPrompt(onRestored: () -> Unit) {
         text = {
             Text(
                 tr("Choisis (ou crée) un dossier sur le téléphone, par exemple « Di-Allo ».") + "\n\n" +
-                    tr("Di-Allô y range automatiquement tes notes, tes réglages et une sauvegarde complète des appels et des SMS/MMS.") + "\n\n" +
+                    (if (BuildConfig.FULL) tr("Di-Allô y range automatiquement tes notes, tes réglages et une sauvegarde complète des appels et des SMS/MMS.") else tr("Di-Allô y range automatiquement tes notes, tes réglages et une sauvegarde complète du journal d'appels.")) + "\n\n" +
                     tr("Après une réinstallation, rechoisis ce dossier : tout revient.")
             )
         },
@@ -127,7 +127,7 @@ internal fun FolderCard() {
             status?.let { Text(it, fontSize = 12.5.sp, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(top = 8.dp)) }
             val last = DataFolder.lastBackup(ctx)
             if (last > 0) Text(tr("Dernière sauvegarde complète : {0}", fmtWhen(last)), fontSize = 12.sp, color = muted(.6f), modifier = Modifier.padding(top = 4.dp))
-            Text(tr("« Restaurer » remet les notes et les réglages. Le journal d'appels et les SMS se restaurent dans le tableau ci-dessous."), fontSize = 11.5.sp, color = muted(.55f), modifier = Modifier.padding(top = 8.dp))
+            Text(if (BuildConfig.FULL) tr("« Restaurer » remet les notes et les réglages. Le journal d'appels et les SMS se restaurent dans le tableau ci-dessous.") else tr("« Restaurer » remet les notes et les réglages. Le journal d'appels se restaure dans le tableau ci-dessous."), fontSize = 11.5.sp, color = muted(.55f), modifier = Modifier.padding(top = 8.dp))
         }
     }
 }

@@ -3,6 +3,10 @@
 Les versions sont numérotées `AAAA-MM-JJ-NN` (date du build, puis numéro du build du jour).
 Chaque version est téléchargeable dans les [Releases](../../releases).
 
+## 2026-11-26-01
+- 📞 Écran d'appel : le type de ligne ne s'affiche plus deux fois (« Mobile · Mobile »)
+- 📁 Version Play Store : la fenêtre du dossier de travail ne parle plus de SMS, puisque cette version ne les sauvegarde pas
+
 ## 2026-11-24-04
 - 🔊 **Haut-parleur auto prêt dès le décroché** : quand il est activé, Di-Allô suit déjà le téléphone pendant la sonnerie, et met la bonne sortie (haut-parleur ou écouteur) au moment même où l'appel commence, sans attendre
 

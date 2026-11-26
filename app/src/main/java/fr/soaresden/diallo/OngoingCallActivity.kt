@@ -180,7 +180,8 @@ private fun CallScreen(onDone: () -> Unit, onProximity: (Boolean) -> Unit) {
         Text(shown, color = cs.onBackground, fontSize = if (ringing) 28.sp else 23.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
         if (number.isNotBlank() && !conference) {
             val type = listOfNotNull(lineTypeLabel(number), frRegionLabel(number)).joinToString(" · ")
-            val line = if (contact != null) listOf(phoneText(number), type).filter { it.isNotEmpty() }.joinToString(" · ") else (flagOf(number) + " " + type).trim()
+            // phoneText() dit déjà « 📱 Mobile » : on n'y ajoute que la région (sinon « Mobile · Mobile »)
+            val line = if (contact != null) listOfNotNull(phoneText(number), frRegionLabel(number)).joinToString(" · ") else (flagOf(number) + " " + type).trim()
             Text(line, color = muted(), fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         Spacer(Modifier.height(4.dp))
