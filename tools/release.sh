@@ -61,6 +61,11 @@ for a in $(gh api "repos/$REPO/releases/latest" --jq '.assets[].name'); do run g
 run gh release upload "v$V" "$F"
 run gh release upload "v$V" "$OLDAPK"
 
+# numéro de build du jour, avancé par la compilation
+run git add version.properties
+run git commit -q -m "version.properties ($V)" || true
+run git push -q
+
 # 4. l'ancien tag disparaît
 run git push -q origin --delete "$CUR"
 run git tag -d "$CUR"
