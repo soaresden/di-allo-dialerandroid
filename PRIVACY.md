@@ -30,6 +30,10 @@ Ces services reçoivent l'adresse demandée et ton adresse IP. Ils ne reçoivent
 
 La version téléchargée sur GitHub (pas celle du Play Store) vérifie aussi sur GitHub si une nouvelle version existe.
 
+## Rapport de plantage
+
+Si Di-Allô plante, il te propose d'envoyer un rapport technique (version, modèle du téléphone, erreur). Rien n'est envoyé tout seul : c'est toi qui choisis de l'envoyer, avec ton appli e-mail ou une autre appli. Ce rapport ne sert qu'à corriger le problème, et il est supprimé sur simple demande.
+
 ## Partage
 
 Aucune donnée n'est partagée avec des tiers. Aucune donnée n'est vendue.
@@ -47,6 +51,7 @@ Di-Allô is a phone app for Android. **It does not collect, send or sell any per
 - The **call log, contacts and phone state** are used only on the device: to place and receive calls, show who is calling, show recent calls and statistics, and restore a call log backup when you ask for it. This data never leaves the device.
 - **Backups and notes** go only to a folder you choose yourself.
 - **Internet** is used only for OpenStreetMap map tiles and address lookups (Android's built-in geocoder, provided by Google on most phones) when you open the contacts map. These services receive the address being looked up and your IP address, never names or phone numbers.
+- After a crash, Di-Allô offers to send a technical report (version, phone model, error). It is only sent if you choose to, with your own e-mail or another app, is used only to fix the problem, and is deleted on request.
 - Nothing is shared with third parties. Nothing is sold.
 
 Contact: [GitHub issues](https://github.com/soaresden/di-allo-dialerandroid/issues).
