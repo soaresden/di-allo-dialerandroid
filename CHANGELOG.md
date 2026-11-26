@@ -3,6 +3,9 @@
 Les versions sont numérotées `AAAA-MM-JJ-NN` (date du build, puis numéro du build du jour).
 Chaque version est téléchargeable dans les [Releases](../../releases).
 
+## 2026-11-26-03
+- 🏷️ Les numéros de version finissent maintenant par une lettre : **f** pour la version complète (GitHub), **p** pour la version du Play Store
+
 ## 2026-11-26-02
 - 🇧🇷 **Portugais du Brésil** : toute l'appli en portugais est passée du portugais du Portugal au portugais du Brésil (« você », « contatos », « celular », « tela »…). L'onglet Réglages s'appelle « Ajustes » pour tenir dans la barre du bas
 

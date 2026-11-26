@@ -511,7 +511,7 @@ internal fun Changelog() {
     val ctx = LocalContext.current
     val lines = remember { try { ctx.assets.open("CHANGELOG.md").bufferedReader().readLines() } catch (_: Throwable) { emptyList() } }
     val cs = MaterialTheme.colorScheme
-    val current = remember { appVersion(ctx) }
+    val current = remember { appVersion(ctx).trimEnd { it.isLetter() } }   // « 2026-11-26-03f » → titre « 2026-11-26-03 »
     if (I18n.lang.value != "fr") Text(tr("Le journal des versions est rédigé en français."), fontSize = 12.sp, color = muted(.6f), modifier = Modifier.padding(bottom = 8.dp))
     val blocks = remember(lines) {
         val out = ArrayList<Pair<String, List<String>>>()

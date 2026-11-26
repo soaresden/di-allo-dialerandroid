@@ -57,12 +57,14 @@ android {
     productFlavors {
         create("github") {
             dimension = "dist"
+            versionNameSuffix = "f"   // f = full (GitHub), p = Play Store : 2026-11-26-03f / 2026-11-26-03p
             buildConfigField("boolean", "FULL", "true")
             signingConfig = signingConfigs.getByName("debug")   // même signature qu'avant : les mises à jour continuent
         }
         create("play") {
             dimension = "dist"
             // Play Store : sans mise à jour automatique, sans enregistrement d'appels, sans SMS
+            versionNameSuffix = "p"
             buildConfigField("boolean", "FULL", "false")
             targetSdk = 36
             signingConfig = signingConfigs.findByName("upload") ?: signingConfigs.getByName("debug")

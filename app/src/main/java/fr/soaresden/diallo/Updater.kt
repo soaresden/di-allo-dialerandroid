@@ -44,7 +44,11 @@ object Updater {
     fun skip(c: Context, v: String) { p(c).edit().putString("skip", v).apply(); available.value = null }
 
     /** Versions « aaaa-mm-jj-NN » : l'ordre alphabétique est l'ordre chronologique. */
-    private fun newer(remote: String, local: String) = remote.isNotBlank() && local.isNotBlank() && remote > local
+    /** Compare deux versions AAAA-MM-JJ-NN, sans tenir compte de la lettre finale (f = GitHub, p = Play Store). */
+    private fun newer(remote: String, local: String): Boolean {
+        val r = remote.trimEnd { it.isLetter() }; val l = local.trimEnd { it.isLetter() }
+        return r.isNotBlank() && l.isNotBlank() && r > l
+    }
 
     // dernière release trouvée, gardée d'un lancement à l'autre (sinon oubliée jusqu'à la vérif suivante)
     private fun save(c: Context, r: Release?) {
