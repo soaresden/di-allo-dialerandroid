@@ -10,6 +10,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -76,7 +78,8 @@ internal fun MelodyEditDialog(played: List<Melodies.Note>, typed: String, existi
     var name by remember { mutableStateOf(existing?.name ?: Melodies.nextName(ctx)) }
     var text by remember { mutableStateOf(typed) }
     var cursor by remember { mutableIntStateOf(typed.length) }
-    val instr = remember { existing?.instr ?: Synth.currentId }
+    var instr by remember { mutableStateOf(existing?.instr ?: Synth.currentId) }
+    var showInstr by remember { mutableStateOf(false) }
     val playing by Melodies.playingId
     val idx by Melodies.playingIndex
     val med = remember { played.zipWithNext { a, b -> b.t - a.t }.filter { it > 40 }.sorted().let { it.getOrNull(it.size / 2) ?: 300 }.coerceIn(120, 700) }
@@ -121,16 +124,23 @@ internal fun MelodyEditDialog(played: List<Melodies.Note>, typed: String, existi
                     Spacer(Modifier.width(8.dp))
                     Button(enabled = notes.isNotEmpty(), onClick = {
                         Melodies.stop()
-                        if (existing != null) Melodies.update(ctx, existing.copy(name = name.trim().ifBlank { existing.name }, notes = notes))
+                        if (existing != null) Melodies.update(ctx, existing.copy(name = name.trim().ifBlank { existing.name }, instr = instr, notes = notes))
                         else Melodies.add(ctx, name, instr, notes)
                         Toast.makeText(ctx, if (existing != null) tr("Mélodie modifiée ✏️") else tr("Mélodie enregistrée 🎼"), Toast.LENGTH_SHORT).show()
                         onDone()
                     }) { Text(if (existing != null) tr("Enregistrer") else tr("Garder")) }
                 }
-                Text(
-                    trn(notes.size, "{0} note · {1} · {2}", "{0} notes · {1} · {2}", fmtMelodyDur(total), instrLabel(instr)) + " · " + if (useRhythm) tr("rythme d'origine") else tr("rythme régulier"),
-                    fontSize = 12.sp, color = muted(.6f), modifier = Modifier.padding(start = 8.dp, top = 4.dp, bottom = 6.dp)
-                )
+                Row(Modifier.padding(start = 8.dp, top = 4.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                    // instrument de la mélodie : touche pour changer
+                    Text(instrLabel(instr) + " ▾", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = cs.primary,
+                        modifier = Modifier.clip(RoundedCornerShape(50)).background(cs.primary.copy(alpha = .12f)).clickable { showInstr = true }.padding(horizontal = 10.dp, vertical = 4.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        trn(notes.size, "{0} note · {1}", "{0} notes · {1}", fmtMelodyDur(total)) + " · " + if (useRhythm) tr("rythme d'origine") else tr("rythme régulier"),
+                        fontSize = 12.sp, color = muted(.6f), maxLines = 1
+                    )
+                }
+                if (showInstr) InstrDialog(instr, onPick = { instr = it; Melodies.stop() }, onDismiss = { showInstr = false })
 
                 // ---------- Partition ----------
                 Surface(Modifier.fillMaxWidth().weight(1f), shape = RoundedCornerShape(20.dp), color = cs.surface) {
@@ -219,6 +229,45 @@ internal fun MelodyEditDialog(played: List<Melodies.Note>, typed: String, existi
             }
         }
     }
+}
+
+/** Choix de l'instrument d'une mélodie : le son des touches (suit les Réglages) ou un instrument précis. */
+@Composable
+private fun InstrDialog(current: String, onPick: (String) -> Unit, onDismiss: () -> Unit) {
+    val cs = MaterialTheme.colorScheme
+    @Composable fun Cell(id: String, emoji: String, label: String, mod: Modifier) {
+        val sel = id == current
+        Column(
+            mod.clip(RoundedCornerShape(12.dp)).background(if (sel) cs.primary else cs.surfaceVariant)
+                .clickable { onPick(id); Synth.play("5", id) }.padding(vertical = 7.dp, horizontal = 2.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(emoji, fontSize = 20.sp)
+            Text(label, fontSize = 10.5.sp, lineHeight = 12.sp, fontWeight = if (sel) FontWeight.Bold else FontWeight.Medium,
+                color = if (sel) cs.onPrimary else cs.onSurface, maxLines = 2, textAlign = TextAlign.Center)
+        }
+    }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(tr("Instrument de la mélodie")) },
+        text = {
+            Column(Modifier.heightIn(max = 460.dp).verticalScroll(rememberScrollState())) {
+                Row(Modifier.fillMaxWidth().padding(bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Cell(Melodies.KEYPAD, "🎚️", tr("Son des touches"), Modifier.width(76.dp))
+                    Spacer(Modifier.width(10.dp))
+                    Text(tr("Suit le son des touches choisi dans Réglages"), fontSize = 12.sp, color = muted(.7f))
+                }
+                HorizontalDivider(Modifier.padding(vertical = 8.dp))
+                Synth.instruments.chunked(4).forEach { row ->
+                    Row(Modifier.fillMaxWidth().padding(bottom = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        row.forEach { i -> Cell(i.id, i.emoji, tr(i.name), Modifier.weight(1f)) }
+                        repeat(4 - row.size) { Spacer(Modifier.weight(1f)) }
+                    }
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(tr("OK")) } }
+    )
 }
 
 @Composable

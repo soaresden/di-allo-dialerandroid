@@ -17,5 +17,7 @@
   "Notes modifiées : rythme régulier (␣ ou ↵ = pause).": {"en": "Notes edited: steady rhythm (␣ or ↵ = rest).", "es": "Notas modificadas: ritmo regular (␣ o ↵ = pausa).", "de": "Noten geändert: gleichmäßiger Rhythmus (␣ oder ↵ = Pause).", "it": "Note modificate: ritmo regolare (␣ o ↵ = pausa).", "pt": "Notas alteradas: ritmo regular (␣ ou ↵ = pausa)."},
   "pause": {"en": "rest", "es": "pausa", "de": "Pause", "it": "pausa", "pt": "pausa"},
   "ligne": {"en": "line", "es": "línea", "de": "Zeile", "it": "riga", "pt": "linha"},
-  "effacer": {"en": "delete", "es": "borrar", "de": "löschen", "it": "cancella", "pt": "apagar"}
+  "effacer": {"en": "delete", "es": "borrar", "de": "löschen", "it": "cancella", "pt": "apagar"},
+  "Instrument de la mélodie": {"en": "Melody instrument", "es": "Instrumento de la melodía", "de": "Instrument der Melodie", "it": "Strumento della melodia", "pt": "Instrumento da melodia"},
+  "Suit le son des touches choisi dans Réglages": {"en": "Follows the key sound chosen in Settings", "es": "Sigue el sonido del teclado elegido en Ajustes", "de": "Folgt dem in den Einstellungen gewählten Tastenton", "it": "Segue il suono dei tasti scelto nelle Impostazioni", "pt": "Segue o som das teclas escolhido em Ajustes"}
 }

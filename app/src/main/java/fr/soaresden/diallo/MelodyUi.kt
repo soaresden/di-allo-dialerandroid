@@ -41,7 +41,8 @@ import androidx.compose.foundation.verticalScroll
 
 internal val RecRed = Color(0xFFE5484D)
 
-internal fun instrLabel(id: String) = Synth.instruments.firstOrNull { it.id == id }?.let { "${it.emoji} ${tr(it.name)}" } ?: "🎵"
+internal fun instrLabel(id: String) = if (id == Melodies.KEYPAD) "🎚️ " + tr("Son des touches")
+    else Synth.instruments.firstOrNull { it.id == id }?.let { "${it.emoji} ${tr(it.name)}" } ?: "🎵"
 
 private fun copyText(ctx: Context, t: String) {
     (ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(tr("Mélodie"), t))

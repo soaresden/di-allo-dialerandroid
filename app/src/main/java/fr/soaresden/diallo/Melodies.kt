@@ -25,6 +25,8 @@ object Melodies {
     }
 
     private const val KEY = "melodies"
+    /** Instrument « son des touches » : la mélodie suit l'instrument choisi dans Réglages (Synth retombe sur l'instrument courant). */
+    const val KEYPAD = "keypad"
     val VALID = setOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "#")
 
     /** Change à chaque modification de la liste. */
