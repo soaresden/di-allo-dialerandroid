@@ -14,7 +14,7 @@
 
 | | <img src="docs/icon.png" width="64"><br>**Di-Allô** (Play Store) | <img src="docs/icon-f.png" width="64"><br>**Di-Allô F** (GitHub, version complète) |
 |---|---|---|
-| Où | Play Store (en test fermé pour l'instant) | [Releases](../../releases) de ce dépôt : `Di-Allo-F.apk` |
+| Où | Play Store (en test fermé pour l'instant) | [Releases](../../releases) de ce dépôt : `Di-Allo-github-<version>.apk` |
 | Identifiant | `fr.soaresden.diallo` | `fr.soaresden.diallo.github` |
 | Mises à jour | par le Play Store | intégrées (l'appli prévient et installe) |
 | Tout le reste (clavier musical, écran d'appel, gestes, stats, Wrapped, 23 thèmes, widgets, notes, carte…) | ✅ | ✅ |
@@ -30,7 +30,7 @@ Dans le même dossier de travail, chacune garde ses fichiers (`notes.json` / `no
 `Sauvegardes/` / `Sauvegardes F/`) et peut restaurer ceux de l'autre. Une seule peut être l'appli Téléphone par défaut à la fois :
 c'est elle qui affiche l'écran d'appel.
 
-> **Tu avais installé l'ancienne version GitHub** (`Di-Allo.apk`, avant le 26/11/2026) ? Sa dernière mise à jour t'explique
+> **Tu avais installé l'ancienne version GitHub** (`Di-Allo.apk`, avant le 26/11/2026 ; sa dernière mise à jour est `Di-Allo-Ancienne-version.apk`) ? Sa dernière mise à jour t'explique
 > comment passer au Play Store : sauvegarde, désinstallation, installation depuis le Store, puis « Restaurer ».
 > Tu peux aussi installer Di-Allô F à côté et restaurer tes notes et réglages depuis le même dossier.
 
@@ -90,7 +90,7 @@ c'est elle qui affiche l'écran d'appel.
 
 **Di-Allô** : depuis le Play Store. **Di-Allô F** :
 
-1. Télécharge le dernier `Di-Allo-F.apk` dans les [Releases](../../releases) (pas `Di-Allo.apk`, réservé aux anciennes installations).
+1. Télécharge le dernier `Di-Allo-github-<version>.apk` dans les [Releases](../../releases) (pas `Di-Allo-Ancienne-version.apk`, réservé aux anciennes installations).
 2. Installe-le (autorise l'installation depuis ton navigateur ou ton gestionnaire de fichiers si Android le demande).
 3. Ouvre Di-Allô, accepte les autorisations, puis **« Définir comme téléphone par défaut »**.
 4. Choisis un **dossier de travail** (par exemple `Di-Allo`) : notes, réglages et sauvegardes y seront rangés.

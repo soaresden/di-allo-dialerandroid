@@ -36,10 +36,11 @@ object Updater {
     /** Seule la version F (GitHub) se met à jour elle-même : le Play Store s'occupe de l'autre, la version « pont » n'en reçoit plus. */
     val ENABLED = BuildConfig.FULL && !BuildConfig.LEGACY
     /**
-     * Fichier de la version F dans les Releases. Les anciennes installations prennent le premier .apk venu :
-     * on publie donc d'abord Di-Allo.apk (la version pont), puis celui-ci.
+     * Fichier de la version F dans les Releases : Di-Allo-github-<version>.apk (« github » dans le nom).
+     * Les anciennes installations prennent le premier .apk de la liste : la version pont (Di-Allo-Ancienne-version.apk)
+     * doit donc passer devant, en étant envoyée en dernier.
      */
-    const val APK_NAME = "Di-Allo-F.apk"
+    private fun isF(name: String) = name.endsWith(".apk") && name.contains("github", ignoreCase = true)
 
     val available = mutableStateOf<Release?>(null)
     val progress = mutableStateOf<Float?>(null)        // téléchargement en cours (0..1)
@@ -134,7 +135,7 @@ object Updater {
             var apk = ""
             if (assets != null) for (i in 0 until assets.length()) {
                 val a = assets.getJSONObject(i)
-                if (a.optString("name") == APK_NAME) { apk = a.optString("browser_download_url"); break }
+                if (isF(a.optString("name"))) { apk = a.optString("browser_download_url"); break }
             }
             val local = appVersion(ctx)
             val r = Release(v, apk, o.optString("body"), o.optString("html_url"))
