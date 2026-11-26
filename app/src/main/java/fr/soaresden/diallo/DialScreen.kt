@@ -4,6 +4,15 @@ import android.content.Intent
 import android.provider.ContactsContract
 import android.view.HapticFeedbackConstants
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.material.icons.filled.Dialpad
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.Animatable
@@ -47,6 +56,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -121,10 +131,26 @@ internal fun DialScreen(
     val favVer = FavNumbers.version.intValue
     val favorites = remember(contacts, favVer) { val fs = FavNumbers.snap(ctx); contacts.filter { fs.isFav(it.number, it.starred || it.groups.contains("⭐ Favoris")) }.distinctBy { keyOf(it.number) }.sortedWith(compareByDescending<CallRepository.Contact> { it.calls }.thenBy { it.display.lowercase() }) }
     val byKey = remember(contacts) { contacts.associateBy { keyOf(it.number) } }
+    // étoile sur chaque ligne de la liste : indique et bascule le favori (numéro par numéro)
+    val favSnap = remember(favVer) { FavNumbers.snap(ctx) }
+    fun starredOf(c: CallRepository.Contact) = c.starred || c.groups.contains("⭐ Favoris")
+    val favOf: (CallRepository.Contact) -> Boolean = { c -> favSnap.isFav(c.number, starredOf(c)) }
+    val toggleFav: (CallRepository.Contact) -> Unit = { c -> FavNumbers.toggle(ctx, c.number, starredOf(c), view) }
     val freqRows = remember(frequent, byKey) {
         frequent.map { s -> byKey[keyOf(s.number)] ?: CallRepository.Contact(s.number, s.name, s.photoUri, calls = s.count) }
     }
     var showFav by remember { mutableStateOf(false) }
+    // Clavier réductible : la liste prend tout l'écran. Il se replie quand on fait défiler la liste vers le bas,
+    // ou avec la flèche ⌄ ; le bouton « Clavier » le rouvre. Toujours ouvert en mode composeur.
+    val padState = rememberSaveable { mutableStateOf(true) }
+    val collapseOnScroll = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                if (source == NestedScrollSource.Drag && available.y < -8f && !Melodies.recording.value) padState.value = false
+                return Offset.Zero
+            }
+        }
+    }
     var toSave by remember { mutableStateOf<Pair<List<Melodies.Note>, String>?>(null) }
     val recording by Melodies.recording
     val playingName by Melodies.playingName
@@ -180,7 +206,7 @@ internal fun DialScreen(
         Column(Modifier.fillMaxSize()) {
             // ---------- Volet liste : favoris / fréquents, ou candidats pendant la frappe ----------
             Surface(
-                Modifier.weight(1f).fillMaxWidth().padding(horizontal = 12.dp).padding(top = 8.dp),
+                Modifier.weight(1f).fillMaxWidth().padding(horizontal = 12.dp).padding(top = 8.dp).nestedScroll(collapseOnScroll),
                 color = MaterialTheme.colorScheme.surface.copy(alpha = .92f), shape = RoundedCornerShape(20.dp)
             , contentColor = MaterialTheme.colorScheme.onSurface) {
                 if (recording) MelodyLibrary(Modifier.fillMaxSize())
@@ -192,17 +218,17 @@ internal fun DialScreen(
                         value.isEmpty() -> {
                             if (freqRows.isNotEmpty()) {
                                 item { SmallTitle(tr("Fréquents")) }
-                                items(freqRows.size) { i -> CompactRow(freqRows[i], onConfirm) }
+                                items(freqRows.size) { i -> CompactRow(freqRows[i], onConfirm, fav = favOf(freqRows[i]), onFav = toggleFav) }
                             } else item { Hint(tr("Tes contacts fréquents apparaîtront ici.")) }
                         }
                         exact != null -> {
                             item { SmallTitle(tr("Contact trouvé")) }
-                            item { CompactRow(exact, onConfirm) }
+                            item { CompactRow(exact, onConfirm, fav = favOf(exact), onFav = toggleFav) }
                         }
                         suggestions.isEmpty() -> item { Hint(tr("Aucun contact ne correspond")) }
                         else -> {
                             item { SmallTitle(if (suggestions.size >= 60) tr("60+ résultats") else trn(suggestions.size, "{0} résultat", "{0} résultats")) }
-                            items(suggestions.size) { i -> CompactRow(suggestions[i], onConfirm, typed) }
+                            items(suggestions.size) { i -> CompactRow(suggestions[i], onConfirm, typed, fav = favOf(suggestions[i]), onFav = toggleFav) }
                         }
                     }
                 }
@@ -210,6 +236,22 @@ internal fun DialScreen(
                 }
             }
 
+            val padOpen = padState.value || recording
+            // ---------- Clavier replié : un bouton pour le rouvrir (+ appeler si un numéro est tapé) ----------
+            AnimatedVisibility(visible = !padOpen, enter = expandVertically(), exit = shrinkVertically()) {
+                Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally)) {
+                    FilledTonalButton(onClick = { padState.value = true }, modifier = Modifier.weight(1f, fill = false)) {
+                        Icon(Icons.Filled.Dialpad, null, modifier = Modifier.size(20.dp)); Spacer(Modifier.width(8.dp))
+                        Text(if (value.isEmpty()) tr("Clavier") else prettyNumber(value), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                    if (value.isNotEmpty()) Box(Modifier.size(52.dp).clip(CircleShape).background(CallGreen).clickable { onConfirm(value) }, contentAlignment = Alignment.Center) {
+                        Icon(Icons.Filled.Call, tr("Appeler"), tint = Color.White, modifier = Modifier.size(24.dp))
+                    }
+                }
+            }
+            AnimatedVisibility(visible = padOpen, enter = expandVertically(), exit = shrinkVertically()) {
+            Column(Modifier.fillMaxWidth()) {
             // ---------- Affichage du numéro ----------
             if (playingName != null && (recording || value.isEmpty())) KaraokeDisplay(displayH)
             else if (recording) RecDisplay(displayH)
@@ -235,6 +277,9 @@ internal fun DialScreen(
                     else -> Spacer(Modifier.height(18.dp))
                 }
             }
+            IconButton(onClick = { padState.value = false }, modifier = Modifier.align(Alignment.CenterStart).padding(start = 4.dp)) {
+                Icon(Icons.Filled.KeyboardArrowDown, tr("Réduire le clavier"), tint = muted(.55f))
+            }
             }
 
             // ---------- Cadran ----------
@@ -243,7 +288,7 @@ internal fun DialScreen(
                     Row(horizontalArrangement = Arrangement.spacedBy(gapH)) {
                         for (col in 0 until 3) {
                             val k = KEYS[r * 3 + col]
-                            DialKey(k, key, pulse = Melodies.pulse[k.d] ?: 0, onDown = { press(k.d) }, onUp = { ms -> releaseKey(k.d, ms) }, onLong = {
+                            DialKey(k, key, pulse = Melodies.pulse[k.d] ?: 0, composer = recording, onDown = { press(k.d) }, onUp = { ms -> releaseKey(k.d, ms) }, onLong = {
                                 if (!recording) when (k.d) {
                                     "1" -> { if (value.endsWith("1")) value = value.dropLast(1); onVoicemail() }
                                     in SpeedDial.DIGITS -> if (value == k.d) {
@@ -260,7 +305,7 @@ internal fun DialScreen(
                 }
                 // Rangée d'appel : [favoris] [appeler] [effacer]
                 if (recording) Row(horizontalArrangement = Arrangement.spacedBy(gapH), verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.size(key).themedKey(LocalHTheme.current, LocalHTheme.current.keyShapeOf())
+                    Box(Modifier.size(key).themedKey(LocalHTheme.current, LocalHTheme.current.keyShapeOf()).composerTint(LocalHTheme.current.keyShapeOf())
                         .clickable { Melodies.space(); view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP) }, contentAlignment = Alignment.Center) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text("␣", fontSize = (key.value * 0.36f).sp, color = MaterialTheme.colorScheme.onSurface)
@@ -268,10 +313,11 @@ internal fun DialScreen(
                         }
                     }
                     val hasDraft = Melodies.recTokens.isNotEmpty()
-                    Box(Modifier.size(key).shadow(if (hasDraft) 8.dp else 0.dp, LocalHTheme.current.keyShapeOf(), ambientColor = MaterialTheme.colorScheme.primary, spotColor = MaterialTheme.colorScheme.primary)
-                        .clip(LocalHTheme.current.keyShapeOf()).background(if (hasDraft) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant)
+                    // 💾 en violet (jamais vert) : rien ne ressemble au bouton d'appel en mode composeur
+                    Box(Modifier.size(key).shadow(if (hasDraft) 8.dp else 0.dp, LocalHTheme.current.keyShapeOf(), ambientColor = ComposerViolet, spotColor = ComposerViolet)
+                        .clip(LocalHTheme.current.keyShapeOf()).background(if (hasDraft) ComposerViolet else MaterialTheme.colorScheme.surfaceVariant)
                         .clickable(enabled = hasDraft) { saveDraft() }, contentAlignment = Alignment.Center) {
-                        Icon(Icons.Filled.Save, tr("Garder la composition"), tint = if (hasDraft) MaterialTheme.colorScheme.onPrimary else muted(.3f), modifier = Modifier.size(key * 0.4f))
+                        Icon(Icons.Filled.Save, tr("Garder la composition"), tint = if (hasDraft) Color.White else muted(.3f), modifier = Modifier.size(key * 0.4f))
                     }
                     if (hasDraft) BackspaceKey(key, visible = true, onClick = {
                         Melodies.backspace(); view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
@@ -292,13 +338,15 @@ internal fun DialScreen(
                     else MusicKey(key, active = false) { toggleComposer() }
                 }
             }
+            }
+            }
         }
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun DialKey(k: K, size: Dp, pulse: Int = 0, onDown: () -> Unit, onUp: (Long) -> Unit = {}, onLong: () -> Unit) {
+private fun DialKey(k: K, size: Dp, pulse: Int = 0, composer: Boolean = false, onDown: () -> Unit, onUp: (Long) -> Unit = {}, onLong: () -> Unit) {
     val down by rememberUpdatedState(onDown); val up by rememberUpdatedState(onUp); val long by rememberUpdatedState(onLong)
     val scope = rememberCoroutineScope()
     // Animations jouées jusqu'au bout, même pour une frappe très brève
@@ -308,7 +356,7 @@ private fun DialKey(k: K, size: Dp, pulse: Int = 0, onDown: () -> Unit, onUp: (L
     var touch by remember { mutableStateOf(Offset.Unspecified) }
     val cs = MaterialTheme.colorScheme
     val th = LocalHTheme.current
-    val accent = cs.primary
+    val accent = if (composer) ComposerViolet else cs.primary
     val shape = th.keyShapeOf()
     // Une mélodie joue cette touche : même animation qu'un appui
     LaunchedEffect(pulse) {
@@ -323,6 +371,7 @@ private fun DialKey(k: K, size: Dp, pulse: Int = 0, onDown: () -> Unit, onUp: (L
         Modifier.size(size)
             .graphicsLayer { scaleX = press.value; scaleY = press.value }
             .themedKey(th, shape) { glow.value }
+            .then(if (composer) Modifier.composerTint(shape) else Modifier)
             .drawBehind {
                 if (glow.value > 0f) drawRect(accent.copy(alpha = .30f * glow.value))
                 if (wave.value < 1f) {
@@ -371,16 +420,20 @@ private fun DialKey(k: K, size: Dp, pulse: Int = 0, onDown: () -> Unit, onUp: (L
     }
 }
 
+/** Mode composeur : voile et contour violets sur la touche, par-dessus le style du thème (le chiffre garde sa couleur, donc reste lisible). */
+internal fun Modifier.composerTint(shape: androidx.compose.ui.graphics.Shape): Modifier =
+    this.background(ComposerViolet.copy(alpha = .18f), shape).border(1.6.dp, ComposerViolet.copy(alpha = .8f), shape)
+
 /** Grosse note de musique : entre / sort du mode composeur. */
 @Composable
 private fun MusicKey(size: Dp, active: Boolean, onClick: () -> Unit) {
     val cs = MaterialTheme.colorScheme
     Box(
-        Modifier.size(size).clip(CircleShape).background(if (active) cs.primaryContainer else Color.Transparent).clickable { onClick() },
+        Modifier.size(size).clip(CircleShape).background(if (active) ComposerViolet.copy(alpha = .22f) else Color.Transparent).clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
         Text("🎵", fontSize = (size.value * 0.42f).sp)
-        if (active) Text("✕", fontSize = (size.value * 0.16f).sp, fontWeight = FontWeight.Bold, color = cs.primary, modifier = Modifier.align(Alignment.TopEnd).padding(top = size * 0.12f, end = size * 0.14f))
+        if (active) Text("✕", fontSize = (size.value * 0.16f).sp, fontWeight = FontWeight.Bold, color = ComposerViolet, modifier = Modifier.align(Alignment.TopEnd).padding(top = size * 0.12f, end = size * 0.14f))
     }
 }
 
@@ -408,7 +461,7 @@ private fun Hint(t: String) {
 
 /** Vignette compacte sur UNE ligne : avatar · nom · type + numéro · nb d'appels. */
 @Composable
-private fun CompactRow(c: CallRepository.Contact, onConfirm: (String) -> Unit, query: String = "") {
+private fun CompactRow(c: CallRepository.Contact, onConfirm: (String) -> Unit, query: String = "", fav: Boolean? = null, onFav: (CallRepository.Contact) -> Unit = {}) {
     val hl = SpanStyle(color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.ExtraBold, background = MaterialTheme.colorScheme.primary.copy(alpha = .16f))
     val shownNumber = displayNumber(c.number)
     Row(
@@ -423,6 +476,10 @@ private fun CompactRow(c: CallRepository.Contact, onConfirm: (String) -> Unit, q
             fontSize = 12.sp, color = muted(.55f), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.widthIn(max = 170.dp)
         )
         Text(if (c.calls > 0) "${c.calls}" else "", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary, textAlign = TextAlign.End, modifier = Modifier.width(30.dp))
+        if (fav != null) Box(Modifier.size(38.dp).clip(CircleShape).clickable { onFav(c) }, contentAlignment = Alignment.Center) {
+            Icon(if (fav) Icons.Filled.Star else Icons.Filled.StarBorder, if (fav) tr("Retirer des favoris") else tr("Ajouter aux favoris"),
+                tint = if (fav) Color(0xFFF5B301) else muted(.35f), modifier = Modifier.size(20.dp))
+        }
     }
 }
 

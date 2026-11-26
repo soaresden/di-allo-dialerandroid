@@ -178,6 +178,8 @@ object DataFolder {
                 EXTRA.forEach { (name, skip) -> files?.optJSONObject(name)?.let { n += load(ctx.getSharedPreferences(name, Context.MODE_PRIVATE), it, skip) } }
             } finally { restoring = false }
             ThemeFonts.reload()
+            FavNumbers.version.intValue++   // favoris restaurés : listes et widget à jour tout de suite
+            FavoritesWidget.refresh(ctx)
         }
         hold = false
         status.value = trn(added, "♻️ Restauré : {0} note, {1} réglages · {2}", "♻️ Restauré : {0} notes, {1} réglages · {2}", n, now())

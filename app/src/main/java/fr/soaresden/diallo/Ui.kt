@@ -48,6 +48,8 @@ import java.util.Calendar
 
 internal val CallGreen = Color(0xFF2FC45B)
 internal val Amber = Color(0xFFE8903A)
+/** Mode composeur : couleur à lui, pour qu'aucune touche ne ressemble au bouton d'appel (vert). */
+internal val ComposerViolet = Color(0xFF9B5CFF)
 internal val Red = Color(0xFFFF4D4F)
 
 @Composable internal fun muted(a: Float = .6f) = MaterialTheme.colorScheme.onSurface.copy(alpha = a)

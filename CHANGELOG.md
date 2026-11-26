@@ -3,6 +3,12 @@
 Les versions sont numérotées `AAAA-MM-JJ-NN` (date du build, puis numéro du build du jour).
 La dernière version est dans les [Releases](../../releases). Seules les versions récentes sont listées ici.
 
+## 2026-11-26-09
+- ⌨️ **Clavier réductible** : flèche ⌄ à gauche du numéro, ou fais défiler la liste vers le bas, et la liste prend tout l'écran. Le bouton « Clavier » le rouvre (avec « Appeler » si un numéro est tapé)
+- ⭐ Étoile sur chaque contact de la liste du clavier : elle montre s'il est en favori, et un appui l'ajoute ou le retire
+- 🎵 Mode composeur en violet : touches teintées, 💾 violet. Plus rien ne ressemble au bouton d'appel vert
+- ♻️ Après « Restaurer », les favoris et le widget Favoris sont à jour tout de suite
+
 ## 2026-11-26-08
 - 🎨 Restauration : le thème et les polices choisies reviennent tout de suite. L'écran gardait l'ancien thème après « Restaurer »
 - 💾 Les sauvegardes sont gardées un mois (au lieu des 7 dernières), dans les deux versions
