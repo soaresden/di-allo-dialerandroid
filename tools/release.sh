@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 # Publie une nouvelle version de Di-Allô sur LA publication GitHub unique : on la modifie, on n'en crée pas d'autre.
 #
-#   tools/release.sh notes.md            → compile, enregistre les compteurs, remplace les APK, renomme la publication
-#   tools/release.sh notes.md --dry-run  → montre seulement ce qui serait fait
+#   tools/release.sh            → compile, enregistre les compteurs, remplace les APK, renomme la publication
+#   tools/release.sh --dry-run  → montre seulement ce qui serait fait
+#
+# Le texte de la publication ne contient QUE les nouveautés : la section « ## <version> » de CHANGELOG.md,
+# plus une ligne pour le fichier à télécharger. La présentation et l'installation sont dans le README.
 #
 # Avant de remplacer les APK, leurs compteurs de téléchargements (remis à zéro par GitHub) sont ajoutés à
 # ../myhtml/dl-history.json, que le graphique de la page myhtml combine avec le compteur en direct.
@@ -12,8 +15,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 REPO=soaresden/di-allo-dialerandroid
 MYHTML=${MYHTML:-../myhtml}
-NOTES=${1:?usage: tools/release.sh notes.md [--dry-run]}
-DRY=${2:-}
+DRY=${1:-}
 run() { if [ "$DRY" = "--dry-run" ]; then echo "  [dry-run] $*"; else "$@"; fi; }
 
 SDK=$(grep '^sdk.dir' local.properties | cut -d= -f2- | sed 's/\\:/:/; s/\\\\/\//g')
@@ -32,6 +34,17 @@ run rm -f Di-Allo-github-*.apk Di-Allo-playstore-*.aab "$OLDAPK"
 run cp "$G" "$F"
 run cp app/build/outputs/apk/legacy/release/app-legacy-release.apk "$OLDAPK"
 run cp app/build/outputs/bundle/playRelease/app-play-release.aab "$AAB"
+
+# texte de la publication : les nouveautés de cette version, prises dans CHANGELOG.md
+NOTES=$(mktemp)
+{
+  echo "## 🆕 Nouveautés de Di-Allô ${V%f}"
+  awk -v h="## ${V%f}" '$0==h {on=1; next} /^## / {on=0} on' CHANGELOG.md | sed '/^$/d'
+  echo
+  echo "📥 Di-Allô F : **\`$F\`**. Présentation, différences avec la version Play Store et installation (Play Protect à suspendre) : [README](https://github.com/$REPO#readme)."
+} > "$NOTES"
+grep -q '^- ' "$NOTES" || { echo "Pas de section « ## ${V%f} » dans CHANGELOG.md : écris les nouveautés d'abord."; exit 1; }
+echo "--- texte de la publication ---"; cat "$NOTES"; echo "-------------------------------"
 
 CUR=$(gh api "repos/$REPO/releases/latest" --jq .tag_name)
 echo "Publication actuelle : $CUR"
