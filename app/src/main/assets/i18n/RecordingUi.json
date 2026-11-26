@@ -95,7 +95,7 @@
   "es": "Ajustes",
   "de": "Einstellungen",
   "it": "Impostazioni",
-  "pt": "Configurações"
+  "pt": "Ajustes"
  },
  "Lecture des enregistrements…": {
   "en": "Reading recordings…",
@@ -109,7 +109,7 @@
   "es": "Ninguna grabación.\nDurante una llamada, toca 🔴 Grabar (actívalo en Ajustes › Durante la llamada › Grabación).",
   "de": "Keine Aufnahmen.\nTippe während eines Anrufs auf 🔴 Aufnehmen (aktivieren unter Einstellungen › Während des Anrufs › Aufnahme).",
   "it": "Nessuna registrazione.\nDurante una chiamata, tocca 🔴 Registra (da attivare in Impostazioni › Durante la chiamata › Registrazione).",
-  "pt": "Nenhuma gravação.\nDurante uma chamada, toque em 🔴 Gravar (ative em Configurações › Durante a chamada › Gravação)."
+  "pt": "Nenhuma gravação.\nDurante uma chamada, toque em 🔴 Gravar (ative em Ajustes › Durante a chamada › Gravação)."
  },
  "{0} enregistrement · dernier {1}": {
   "en": "{0} recording · last {1}",
@@ -235,7 +235,7 @@
   "es": "⚠️ Elige primero una carpeta de trabajo (Ajustes › Copias de seguridad): allí se creará Rec/.",
   "de": "⚠️ Wähle zuerst einen Arbeitsordner (Einstellungen › Sicherungen): Rec/ wird dort angelegt.",
   "it": "⚠️ Scegli prima una cartella di lavoro (Impostazioni › Backup): Rec/ verrà creata lì.",
-  "pt": "⚠️ Escolha primeiro uma pasta de trabalho (Configurações › Backups): Rec/ será criada nela."
+  "pt": "⚠️ Escolha primeiro uma pasta de trabalho (Ajustes › Backups): Rec/ será criada nela."
  },
  "Dossier Rec": {
   "en": "Rec folder",
@@ -277,7 +277,7 @@
   "es": "⚖️ Grabar una llamada para uno mismo se tolera; difundirla sin el consentimiento de la otra persona está prohibido. Avisa a tu interlocutor.",
   "de": "⚖️ Einen Anruf für sich selbst aufzunehmen wird geduldet; ihn ohne Zustimmung der anderen Person weiterzugeben ist verboten. Sag deinem Gesprächspartner Bescheid.",
   "it": "⚖️ Registrare una chiamata per sé è tollerato; diffonderla senza il consenso dell'altra persona è vietato. Avvisa il tuo interlocutore.",
-  "pt": "⚖️ Gravar uma chamada para si é tolerado; divulgá-la sem o consentimento da outra pessoa é proibido. Avise o seu interlocutor."
+  "pt": "⚖️ Gravar uma chamada para uso próprio é tolerado; divulgá-la sem o consentimento da outra pessoa é proibido. Avise a pessoa com quem você fala."
  },
  "automatique, tous les appels": {
   "en": "automatic, all calls",
@@ -291,7 +291,7 @@
   "es": "automático, contactos",
   "de": "automatisch, Kontakte",
   "it": "automatico, contatti",
-  "pt": "automático, contactos"
+  "pt": "automático, contatos"
  },
  "bouton 🔴 pendant l'appel": {
   "en": "🔴 button during the call",
@@ -312,20 +312,20 @@
   "es": "⚪ Grabación desactivada · toca para activarla",
   "de": "⚪ Aufnahme aus · tippen zum Einschalten",
   "it": "⚪ Registrazione disattivata · tocca per attivarla",
-  "pt": "⚪ Gravação desativada · toca para a ativar"
+  "pt": "⚪ Gravação desativada · toque para ativar"
  },
  "⚠️ Setup à terminer · touche pour continuer": {
   "en": "⚠️ Setup not finished · tap to continue",
   "es": "⚠️ Configuración pendiente · toca para continuar",
   "de": "⚠️ Einrichtung unvollständig · tippen zum Fortfahren",
   "it": "⚠️ Configurazione da completare · tocca per continuare",
-  "pt": "⚠️ Configuração por terminar · toca para continuar"
+  "pt": "⚠️ Configuração incompleta · toque para continuar"
  },
  "Setup à vérifier": {
   "en": "Setup needs checking",
   "es": "Revisa la configuración",
   "de": "Einrichtung prüfen",
   "it": "Configurazione da verificare",
-  "pt": "Configuração a verificar"
+  "pt": "Verificar a configuração"
  }
 }

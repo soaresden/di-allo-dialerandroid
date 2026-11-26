@@ -4,14 +4,14 @@
   "es": "Sin el permiso de SMS, Di-Allô no puede pedir tus mensajes a Free.",
   "de": "Ohne SMS-Berechtigung kann Di-Allô deine Nachrichten nicht bei Free abrufen.",
   "it": "Senza il permesso SMS, Di-Allô non può chiedere i tuoi messaggi a Free.",
-  "pt": "Sem a permissão de SMS, o Di-Allô não pode pedir as tuas mensagens à Free."
+  "pt": "Sem a permissão de SMS, o Di-Allô não pode pedir suas mensagens à Free."
  },
  "Audio pas encore téléchargé : relance la synchro.": {
   "en": "Audio not downloaded yet: sync again.",
   "es": "Audio aún no descargado: vuelve a sincronizar.",
   "de": "Audio noch nicht heruntergeladen: erneut synchronisieren.",
   "it": "Audio non ancora scaricato: sincronizza di nuovo.",
-  "pt": "Áudio ainda não transferido: sincroniza de novo."
+  "pt": "Áudio ainda não baixado: sincronize de novo."
  },
  "Lecture impossible de ce message.": {
   "en": "This message can't be played.",
@@ -60,7 +60,7 @@
   "es": "Esperando la respuesta de Free…",
   "de": "Warte auf die Antwort von Free…",
   "it": "In attesa della risposta di Free…",
-  "pt": "À espera da resposta da Free…"
+  "pt": "Aguardando a resposta da Free…"
  },
  "Renvoyer": {
   "en": "Resend",
@@ -74,7 +74,7 @@
   "es": "Buscando mensajes…",
   "de": "Suche nach Nachrichten…",
   "it": "Ricerca dei messaggi…",
-  "pt": "A procurar mensagens…"
+  "pt": "Procurando mensagens…"
  },
  "Aucun message vocal.": {
   "en": "No voicemail.",
@@ -109,7 +109,7 @@
   "es": "El buzón de voz visual aún no está activo en Free (estado «{0}»).",
   "de": "Visuelle Mailbox bei Free noch nicht aktiv (Status „{0}“).",
   "it": "Segreteria visiva non ancora attiva da Free (stato «{0}»).",
-  "pt": "Correio de voz visual ainda não ativo na Free (estado «{0}»)."
+  "pt": "Correio de voz visual ainda não ativo na Free (estado “{0}”)."
  },
  "Impossible d'envoyer le SMS à Free (SIM Free et autorisation SMS nécessaires).": {
   "en": "Couldn't send the SMS to Free (a Free SIM and SMS permission are needed).",
@@ -130,14 +130,14 @@
   "es": "Conectando a la red móvil…",
   "de": "Verbinde mit dem Mobilfunknetz…",
   "it": "Connessione alla rete mobile…",
-  "pt": "A ligar à rede móvel…"
+  "pt": "Conectando à rede móvel…"
  },
  "Connexion à Free… (le serveur met ~30 s à répondre)": {
   "en": "Connecting to Free… (the server takes ~30 s to answer)",
   "es": "Conectando a Free… (el servidor tarda ~30 s en responder)",
   "de": "Verbinde mit Free… (der Server braucht ~30 s für die Antwort)",
   "it": "Connessione a Free… (il server impiega ~30 s a rispondere)",
-  "pt": "A ligar à Free… (o servidor demora ~30 s a responder)"
+  "pt": "Conectando à Free… (o servidor leva ~30 s para responder)"
  },
  "Identifiants refusés : nouvelle demande envoyée à Free.": {
   "en": "Credentials refused: new request sent to Free.",
@@ -151,14 +151,14 @@
   "es": "Leyendo mensajes…",
   "de": "Lese Nachrichten…",
   "it": "Lettura dei messaggi…",
-  "pt": "A ler as mensagens…"
+  "pt": "Lendo as mensagens…"
  },
  "Téléchargement du message {0}/{1}…": {
   "en": "Downloading message {0}/{1}…",
   "es": "Descargando mensaje {0}/{1}…",
   "de": "Lade Nachricht {0}/{1} herunter…",
   "it": "Download del messaggio {0}/{1}…",
-  "pt": "A transferir a mensagem {0}/{1}…"
+  "pt": "Baixando a mensagem {0}/{1}…"
  },
  "Échec de la synchro : {0}": {
   "en": "Sync failed: {0}",
@@ -186,91 +186,91 @@
   "es": "Conexión perdida, nuevo intento ({0}/3)…",
   "de": "Verbindung verloren, neuer Versuch ({0}/3)…",
   "it": "Connessione persa, nuovo tentativo ({0}/3)…",
-  "pt": "Ligação perdida, nova tentativa ({0}/3)…"
+  "pt": "Conexão perdida, nova tentativa ({0}/3)…"
  },
  "Partager le message vocal": {
   "en": "Share voicemail",
   "es": "Compartir el mensaje de voz",
   "de": "Sprachnachricht teilen",
   "it": "Condividi il messaggio vocale",
-  "pt": "Partilhar a mensagem de voz"
+  "pt": "Compartilhar a mensagem de voz"
  },
  "Enregistré dans {0}": {
   "en": "Saved to {0}",
   "es": "Guardado en {0}",
   "de": "Gespeichert in {0}",
   "it": "Salvato in {0}",
-  "pt": "Guardado em {0}"
+  "pt": "Salvo em {0}"
  },
  "Choisis d'abord un dossier de travail (Réglages) pour y ranger tes messages.": {
   "en": "First choose a working folder (Settings) to store your messages in.",
   "es": "Primero elige una carpeta de trabajo (Ajustes) para guardar tus mensajes.",
   "de": "Wähle zuerst einen Arbeitsordner (Einstellungen), um deine Nachrichten dort abzulegen.",
   "it": "Scegli prima una cartella di lavoro (Impostazioni) in cui salvare i messaggi.",
-  "pt": "Escolhe primeiro uma pasta de trabalho (Definições) para guardar as mensagens."
+  "pt": "Escolha primeiro uma pasta de trabalho (Ajustes) para salvar as mensagens."
  },
  "Impossible d'enregistrer ce message.": {
   "en": "Couldn't save this message.",
   "es": "No se pudo guardar este mensaje.",
   "de": "Diese Nachricht konnte nicht gespeichert werden.",
   "it": "Impossibile salvare questo messaggio.",
-  "pt": "Não foi possível guardar esta mensagem."
+  "pt": "Não foi possível salvar esta mensagem."
  },
  "Enregistrer dans le dossier": {
   "en": "Save to folder",
   "es": "Guardar en la carpeta",
   "de": "Im Ordner speichern",
   "it": "Salva nella cartella",
-  "pt": "Guardar na pasta"
+  "pt": "Salvar na pasta"
  },
  "Pas de connexion : la messagerie de Free a besoin d'Internet (Wi-Fi ou données mobiles).": {
   "en": "No connection: Free's voicemail needs the internet (Wi-Fi or mobile data).",
   "es": "Sin conexión: el buzón de Free necesita Internet (Wi-Fi o datos móviles).",
   "de": "Keine Verbindung: Die Mailbox von Free braucht Internet (WLAN oder mobile Daten).",
   "it": "Nessuna connessione: la segreteria di Free ha bisogno di Internet (Wi-Fi o dati mobili).",
-  "pt": "Sem ligação: o correio de voz da Free precisa de Internet (Wi-Fi ou dados móveis)."
+  "pt": "Sem conexão: o correio de voz da Free precisa de Internet (Wi-Fi ou dados móveis)."
  },
  "Di-Allô demande à Free l'accès à ta messagerie par un SMS gratuit au 2051, puis télécharge tes messages vocaux par Internet (Wi-Fi ou réseau mobile).": {
   "en": "Di-Allô asks Free for access to your voicemail with a free SMS to 2051, then downloads your voicemails over the internet (Wi-Fi or mobile network).",
   "es": "Di-Allô pide a Free acceso a tu buzón con un SMS gratuito al 2051 y luego descarga tus mensajes de voz por Internet (Wi-Fi o red móvil).",
   "de": "Di-Allô fragt Free per kostenloser SMS an die 2051 nach Zugriff auf deine Mailbox und lädt deine Sprachnachrichten dann über das Internet herunter (WLAN oder Mobilfunknetz).",
   "it": "Di-Allô chiede a Free l'accesso alla tua segreteria con un SMS gratuito al 2051, poi scarica i messaggi vocali tramite Internet (Wi-Fi o rete mobile).",
-  "pt": "O Di-Allô pede à Free acesso ao teu correio de voz com um SMS gratuito para o 2051 e depois transfere as mensagens de voz pela Internet (Wi-Fi ou rede móvel)."
+  "pt": "O Di-Allô pede à Free acesso ao seu correio de voz com um SMS gratuito para o 2051 e depois baixa as mensagens de voz pela Internet (Wi-Fi ou rede móvel)."
  },
  "Supprimer définitivement ce message ?": {
   "en": "Delete this message for good?",
   "es": "¿Eliminar este mensaje definitivamente?",
   "de": "Diese Nachricht endgültig löschen?",
   "it": "Eliminare definitivamente questo messaggio?",
-  "pt": "Eliminar esta mensagem definitivamente?"
+  "pt": "Excluir esta mensagem definitivamente?"
  },
  "Vider la corbeille ({0} messages) ?": {
   "en": "Empty the trash ({0} messages)?",
   "es": "¿Vaciar la papelera ({0} mensajes)?",
   "de": "Papierkorb leeren ({0} Nachrichten)?",
   "it": "Svuotare il cestino ({0} messaggi)?",
-  "pt": "Esvaziar o lixo ({0} mensagens)?"
+  "pt": "Esvaziar a lixeira ({0} mensagens)?"
  },
  "Il sera aussi effacé de ta messagerie Free. Pense à l'enregistrer avant si tu veux le garder.": {
   "en": "It will also be erased from your Free voicemail. Save it first if you want to keep it.",
   "es": "También se borrará de tu buzón de Free. Guárdalo antes si quieres conservarlo.",
   "de": "Sie wird auch aus deiner Free-Mailbox gelöscht. Speichere sie vorher, wenn du sie behalten willst.",
   "it": "Verrà cancellato anche dalla tua segreteria Free. Salvalo prima se vuoi conservarlo.",
-  "pt": "Também será apagada do teu correio de voz Free. Guarda-a antes se a quiseres manter."
+  "pt": "Também será apagada do seu correio de voz Free. Salve antes se quiser mantê-la."
  },
  "Corbeille": {
   "en": "Trash",
   "es": "Papelera",
   "de": "Papierkorb",
   "it": "Cestino",
-  "pt": "Lixo"
+  "pt": "Lixeira"
  },
  "Les messages restent chez Free tant que tu ne les supprimes pas d'ici.": {
   "en": "Messages stay at Free until you delete them from here.",
   "es": "Los mensajes siguen en Free mientras no los elimines desde aquí.",
   "de": "Die Nachrichten bleiben bei Free, bis du sie hier löschst.",
   "it": "I messaggi restano su Free finché non li elimini da qui.",
-  "pt": "As mensagens ficam na Free até as eliminares daqui."
+  "pt": "As mensagens ficam na Free até você excluí-las daqui."
  },
  "Vider": {
   "en": "Empty",
@@ -284,7 +284,7 @@
   "es": "Cerrar la papelera",
   "de": "Papierkorb schließen",
   "it": "Chiudi il cestino",
-  "pt": "Fechar o lixo"
+  "pt": "Fechar a lixeira"
  },
  "Restaurer": {
   "en": "Restore",
@@ -298,21 +298,21 @@
   "es": "Eliminar definitivamente",
   "de": "Endgültig löschen",
   "it": "Elimina definitivamente",
-  "pt": "Eliminar definitivamente"
+  "pt": "Excluir definitivamente"
  },
  "Mis à la corbeille": {
   "en": "Moved to trash",
   "es": "Movido a la papelera",
   "de": "In den Papierkorb verschoben",
   "it": "Spostato nel cestino",
-  "pt": "Movido para o lixo"
+  "pt": "Movida para a lixeira"
  },
  "Mettre à la corbeille": {
   "en": "Move to trash",
   "es": "Mover a la papelera",
   "de": "In den Papierkorb",
   "it": "Sposta nel cestino",
-  "pt": "Mover para o lixo"
+  "pt": "Mover para a lixeira"
  },
  "Messagerie visuelle pas encore active chez Free : demande d'activation envoyée, réponse attendue par SMS.": {
   "en": "Visual voicemail not active at Free yet: activation request sent, waiting for the SMS reply.",
@@ -326,34 +326,34 @@
   "es": "Registro del buzón de Di-Allô",
   "de": "Di-Allô Mailbox-Protokoll",
   "it": "Registro segreteria Di-Allô",
-  "pt": "Registo do correio de voz Di-Allô"
+  "pt": "Log do correio de voz Di-Allô"
  },
  "Envoyer le journal": {
   "en": "Send the log",
   "es": "Enviar el registro",
   "de": "Protokoll senden",
   "it": "Invia il registro",
-  "pt": "Enviar o registo"
+  "pt": "Enviar o log"
  },
  "Un souci ? Envoyer le journal": {
   "en": "A problem? Send the log",
   "es": "¿Algún problema? Enviar el registro",
   "de": "Ein Problem? Protokoll senden",
   "it": "Un problema? Invia il registro",
-  "pt": "Algum problema? Enviar o registo"
+  "pt": "Algum problema? Enviar o log"
  },
  "À l'oreille (toucher pour le haut-parleur)": {
   "en": "Earpiece (tap for speaker)",
   "es": "Auricular (toca para el altavoz)",
   "de": "Hörmuschel (tippen für Lautsprecher)",
   "it": "Auricolare (tocca per l'altoparlante)",
-  "pt": "Auricular (toque para o altifalante)"
+  "pt": "Fone (toque para o alto-falante)"
  },
  "Haut-parleur (toucher pour écouter à l'oreille)": {
   "en": "Speaker (tap to listen at your ear)",
   "es": "Altavoz (toca para escuchar al oído)",
   "de": "Lautsprecher (tippen, um am Ohr zu hören)",
   "it": "Altoparlante (tocca per ascoltare all'orecchio)",
-  "pt": "Altifalante (toque para ouvir ao ouvido)"
+  "pt": "Alto-falante (toque para ouvir no ouvido)"
  }
 }

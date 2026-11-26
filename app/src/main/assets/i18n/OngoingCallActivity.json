@@ -144,7 +144,7 @@
   "es": "Poner en espera\ny contestar",
   "de": "Halten\nund annehmen",
   "it": "Metti in attesa\ne rispondi",
-  "pt": "Pôr em espera\ne atender"
+  "pt": "Colocar em espera\ne atender"
  },
  "Raccrocher\net répondre": {
   "en": "End\nand answer",
@@ -207,7 +207,7 @@
   "es": "Altavoz auto",
   "de": "Auto-Lautspr.",
   "it": "Vivavoce auto",
-  "pt": "Alta-voz auto"
+  "pt": "Viva-voz auto"
  },
  "Fusionner": {
   "en": "Merge",

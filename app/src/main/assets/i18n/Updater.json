@@ -11,21 +11,21 @@
   "es": "Tu versión: {0}",
   "de": "Deine Version: {0}",
   "it": "La tua versione: {0}",
-  "pt": "A tua versão: {0}"
+  "pt": "Sua versão: {0}"
  },
  "Téléchargement… {0} %": {
   "en": "Downloading… {0}%",
   "es": "Descargando… {0} %",
   "de": "Herunterladen… {0} %",
   "it": "Download… {0}%",
-  "pt": "A transferir… {0}%"
+  "pt": "Baixando… {0}%"
  },
  "Télécharger et installer": {
   "en": "Download and install",
   "es": "Descargar e instalar",
   "de": "Herunterladen und installieren",
   "it": "Scarica e installa",
-  "pt": "Transferir e instalar"
+  "pt": "Baixar e instalar"
  },
  "Ignorer cette version": {
   "en": "Skip this version",
@@ -53,7 +53,7 @@
   "es": "Toca para ver las novedades e instalarla",
   "de": "Tippen, um die Neuerungen zu sehen und zu installieren",
   "it": "Tocca per vedere le novità e installarla",
-  "pt": "Toca para ver as novidades e instalar"
+  "pt": "Toque para ver as novidades e instalar"
  },
  "Plus tard": {
   "en": "Later",

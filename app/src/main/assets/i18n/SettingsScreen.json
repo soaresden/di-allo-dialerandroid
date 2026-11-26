@@ -18,7 +18,7 @@
   "es": "Toca un instrumento para oírlo y elegirlo.",
   "de": "Tippe auf ein Instrument, um es zu hören und auszuwählen.",
   "it": "Tocca uno strumento per ascoltarlo e sceglierlo.",
-  "pt": "Toca num instrumento para o ouvir e escolher."
+  "pt": "Toque em um instrumento para ouvir e escolher."
  },
  "Widgets": {
   "en": "Widgets",
@@ -32,7 +32,7 @@
   "es": "Marcación rápida",
   "de": "Kurzwahl",
   "it": "Selezione rapida",
-  "pt": "Marcação rápida"
+  "pt": "Discagem rápida"
  },
  "Langue": {
   "en": "Language",
@@ -53,7 +53,7 @@
   "es": "Altavoz automático",
   "de": "Auto-Lautsprecher",
   "it": "Vivavoce automatico",
-  "pt": "Altifalante automático"
+  "pt": "Alto-falante automático"
  },
  "Gestes": {
   "en": "Gestures",
@@ -81,7 +81,7 @@
   "es": "Copias de seguridad",
   "de": "Sicherungen",
   "it": "Backup",
-  "pt": "Cópias de segurança"
+  "pt": "Backups"
  },
  "Données": {
   "en": "Data",
@@ -95,7 +95,7 @@
   "es": "Copia y restauración",
   "de": "Sichern & Wiederherstellen",
   "it": "Backup e ripristino",
-  "pt": "Cópia e restauro"
+  "pt": "Backup e restauração"
  },
  "⚠️ Aucun dossier de travail choisi": {
   "en": "⚠️ No working folder chosen",
@@ -186,7 +186,7 @@
   "es": "Mantén pulsado 2…9 para llamar a un contacto",
   "de": "2…9 lange drücken, um einen Kontakt anzurufen",
   "it": "Tieni premuto 2…9 per chiamare un contatto",
-  "pt": "Mantém premido 2…9 para ligar a um contacto"
+  "pt": "Toque e segure 2…9 para ligar para um contato"
  },
  "{0} touche attribuée": {
   "en": "{0} key assigned",
@@ -207,7 +207,7 @@
   "es": "Favoritos, contacto 1×1, apariencia",
   "de": "Favoriten, 1×1-Kontakt, Aussehen",
   "it": "Preferiti, contatto 1×1, aspetto",
-  "pt": "Favoritos, contacto 1×1, aparência"
+  "pt": "Favoritos, contato 1×1, aparência"
  },
  "Téléphone": {
   "en": "Phone",
@@ -221,7 +221,7 @@
   "es": "App de teléfono predeterminada",
   "de": "Standard-Telefon-App",
   "it": "App Telefono predefinita",
-  "pt": "App de telefone predefinida"
+  "pt": "App de telefone padrão"
  },
  "Non défini": {
   "en": "Not set",
@@ -242,7 +242,7 @@
   "es": "Acceso a registro / contactos",
   "de": "Zugriff auf Anrufliste / Kontakte",
   "it": "Accesso a registro / contatti",
-  "pt": "Acesso ao registo / contactos"
+  "pt": "Acesso ao registro / contatos"
  },
  "Accordé": {
   "en": "Granted",
@@ -270,21 +270,21 @@
   "es": "⚠️ Di-Allô es la app de SMS predeterminada",
   "de": "⚠️ Di-Allô ist die Standard-SMS-App",
   "it": "⚠️ Di-Allô è l'app SMS predefinita",
-  "pt": "⚠️ Di-Allô é a app de SMS predefinida"
+  "pt": "⚠️ O Di-Allô é o app de SMS padrão"
  },
  "C'était seulement pour restaurer les SMS. Remets Google Messages par défaut pour recevoir correctement SMS et MMS.": {
   "en": "That was only to restore SMS. Set Google Messages back as default to receive SMS and MMS properly.",
   "es": "Solo era para restaurar los SMS. Vuelve a poner Google Mensajes como predeterminada para recibir bien SMS y MMS.",
   "de": "Das war nur zum Wiederherstellen der SMS. Setze Google Messages wieder als Standard, um SMS und MMS richtig zu empfangen.",
   "it": "Serviva solo per ripristinare gli SMS. Rimetti Google Messaggi come predefinita per ricevere correttamente SMS e MMS.",
-  "pt": "Era só para restaurar os SMS. Volta a pôr o Google Mensagens como predefinida para receber bem SMS e MMS."
+  "pt": "Era só para restaurar os SMS. Defina de novo o Google Mensagens como padrão para receber SMS e MMS normalmente."
  },
  "Remettre Messages par défaut": {
   "en": "Make Messages default again",
   "es": "Volver a Mensajes por defecto",
   "de": "Messages wieder als Standard",
   "it": "Rimetti Messaggi come predefinita",
-  "pt": "Repor Mensagens como predefinida"
+  "pt": "Voltar ao Mensagens como padrão"
  },
  "À propos": {
   "en": "About",
@@ -305,21 +305,21 @@
   "es": "Marcador con teclado musical.",
   "de": "Telefon-App mit musikalischer Tastatur.",
   "it": "Dialer con tastierino musicale.",
-  "pt": "Marcador com teclado musical."
+  "pt": "Discador com teclado musical."
  },
  "🎙️ Enregistrement des appels en MP3 via le débogage sans fil (Réglages › Pendant l'appel).": {
   "en": "🎙️ MP3 call recording via wireless debugging (Settings › During calls).",
   "es": "🎙️ Grabación de llamadas en MP3 mediante depuración inalámbrica (Ajustes › Durante la llamada).",
   "de": "🎙️ Anrufaufzeichnung als MP3 über kabelloses Debugging (Einstellungen › Während des Anrufs).",
   "it": "🎙️ Registrazione chiamate in MP3 tramite debug wireless (Impostazioni › Durante la chiamata).",
-  "pt": "🎙️ Gravação de chamadas em MP3 via depuração sem fios (Definições › Durante a chamada)."
+  "pt": "🎙️ Gravação de chamadas em MP3 via depuração por Wi-Fi (Ajustes › Durante a chamada)."
  },
  "Bibliothèques : libadb-android (Apache-2.0), Conscrypt (Apache-2.0), jump3r / LAME (LGPL), osmdroid (Apache-2.0), Coil (Apache-2.0). Emoji 3D Fluent (Microsoft, MIT). Polices Google Fonts (SIL OFL / Apache-2.0).": {
   "en": "Libraries: libadb-android (Apache-2.0), Conscrypt (Apache-2.0), jump3r / LAME (LGPL), osmdroid (Apache-2.0), Coil (Apache-2.0). Fluent 3D Emoji (Microsoft, MIT). Google Fonts (SIL OFL / Apache-2.0).",
   "es": "Bibliotecas: libadb-android (Apache-2.0), Conscrypt (Apache-2.0), jump3r / LAME (LGPL), osmdroid (Apache-2.0), Coil (Apache-2.0). Emoji 3D Fluent (Microsoft, MIT). Fuentes Google Fonts (SIL OFL / Apache-2.0).",
   "de": "Bibliotheken: libadb-android (Apache-2.0), Conscrypt (Apache-2.0), jump3r / LAME (LGPL), osmdroid (Apache-2.0), Coil (Apache-2.0). Fluent 3D Emoji (Microsoft, MIT). Schriften von Google Fonts (SIL OFL / Apache-2.0).",
   "it": "Librerie: libadb-android (Apache-2.0), Conscrypt (Apache-2.0), jump3r / LAME (LGPL), osmdroid (Apache-2.0), Coil (Apache-2.0). Emoji 3D Fluent (Microsoft, MIT). Font Google Fonts (SIL OFL / Apache-2.0).",
-  "pt": "Bibliotecas: libadb-android (Apache-2.0), Conscrypt (Apache-2.0), jump3r / LAME (LGPL), osmdroid (Apache-2.0), Coil (Apache-2.0). Emoji 3D Fluent (Microsoft, MIT). Tipos de letra Google Fonts (SIL OFL / Apache-2.0)."
+  "pt": "Bibliotecas: libadb-android (Apache-2.0), Conscrypt (Apache-2.0), jump3r / LAME (LGPL), osmdroid (Apache-2.0), Coil (Apache-2.0). Emoji 3D Fluent (Microsoft, MIT). Fontes Google Fonts (SIL OFL / Apache-2.0)."
  },
  "Auto": {
   "en": "Auto",
@@ -340,28 +340,28 @@
   "es": "Leyendo los SMS de la copia…",
   "de": "SMS der Sicherung werden gelesen…",
   "it": "Lettura degli SMS del backup…",
-  "pt": "A ler os SMS da cópia…"
+  "pt": "Lendo os SMS do backup…"
  },
  "Comparaison avec le téléphone ({0} SMS, {1} MMS)…": {
   "en": "Comparing with the phone ({0} SMS, {1} MMS)…",
   "es": "Comparando con el teléfono ({0} SMS, {1} MMS)…",
   "de": "Abgleich mit dem Telefon ({0} SMS, {1} MMS)…",
   "it": "Confronto con il telefono ({0} SMS, {1} MMS)…",
-  "pt": "A comparar com o telefone ({0} SMS, {1} MMS)…"
+  "pt": "Comparando com o telefone ({0} SMS, {1} MMS)…"
  },
  "Import des SMS… {0} / {1}": {
   "en": "Importing SMS… {0} / {1}",
   "es": "Importando SMS… {0} / {1}",
   "de": "SMS werden importiert… {0} / {1}",
   "it": "Importazione SMS… {0} / {1}",
-  "pt": "A importar SMS… {0} / {1}"
+  "pt": "Importando SMS… {0} / {1}"
  },
  "Import des MMS… {0} / {1}": {
   "en": "Importing MMS… {0} / {1}",
   "es": "Importando MMS… {0} / {1}",
   "de": "MMS werden importiert… {0} / {1}",
   "it": "Importazione MMS… {0} / {1}",
-  "pt": "A importar MMS… {0} / {1}"
+  "pt": "Importando MMS… {0} / {1}"
  },
  "✅ {0} SMS restauré.": {
   "en": "✅ {0} SMS restored.",
@@ -382,7 +382,7 @@
   "es": "❌ No se escribió ningún SMS (Di-Allô debe ser la app de SMS predeterminada).",
   "de": "❌ Keine SMS geschrieben (Di-Allô muss die Standard-SMS-App sein).",
   "it": "❌ Nessun SMS scritto (Di-Allô deve essere l'app SMS predefinita).",
-  "pt": "❌ Nenhum SMS escrito (Di-Allô tem de ser a app de SMS predefinida)."
+  "pt": "❌ Nenhum SMS gravado (o Di-Allô precisa ser o app de SMS padrão)."
  },
  "Permission SMS refusée : impossible de comparer.": {
   "en": "SMS permission denied: can't compare.",
@@ -396,21 +396,21 @@
   "es": "Di-Allô no se eligió como app de SMS: importación cancelada.",
   "de": "Di-Allô wurde nicht als SMS-App gewählt: Import abgebrochen.",
   "it": "Di-Allô non è stata scelta come app SMS: importazione annullata.",
-  "pt": "Di-Allô não foi escolhida como app de SMS: importação cancelada."
+  "pt": "O Di-Allô não foi escolhido como app de SMS: importação cancelada."
  },
  "Analyse du fichier…": {
   "en": "Analyzing the file…",
   "es": "Analizando el archivo…",
   "de": "Datei wird analysiert…",
   "it": "Analisi del file…",
-  "pt": "A analisar o ficheiro…"
+  "pt": "Analisando o arquivo…"
  },
  "Fichier non reconnu : il faut une sauvegarde d'appels (calls-….xml) ou de SMS (sms-….xml).": {
   "en": "File not recognized: a call backup (calls-….xml) or SMS backup (sms-….xml) is needed.",
   "es": "Archivo no reconocido: se necesita una copia de llamadas (calls-….xml) o de SMS (sms-….xml).",
   "de": "Datei nicht erkannt: Es wird eine Anruf- (calls-….xml) oder SMS-Sicherung (sms-….xml) benötigt.",
   "it": "File non riconosciuto: serve un backup di chiamate (calls-….xml) o di SMS (sms-….xml).",
-  "pt": "Ficheiro não reconhecido: é preciso uma cópia de chamadas (calls-….xml) ou de SMS (sms-….xml)."
+  "pt": "Arquivo não reconhecido: é preciso um backup de chamadas (calls-….xml) ou de SMS (sms-….xml)."
  },
  "♻️ Restaurer appels & SMS": {
   "en": "♻️ Restore calls & SMS",
@@ -424,42 +424,42 @@
   "es": "Elige una copia: Di-Allô la compara con el teléfono y solo añade lo que falta.",
   "de": "Wähle eine Sicherung: Di-Allô gleicht sie mit dem Telefon ab und ergänzt nur, was fehlt.",
   "it": "Scegli un backup: Di-Allô lo confronta con il telefono e aggiunge solo ciò che manca.",
-  "pt": "Escolhe uma cópia: o Di-Allô compara-a com o telefone e só acrescenta o que falta."
+  "pt": "Escolha um backup: o Di-Allô compara com o telefone e só adiciona o que falta."
  },
  "Choisis un dossier de travail (au-dessus) pour avoir des sauvegardes automatiques.": {
   "en": "Choose a working folder (above) to get automatic backups.",
   "es": "Elige una carpeta de trabajo (arriba) para tener copias automáticas.",
   "de": "Wähle oben einen Arbeitsordner für automatische Sicherungen.",
   "it": "Scegli una cartella di lavoro (sopra) per avere backup automatici.",
-  "pt": "Escolhe uma pasta de trabalho (acima) para ter cópias automáticas."
+  "pt": "Escolha uma pasta de trabalho (acima) para ter backups automáticos."
  },
  "Pas encore de sauvegarde dans le dossier : touche « Sauvegarder » au-dessus.": {
   "en": "No backup in the folder yet: tap \"Back up\" above.",
   "es": "Aún no hay copias en la carpeta: toca «Guardar copia» arriba.",
   "de": "Noch keine Sicherung im Ordner: Tippe oben auf „Sichern“.",
   "it": "Ancora nessun backup nella cartella: tocca «Esegui backup» sopra.",
-  "pt": "Ainda não há cópias na pasta: toca em «Guardar cópia» acima."
+  "pt": "Ainda não há backups na pasta: toque em “Fazer backup” acima."
  },
  "Voir les {0} sauvegardes": {
   "en": "See all {0} backups",
   "es": "Ver las {0} copias",
   "de": "Alle {0} Sicherungen anzeigen",
   "it": "Vedi tutti i {0} backup",
-  "pt": "Ver as {0} cópias"
+  "pt": "Ver os {0} backups"
  },
  "Autre fichier .xml…": {
   "en": "Other .xml file…",
   "es": "Otro archivo .xml…",
   "de": "Andere .xml-Datei…",
   "it": "Altro file .xml…",
-  "pt": "Outro ficheiro .xml…"
+  "pt": "Outro arquivo .xml…"
  },
  "Accepte aussi les anciens fichiers de SMS Backup & Restore (même format).": {
   "en": "Also accepts old SMS Backup & Restore files (same format).",
   "es": "También acepta archivos antiguos de SMS Backup & Restore (mismo formato).",
   "de": "Akzeptiert auch alte Dateien von SMS Backup & Restore (gleiches Format).",
   "it": "Accetta anche i vecchi file di SMS Backup & Restore (stesso formato).",
-  "pt": "Também aceita ficheiros antigos do SMS Backup & Restore (mesmo formato)."
+  "pt": "Também aceita arquivos antigos do SMS Backup & Restore (mesmo formato)."
  },
  "📞 Appels": {
   "en": "📞 Calls",
@@ -473,21 +473,21 @@
   "es": "⚠️ Define Di-Allô como app de teléfono predeterminada para escribir en el registro.",
   "de": "⚠️ Lege Di-Allô als Standard-Telefon-App fest, um in die Anrufliste zu schreiben.",
   "it": "⚠️ Imposta Di-Allô come app Telefono predefinita per scrivere nel registro.",
-  "pt": "⚠️ Define o Di-Allô como app de telefone predefinida para escrever no registo."
+  "pt": "⚠️ Defina o Di-Allô como app de telefone padrão para gravar no registro."
  },
  "Importer {0} appel manquant": {
   "en": "Import {0} missing call",
   "es": "Importar {0} llamada que falta",
   "de": "{0} fehlenden Anruf importieren",
   "it": "Importa {0} chiamata mancante",
-  "pt": "Importar {0} chamada em falta"
+  "pt": "Importar {0} chamada faltante"
  },
  "Importer {0} appels manquants": {
   "en": "Import {0} missing calls",
   "es": "Importar {0} llamadas que faltan",
   "de": "{0} fehlende Anrufe importieren",
   "it": "Importa {0} chiamate mancanti",
-  "pt": "Importar {0} chamadas em falta"
+  "pt": "Importar {0} chamadas faltantes"
  },
  "dont {0} MMS (photos, groupes)": {
   "en": "including {0} MMS (photos, groups)",
@@ -501,63 +501,63 @@
   "es": "Restaurar {0} SMS que falta",
   "de": "{0} fehlende SMS wiederherstellen",
   "it": "Ripristina {0} SMS mancante",
-  "pt": "Restaurar {0} SMS em falta"
+  "pt": "Restaurar {0} SMS faltante"
  },
  "Restaurer {0} SMS manquants": {
   "en": "Restore {0} missing SMS",
   "es": "Restaurar {0} SMS que faltan",
   "de": "{0} fehlende SMS wiederherstellen",
   "it": "Ripristina {0} SMS mancanti",
-  "pt": "Restaurar {0} SMS em falta"
+  "pt": "Restaurar {0} SMS faltantes"
  },
  "Remettre Google Messages par défaut": {
   "en": "Make Google Messages default again",
   "es": "Volver a Google Mensajes por defecto",
   "de": "Google Messages wieder als Standard",
   "it": "Rimetti Google Messaggi come predefinita",
-  "pt": "Repor Google Mensagens como predefinida"
+  "pt": "Voltar ao Google Mensagens como padrão"
  },
  "Compléter le journal ?": {
   "en": "Complete the call log?",
   "es": "¿Completar el registro?",
   "de": "Anrufliste ergänzen?",
   "it": "Completare il registro?",
-  "pt": "Completar o registo?"
+  "pt": "Completar o registro?"
  },
  "{0} appel du backup sera ajouté au journal d'appels. Difficile à annuler ensuite.": {
   "en": "{0} call from the backup will be added to the call log. Hard to undo afterwards.",
   "es": "Se añadirá {0} llamada de la copia al registro. Difícil de deshacer después.",
   "de": "{0} Anruf aus der Sicherung wird zur Anrufliste hinzugefügt. Lässt sich schwer rückgängig machen.",
   "it": "{0} chiamata del backup verrà aggiunta al registro. Difficile da annullare dopo.",
-  "pt": "{0} chamada da cópia será adicionada ao registo. Difícil de anular depois."
+  "pt": "{0} chamada do backup será adicionada ao registro. Difícil de desfazer depois."
  },
  "{0} appels du backup seront ajoutés au journal d'appels. Difficile à annuler ensuite.": {
   "en": "{0} calls from the backup will be added to the call log. Hard to undo afterwards.",
   "es": "Se añadirán {0} llamadas de la copia al registro. Difícil de deshacer después.",
   "de": "{0} Anrufe aus der Sicherung werden zur Anrufliste hinzugefügt. Lässt sich schwer rückgängig machen.",
   "it": "{0} chiamate del backup verranno aggiunte al registro. Difficile da annullare dopo.",
-  "pt": "{0} chamadas da cópia serão adicionadas ao registo. Difícil de anular depois."
+  "pt": "{0} chamadas do backup serão adicionadas ao registro. Difícil de desfazer depois."
  },
  "Import des appels…": {
   "en": "Importing calls…",
   "es": "Importando llamadas…",
   "de": "Anrufe werden importiert…",
   "it": "Importazione chiamate…",
-  "pt": "A importar chamadas…"
+  "pt": "Importando chamadas…"
  },
  "✅ {0} appel importé dans le journal.": {
   "en": "✅ {0} call imported into the log.",
   "es": "✅ {0} llamada importada al registro.",
   "de": "✅ {0} Anruf in die Liste importiert.",
   "it": "✅ {0} chiamata importata nel registro.",
-  "pt": "✅ {0} chamada importada para o registo."
+  "pt": "✅ {0} chamada importada para o registro."
  },
  "✅ {0} appels importés dans le journal.": {
   "en": "✅ {0} calls imported into the log.",
   "es": "✅ {0} llamadas importadas al registro.",
   "de": "✅ {0} Anrufe in die Liste importiert.",
   "it": "✅ {0} chiamate importate nel registro.",
-  "pt": "✅ {0} chamadas importadas para o registo."
+  "pt": "✅ {0} chamadas importadas para o registro."
  },
  "Importer": {
   "en": "Import",
@@ -578,14 +578,14 @@
   "es": "Los SMS que faltan se añadirán a tus conversaciones. Difícil de deshacer después.",
   "de": "Fehlende SMS werden zu deinen Unterhaltungen hinzugefügt. Lässt sich schwer rückgängig machen.",
   "it": "Gli SMS mancanti verranno aggiunti alle tue conversazioni. Difficile da annullare dopo.",
-  "pt": "Os SMS em falta serão adicionados às tuas conversas. Difícil de anular depois."
+  "pt": "Os SMS faltantes serão adicionados às suas conversas. Difícil de desfazer depois."
  },
  "Android n'autorise que l'app SMS par défaut à écrire des SMS.\n\n1. Choisis Di-Allô comme app SMS (temporairement)\n2. L'import se lance tout seul\n3. Remets Google Messages par défaut ensuite (bouton fourni).\n\nPendant ce court moment, les SMS reçus sont quand même enregistrés.": {
   "en": "Android only lets the default SMS app write SMS.\n\n1. Choose Di-Allô as SMS app (temporarily)\n2. The import starts on its own\n3. Then set Google Messages back as default (button provided).\n\nDuring this short time, incoming SMS are still saved.",
   "es": "Android solo permite escribir SMS a la app de SMS predeterminada.\n\n1. Elige Di-Allô como app de SMS (temporalmente)\n2. La importación empieza sola\n3. Después vuelve a poner Google Mensajes por defecto (botón incluido).\n\nDurante ese breve momento, los SMS recibidos se guardan igualmente.",
   "de": "Android erlaubt nur der Standard-SMS-App, SMS zu schreiben.\n\n1. Wähle Di-Allô als SMS-App (vorübergehend)\n2. Der Import startet von selbst\n3. Setze danach Google Messages wieder als Standard (Button vorhanden).\n\nIn dieser kurzen Zeit empfangene SMS werden trotzdem gespeichert.",
   "it": "Android consente solo all'app SMS predefinita di scrivere SMS.\n\n1. Scegli Di-Allô come app SMS (temporaneamente)\n2. L'importazione parte da sola\n3. Poi rimetti Google Messaggi come predefinita (pulsante fornito).\n\nIn quel breve momento, gli SMS ricevuti vengono comunque salvati.",
-  "pt": "O Android só deixa a app de SMS predefinida escrever SMS.\n\n1. Escolhe o Di-Allô como app de SMS (temporariamente)\n2. A importação começa sozinha\n3. Depois repõe o Google Mensagens como predefinida (botão incluído).\n\nDurante esse curto momento, os SMS recebidos são guardados na mesma."
+  "pt": "O Android só deixa o app de SMS padrão gravar SMS.\n\n1. Escolha o Di-Allô como app de SMS (temporariamente)\n2. A importação começa sozinha\n3. Depois defina de novo o Google Mensagens como padrão (botão incluído).\n\nDurante esse curto momento, os SMS recebidos são salvos normalmente."
  },
  "Le rôle SMS n'est pas disponible sur ce téléphone.": {
   "en": "The SMS role isn't available on this phone.",
@@ -627,7 +627,7 @@
   "es": "Copia",
   "de": "Sicherung",
   "it": "Backup",
-  "pt": "Cópia"
+  "pt": "Backup"
  },
  "Déjà là": {
   "en": "Already there",
@@ -641,7 +641,7 @@
   "es": "Faltan",
   "de": "Fehlen",
   "it": "Mancanti",
-  "pt": "Em falta"
+  "pt": "Faltando"
  },
  "Nouveautés de chaque version": {
   "en": "What's new in each version",
@@ -690,14 +690,14 @@
   "es": "Buscando…",
   "de": "Suche…",
   "it": "Ricerca…",
-  "pt": "A procurar…"
+  "pt": "Procurando…"
  },
  "Tu as la dernière version ✅": {
   "en": "You have the latest version ✅",
   "es": "Tienes la última versión ✅",
   "de": "Du hast die neueste Version ✅",
   "it": "Hai l'ultima versione ✅",
-  "pt": "Tens a versão mais recente ✅"
+  "pt": "Você tem a versão mais recente ✅"
  },
  "Rechercher une mise à jour": {
   "en": "Check for updates",
@@ -711,7 +711,7 @@
   "es": "Esta versión de Di-Allô solo gestiona llamadas: la restauración de SMS no está disponible.",
   "de": "Diese Version von Di-Allô verwaltet nur Anrufe: SMS-Wiederherstellung ist nicht verfügbar.",
   "it": "Questa versione di Di-Allô gestisce solo le chiamate: il ripristino degli SMS non è disponibile.",
-  "pt": "Esta versão do Di-Allô só gere chamadas: o restauro de SMS não está disponível."
+  "pt": "Esta versão do Di-Allô só gerencia chamadas: a restauração de SMS não está disponível."
  },
  "♻️ Restaurer les appels": {
   "en": "♻️ Restore calls",

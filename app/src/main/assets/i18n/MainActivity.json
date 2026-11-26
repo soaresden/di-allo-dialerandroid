@@ -18,7 +18,7 @@
   "es": "Contactos",
   "de": "Kontakte",
   "it": "Contatti",
-  "pt": "Contactos"
+  "pt": "Contatos"
  },
  "Notes": {
   "en": "Notes",
@@ -32,14 +32,14 @@
   "es": "Estadísticas",
   "de": "Statistik",
   "it": "Statistiche",
-  "pt": "Estatísticas"
+  "pt": "Stats"
  },
  "Définir Di-Allô comme téléphone par défaut": {
   "en": "Set Di-Allô as default phone app",
   "es": "Definir Di-Allô como teléfono predeterminado",
   "de": "Di-Allô als Standard-Telefon-App festlegen",
   "it": "Imposta Di-Allô come telefono predefinito",
-  "pt": "Definir o Di-Allô como telefone predefinido"
+  "pt": "Definir o Di-Allô como app de telefone padrão"
  },
  "Activer": {
   "en": "Enable",
@@ -53,7 +53,7 @@
   "es": "Permitir el registro de llamadas y los contactos",
   "de": "Anrufliste und Kontakte erlauben",
   "it": "Consenti registro chiamate e contatti",
-  "pt": "Permitir o registo de chamadas e os contactos"
+  "pt": "Permitir o registro de chamadas e os contatos"
  },
  "Régler": {
   "en": "Fix",
@@ -81,35 +81,35 @@
   "es": "llamando…",
   "de": "Anruf…",
   "it": "chiamata…",
-  "pt": "a ligar…"
+  "pt": "chamando…"
  },
  "En cours · {0} · touche pour revenir": {
   "en": "Ongoing · {0} · tap to return",
   "es": "En curso · {0} · toca para volver",
   "de": "Läuft · {0} · tippen zum Zurückkehren",
   "it": "In corso · {0} · tocca per tornare",
-  "pt": "Em curso · {0} · toca para voltar"
+  "pt": "Em andamento · {0} · toque para voltar"
  },
  "Aucun appel dans le journal.": {
   "en": "No calls in the log.",
   "es": "No hay llamadas en el registro.",
   "de": "Keine Anrufe in der Liste.",
   "it": "Nessuna chiamata nel registro.",
-  "pt": "Nenhuma chamada no registo."
+  "pt": "Nenhuma chamada no registro."
  },
  "Ils seront effacés du journal du téléphone.": {
   "en": "They will be erased from the phone's call log.",
   "es": "Se borrarán del registro del teléfono.",
   "de": "Sie werden aus der Anrufliste des Telefons gelöscht.",
   "it": "Saranno cancellate dal registro del telefono.",
-  "pt": "Serão apagadas do registo do telefone."
+  "pt": "Serão apagadas do registro do telefone."
  },
  "Impossible : Di-Allô doit être l'appli Téléphone par défaut": {
   "en": "Can't: Di-Allô must be the default phone app",
   "es": "Imposible: Di-Allô debe ser la app de teléfono predeterminada",
   "de": "Nicht möglich: Di-Allô muss die Standard-Telefon-App sein",
   "it": "Impossibile: Di-Allô deve essere l'app Telefono predefinita",
-  "pt": "Impossível: o Di-Allô tem de ser a app de telefone predefinida"
+  "pt": "Impossível: o Di-Allô precisa ser o app de telefone padrão"
  },
  "📊 Fiche de {0}": {
   "en": "📊 {0}'s card",
@@ -130,42 +130,42 @@
   "es": "En la pantalla de inicio",
   "de": "Auf den Startbildschirm",
   "it": "Sulla schermata Home",
-  "pt": "No ecrã principal"
+  "pt": "Na tela inicial"
  },
  "Sélectionner pour supprimer": {
   "en": "Select to delete",
   "es": "Seleccionar para eliminar",
   "de": "Zum Löschen auswählen",
   "it": "Seleziona per eliminare",
-  "pt": "Selecionar para eliminar"
+  "pt": "Selecionar para excluir"
  },
  "Supprimer {0} appel ?": {
   "en": "Delete {0} call?",
   "es": "¿Eliminar {0} llamada?",
   "de": "{0} Anruf löschen?",
   "it": "Eliminare {0} chiamata?",
-  "pt": "Eliminar {0} chamada?"
+  "pt": "Excluir {0} chamada?"
  },
  "Supprimer {0} appels ?": {
   "en": "Delete {0} calls?",
   "es": "¿Eliminar {0} llamadas?",
   "de": "{0} Anrufe löschen?",
   "it": "Eliminare {0} chiamate?",
-  "pt": "Eliminar {0} chamadas?"
+  "pt": "Excluir {0} chamadas?"
  },
  "{0} appel supprimé": {
   "en": "{0} call deleted",
   "es": "{0} llamada eliminada",
   "de": "{0} Anruf gelöscht",
   "it": "{0} chiamata eliminata",
-  "pt": "{0} chamada eliminada"
+  "pt": "{0} chamada excluída"
  },
  "{0} appels supprimés": {
   "en": "{0} calls deleted",
   "es": "{0} llamadas eliminadas",
   "de": "{0} Anrufe gelöscht",
   "it": "{0} chiamate eliminate",
-  "pt": "{0} chamadas eliminadas"
+  "pt": "{0} chamadas excluídas"
  },
  "{0} sélectionné": {
   "en": "{0} selected",
@@ -249,6 +249,6 @@
   "es": "Red: {0}. Los números sin prefijo se leen como números de este país.",
   "de": "Netz: {0}. Nummern ohne Ländervorwahl gelten als Nummern aus diesem Land.",
   "it": "Rete: {0}. I numeri senza prefisso vengono letti come numeri di questo paese.",
-  "pt": "Rede: {0}. Os números sem indicativo são lidos como números deste país."
+  "pt": "Rede: {0}. Os números sem código do país são lidos como números deste país."
  }
 }

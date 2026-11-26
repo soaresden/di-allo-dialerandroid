@@ -109,14 +109,14 @@
   "es": "Ignoraste {0} de sus {1} llamadas ({2} %)",
   "de": "Du hast {0} von {1} Anrufen ignoriert ({2} %)",
   "it": "Hai ignorato {0} delle sue {1} chiamate ({2}%)",
-  "pt": "Ignoraste {0} das {1} chamadas ({2}%)"
+  "pt": "Você ignorou {0} de {1} chamadas ({2}%)"
  },
  "Celle/celui qui te ghoste": {
   "en": "The one who ghosts you",
   "es": "Quien te ignora",
   "de": "Wer dich ghostet",
   "it": "Chi ti ignora",
-  "pt": "Quem te ignora"
+  "pt": "Quem ignora você"
  },
  "{0} appel sans réponse sur {1} ({2} %)": {
   "en": "{0} unanswered call out of {1} ({2}%)",
@@ -137,7 +137,7 @@
   "es": "El/la más charlatán/a",
   "de": "Die größte Plaudertasche",
   "it": "Il/la più chiacchierone",
-  "pt": "O/a mais falador(a)"
+  "pt": "Quem mais fala"
  },
  "{0} en moyenne sur {1} appels": {
   "en": "{0} on average over {1} calls",
@@ -165,21 +165,21 @@
   "es": "Siempre llamas tú",
   "de": "Du rufst immer an",
   "it": "Chiami sempre tu",
-  "pt": "És sempre tu a ligar"
+  "pt": "É sempre você que liga"
  },
  "{0} % des appels viennent de toi ({1} vs {2})": {
   "en": "{0}% of calls come from you ({1} vs {2})",
   "es": "El {0} % de las llamadas son tuyas ({1} vs {2})",
   "de": "{0} % der Anrufe kommen von dir ({1} vs. {2})",
   "it": "Il {0}% delle chiamate parte da te ({1} vs {2})",
-  "pt": "{0}% das chamadas são tuas ({1} vs {2})"
+  "pt": "{0}% das chamadas são suas ({1} vs {2})"
  },
  "Elle/il t'appelle, tu rappelles jamais": {
   "en": "They call, you never call back",
   "es": "Te llama y nunca devuelves la llamada",
   "de": "Sie rufen an, du nie zurück",
   "it": "Ti chiama, tu non richiami mai",
-  "pt": "Liga-te e nunca devolves a chamada"
+  "pt": "Liga para você e você nunca retorna"
  },
  "{0} appels reçus pour {1} passés": {
   "en": "{0} received vs {1} made",
@@ -193,7 +193,7 @@
   "es": "El reencuentro",
   "de": "Das Comeback",
   "it": "Il ritorno di fiamma",
-  "pt": "O regresso"
+  "pt": "A volta"
  },
  "Revenu·e après {0} de silence ({1})": {
   "en": "Back after {0} of silence ({1})",
@@ -270,7 +270,7 @@
   "es": "{0} · sobre todo con {1}",
   "de": "{0} · vor allem mit {1}",
   "it": "{0} · soprattutto con {1}",
-  "pt": "{0} · sobretudo com {1}"
+  "pt": "{0} · principalmente com {1}"
  },
  "Plus longue série": {
   "en": "Longest streak",
@@ -312,14 +312,14 @@
   "es": "{0} llamada fuera de contactos",
   "de": "{0} Anruf außerhalb der Kontakte",
   "it": "{0} chiamata fuori dai contatti",
-  "pt": "{0} chamada fora dos contactos"
+  "pt": "{0} chamada fora dos contatos"
  },
  "{0} appels hors contacts": {
   "en": "{0} calls from non-contacts",
   "es": "{0} llamadas fuera de contactos",
   "de": "{0} Anrufe außerhalb der Kontakte",
   "it": "{0} chiamate fuori dai contatti",
-  "pt": "{0} chamadas fora dos contactos"
+  "pt": "{0} chamadas fora dos contatos"
  },
  "dont {0} en numéro masqué": {
   "en": "including {0} from private numbers",
@@ -361,7 +361,7 @@
   "es": "Sobre todo {0} {1} ({2})",
   "de": "Vor allem {0} {1} ({2})",
   "it": "Soprattutto {0} {1} ({2})",
-  "pt": "Sobretudo {0} {1} ({2})"
+  "pt": "Principalmente {0} {1} ({2})"
  },
  "Temps passé au téléphone": {
   "en": "Time spent on the phone",
@@ -382,7 +382,7 @@
   "es": "Tus hábitos",
   "de": "Deine Gewohnheiten",
   "it": "Le tue abitudini",
-  "pt": "Os teus hábitos"
+  "pt": "Seus hábitos"
  },
  "Le {0}, vers {1} h": {
   "en": "On {0}, around {1}:00",
@@ -410,7 +410,7 @@
   "es": "Sin datos: permite el acceso al registro de llamadas.",
   "de": "Keine Daten: Erlaube den Zugriff auf die Anrufliste.",
   "it": "Nessun dato: consenti l'accesso al registro chiamate.",
-  "pt": "Sem dados: permite o acesso ao registo de chamadas."
+  "pt": "Sem dados: permita o acesso ao registro de chamadas."
  },
  "Masqué / court": {
   "en": "Private / short",
@@ -424,14 +424,14 @@
   "es": "Tu Di-Allô Wrapped",
   "de": "Dein Di-Allô Wrapped",
   "it": "Il tuo Di-Allô Wrapped",
-  "pt": "O teu Di-Allô Wrapped"
+  "pt": "Seu Di-Allô Wrapped"
  },
  "Ton année au téléphone, en stories": {
   "en": "Your year on the phone, as stories",
   "es": "Tu año al teléfono, en historias",
   "de": "Dein Telefonjahr als Stories",
   "it": "Il tuo anno al telefono, in storie",
-  "pt": "O teu ano ao telefone, em stories"
+  "pt": "Seu ano ao telefone, em stories"
  },
  "📊 Résumé": {
   "en": "📊 Summary",
@@ -487,7 +487,7 @@
   "es": "✅ Respondes al {0} % de las llamadas recibidas · 👥 {1}",
   "de": "✅ Du nimmst {0} % der Anrufe an · 👥 {1}",
   "it": "✅ Rispondi al {0}% delle chiamate ricevute · 👥 {1}",
-  "pt": "✅ Atendes {0}% das chamadas recebidas · 👥 {1}"
+  "pt": "✅ Você atende {0}% das chamadas recebidas · 👥 {1}"
  },
  "📈 Activité": {
   "en": "📈 Activity",
@@ -501,7 +501,7 @@
   "es": "toca una barra",
   "de": "tippe auf einen Balken",
   "it": "tocca una barra",
-  "pt": "toca numa barra"
+  "pt": "toque em uma barra"
  },
  "🌍 Origine": {
   "en": "🌍 Origin",
@@ -585,7 +585,7 @@
   "es": "🏆 Clasificaciones",
   "de": "🏆 Ranglisten",
   "it": "🏆 Classifiche",
-  "pt": "🏆 Classificações"
+  "pt": "🏆 Rankings"
  },
  "Top": {
   "en": "Top",
@@ -620,7 +620,7 @@
   "es": "Nada que destacar aquí.",
   "de": "Hier gibt es nichts zu melden.",
   "it": "Niente da segnalare qui.",
-  "pt": "Nada a assinalar aqui."
+  "pt": "Nada a destacar aqui."
  },
  "🎉 Faits marrants": {
   "en": "🎉 Fun facts",
@@ -655,21 +655,21 @@
   "es": "{0} llamada del registro, del {1} a hoy. Todas se tienen en cuenta.",
   "de": "{0} Anruf in der Liste, vom {1} bis heute. Alle werden gezählt.",
   "it": "{0} chiamata nel registro, dal {1} a oggi. Tutte sono conteggiate.",
-  "pt": "{0} chamada do registo, de {1} até hoje. Todas são contadas."
+  "pt": "{0} chamada do registro, de {1} até hoje. Todas são contadas."
  },
  "{0} appels du journal, du {1} à aujourd'hui. Tous sont pris en compte.": {
   "en": "{0} calls in the log, from {1} to today. All are counted.",
   "es": "{0} llamadas del registro, del {1} a hoy. Todas se tienen en cuenta.",
   "de": "{0} Anrufe in der Liste, vom {1} bis heute. Alle werden gezählt.",
   "it": "{0} chiamate nel registro, dal {1} a oggi. Tutte sono conteggiate.",
-  "pt": "{0} chamadas do registo, de {1} até hoje. Todas são contadas."
+  "pt": "{0} chamadas do registro, de {1} até hoje. Todas são contadas."
  },
  "Les années absentes ne sont pas dans le journal du téléphone{0}. Si tu as une sauvegarde plus ancienne (XML « SMS Backup & Restore »), importe-la dans Réglages › Sauvegardes : les appels manquants y sont ajoutés, puis comptés ici.": {
   "en": "Missing years aren't in the phone's call log{0}. If you have an older backup (\"SMS Backup & Restore\" XML), import it in Settings › Backups: missing calls are added, then counted here.",
   "es": "Los años que faltan no están en el registro del teléfono{0}. Si tienes una copia más antigua (XML «SMS Backup & Restore»), impórtala en Ajustes › Copias de seguridad: las llamadas que faltan se añaden y se cuentan aquí.",
   "de": "Fehlende Jahre sind nicht in der Anrufliste des Telefons{0}. Hast du eine ältere Sicherung (XML „SMS Backup & Restore“), importiere sie unter Einstellungen › Sicherungen: Fehlende Anrufe werden ergänzt und hier mitgezählt.",
   "it": "Gli anni mancanti non sono nel registro del telefono{0}. Se hai un backup più vecchio (XML «SMS Backup & Restore»), importalo in Impostazioni › Backup: le chiamate mancanti vengono aggiunte e poi conteggiate qui.",
-  "pt": "Os anos em falta não estão no registo do telefone{0}. Se tiveres uma cópia mais antiga (XML «SMS Backup & Restore»), importa-a em Definições › Cópias de segurança: as chamadas em falta são adicionadas e contadas aqui."
+  "pt": "Os anos que faltam não estão no registro do telefone{0}. Se você tiver um backup mais antigo (XML “SMS Backup & Restore”), importe em Ajustes › Backups: as chamadas que faltam são adicionadas e contadas aqui."
  },
  " (il commence en {0})": {
   "en": " (it starts in {0})",
@@ -683,7 +683,7 @@
   "es": "Ninguna llamada con este contacto.",
   "de": "Keine Anrufe mit diesem Kontakt.",
   "it": "Nessuna chiamata con questo contatto.",
-  "pt": "Nenhuma chamada com este contacto."
+  "pt": "Nenhuma chamada com este contato."
  },
  "Appels": {
   "en": "Calls",
@@ -725,14 +725,14 @@
   "es": "Respondes",
   "de": "Du nimmst an",
   "it": "Rispondi",
-  "pt": "Atendes"
+  "pt": "Você atende"
  },
  "Te répond": {
   "en": "They answer",
   "es": "Te responde",
   "de": "Nimmt an",
   "it": "Ti risponde",
-  "pt": "Atende-te"
+  "pt": "Atende você"
  },
  "Plus long": {
   "en": "Longest",
@@ -788,7 +788,7 @@
   "es": "Toca una barra para filtrar toda la página",
   "de": "Tippe auf einen Balken, um die ganze Seite zu filtern",
   "it": "Tocca una barra per filtrare tutta la pagina",
-  "pt": "Toca numa barra para filtrar a página toda"
+  "pt": "Toque em uma barra para filtrar a página inteira"
  },
  "Sélectionner": {
   "en": "Select",
@@ -816,7 +816,7 @@
   "es": "Sin selección · toca una barra o una fila para filtrar",
   "de": "Keine Auswahl · tippe auf einen Balken oder eine Zeile zum Filtern",
   "it": "Nessuna selezione · tocca una barra o una riga per filtrare",
-  "pt": "Nada selecionado · toca numa barra ou linha para filtrar"
+  "pt": "Nada selecionado · toque em uma barra ou linha para filtrar"
  },
  "Zoomer": {
   "en": "Zoom in",

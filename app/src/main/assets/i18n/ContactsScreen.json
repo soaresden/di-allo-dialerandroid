@@ -39,7 +39,7 @@
   "es": "Primero a quienes no llamas desde hace tiempo",
   "de": "Wen du lange nicht angerufen hast, zuerst",
   "it": "Prima chi non chiami da tempo",
-  "pt": "Primeiro quem não ligas há muito tempo"
+  "pt": "Primeiro quem você não liga há muito tempo"
  },
  "Fréquence × récence : qui compte vraiment en ce moment": {
   "en": "Frequency × recency: who really matters right now",
@@ -102,7 +102,7 @@
   "es": "Tus 10 imprescindibles",
   "de": "Deine Top 10",
   "it": "I tuoi 10 essenziali",
-  "pt": "Os teus 10 essenciais"
+  "pt": "Seus 10 essenciais"
  },
  "Souvent": {
   "en": "Often",
@@ -137,7 +137,7 @@
   "es": "Todas las etiquetas",
   "de": "Alle Labels",
   "it": "Tutte le etichette",
-  "pt": "Todas as etiquetas"
+  "pt": "Todos os marcadores"
  },
  "Retirer le filtre": {
   "en": "Remove filter",
@@ -151,14 +151,14 @@
   "es": "Mapa de contactos",
   "de": "Kontaktkarte",
   "it": "Mappa dei contatti",
-  "pt": "Mapa de contactos"
+  "pt": "Mapa de contatos"
  },
  "Aucun contact.": {
   "en": "No contacts.",
   "es": "Ningún contacto.",
   "de": "Keine Kontakte.",
   "it": "Nessun contatto.",
-  "pt": "Nenhum contacto."
+  "pt": "Nenhum contato."
  },
  "+{0} n°": {
   "en": "+{0} no.",
@@ -207,34 +207,34 @@
   "es": "Etiquetas de Google",
   "de": "Google-Labels",
   "it": "Etichette Google",
-  "pt": "Etiquetas Google"
+  "pt": "Marcadores do Google"
  },
  "Filtrer les libellés": {
   "en": "Filter labels",
   "es": "Filtrar etiquetas",
   "de": "Labels filtern",
   "it": "Filtra etichette",
-  "pt": "Filtrar etiquetas"
+  "pt": "Filtrar marcadores"
  },
  "Tous les contacts": {
   "en": "All contacts",
   "es": "Todos los contactos",
   "de": "Alle Kontakte",
   "it": "Tutti i contatti",
-  "pt": "Todos os contactos"
+  "pt": "Todos os contatos"
  },
  "Aucun libellé trouvé sur ce téléphone.": {
   "en": "No labels found on this phone.",
   "es": "No se encontraron etiquetas en este teléfono.",
   "de": "Keine Labels auf diesem Telefon gefunden.",
   "it": "Nessuna etichetta trovata su questo telefono.",
-  "pt": "Nenhuma etiqueta encontrada neste telefone."
+  "pt": "Nenhum marcador encontrado neste telefone."
  },
  "Appui long sur un numéro : favori ⭐": {
   "en": "Long-press a number: favourite ⭐",
   "es": "Mantén pulsado un número: favorito ⭐",
   "de": "Nummer lang drücken: Favorit ⭐",
   "it": "Tieni premuto un numero: preferito ⭐",
-  "pt": "Toque longo num número: favorito ⭐"
+  "pt": "Toque longo em um número: favorito ⭐"
  }
 }

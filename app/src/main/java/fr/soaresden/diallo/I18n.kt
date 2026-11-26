@@ -15,7 +15,7 @@ import java.util.Locale
  */
 object I18n {
     /** Langues proposées (code → nom dans sa langue). */
-    val LANGS = listOf("fr" to "Français", "en" to "English", "es" to "Español", "de" to "Deutsch", "it" to "Italiano", "pt" to "Português")
+    val LANGS = listOf("fr" to "Français", "en" to "English", "es" to "Español", "de" to "Deutsch", "it" to "Italiano", "pt" to "Português (Brasil)")
 
     /** Langue affichée (état Compose : changer la langue redessine l'appli). */
     val lang = mutableStateOf("fr")

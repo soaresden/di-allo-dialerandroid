@@ -207,7 +207,7 @@
   "es": "Una vez al día: registro de llamadas completo. Se guardan las 7 últimas.",
   "de": "Einmal täglich: vollständige Anrufliste. Die letzten 7 werden behalten.",
   "it": "Una volta al giorno: registro chiamate completo. Si tengono le ultime 7.",
-  "pt": "Uma vez por dia: registo de chamadas completo. As 7 últimas são guardadas."
+  "pt": "Uma vez por dia: registro de chamadas completo. Os 7 últimos são mantidos."
  },
  "{0} sauvegarde d'appels": {
   "en": "{0} call log backup",
