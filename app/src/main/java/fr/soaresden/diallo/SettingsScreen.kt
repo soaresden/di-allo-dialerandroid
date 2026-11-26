@@ -184,7 +184,7 @@ internal fun SettingsScreen(
                 Text(tr("Di-Allô — version {0}", appVersion(ctx)), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onBackground)
                 Text("by Soaresden · github.com/soaresden/di-allo-dialerandroid", fontSize = 12.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium); Spacer(Modifier.height(6.dp))
                 Text(tr("Dialer avec clavier musical."), fontSize = 12.5.sp, color = muted()); Spacer(Modifier.height(6.dp))
-                if (BuildConfig.FULL) UpdateControls(ctx)
+                if (Updater.ENABLED) UpdateControls(ctx)
                 Spacer(Modifier.height(6.dp))
                 if (BuildConfig.FULL) { Text(tr("🎙️ Enregistrement des appels en MP3 via le débogage sans fil (Réglages › Pendant l'appel)."), fontSize = 12.sp, color = muted()); Spacer(Modifier.height(6.dp)) }
                 Text(tr("Bibliothèques : libadb-android (Apache-2.0), Conscrypt (Apache-2.0), jump3r / LAME (LGPL), osmdroid (Apache-2.0), Coil (Apache-2.0). Emoji 3D Fluent (Microsoft, MIT). Polices Google Fonts (SIL OFL / Apache-2.0)."), fontSize = 11.5.sp, color = muted(.55f))

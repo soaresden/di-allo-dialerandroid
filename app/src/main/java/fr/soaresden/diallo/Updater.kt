@@ -33,6 +33,14 @@ object Updater {
     private const val API = "https://api.github.com/repos/soaresden/di-allo-dialerandroid/releases/latest"
     data class Release(val version: String, val apk: String, val notes: String, val page: String)
 
+    /** Seule la version F (GitHub) se met à jour elle-même : le Play Store s'occupe de l'autre, la version « pont » n'en reçoit plus. */
+    val ENABLED = BuildConfig.FULL && !BuildConfig.LEGACY
+    /**
+     * Fichier de la version F dans les Releases. Les anciennes installations prennent le premier .apk venu :
+     * on publie donc d'abord Di-Allo.apk (la version pont), puis celui-ci.
+     */
+    const val APK_NAME = "Di-Allo-F.apk"
+
     val available = mutableStateOf<Release?>(null)
     val progress = mutableStateOf<Float?>(null)        // téléchargement en cours (0..1)
     val showDialog = mutableStateOf(false)
@@ -64,7 +72,7 @@ object Updater {
 
     /** Vérification en arrière-plan toutes les heures environ (JobScheduler, réseau requis), même appli fermée. */
     fun schedule(c: Context) {
-        if (!BuildConfig.FULL) return   // version Play Store : c'est le Store qui met à jour
+        if (!ENABLED) return   // version Play Store : c'est le Store qui met à jour
         val js = c.getSystemService(android.app.job.JobScheduler::class.java) ?: return
         if (!auto(c)) { js.cancel(JOB_ID); return }
         if (js.getPendingJob(JOB_ID)?.intervalMillis == PERIOD) return
@@ -86,7 +94,7 @@ object Updater {
      * et la fenêtre de mise à jour s'ouvre d'elle-même, une fois par version et par lancement.
      */
     suspend fun checkAndPop(ctx: Context, minMinutes: Int = 2) {
-        if (!BuildConfig.FULL) return
+        if (!ENABLED) return
         val r = withContext(Dispatchers.IO) { check(ctx.applicationContext, minMinutes = minMinutes) } ?: return
         if (popped.add(r.version)) showDialog.value = true
     }
@@ -110,7 +118,7 @@ object Updater {
 
     /** Interroge GitHub (au plus toutes les [minMinutes] min, sauf [force]). Retourne la release plus récente, ou null. Hors fil principal. */
     fun check(ctx: Context, force: Boolean = false, minMinutes: Int = 360): Release? {
-        if (!BuildConfig.FULL) return null
+        if (!ENABLED) return null
         val now = System.currentTimeMillis()
         if (!force && (!auto(ctx) || now - p(ctx).getLong("last", 0) < minMinutes * 60_000L)) return (available.value ?: stored(ctx))?.also { available.value = it }
         p(ctx).edit().putLong("last", now).apply()
@@ -126,7 +134,7 @@ object Updater {
             var apk = ""
             if (assets != null) for (i in 0 until assets.length()) {
                 val a = assets.getJSONObject(i)
-                if (a.optString("name").endsWith(".apk")) { apk = a.optString("browser_download_url"); break }
+                if (a.optString("name") == APK_NAME) { apk = a.optString("browser_download_url"); break }
             }
             val local = appVersion(ctx)
             val r = Release(v, apk, o.optString("body"), o.optString("html_url"))

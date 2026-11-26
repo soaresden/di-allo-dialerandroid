@@ -10,6 +10,32 @@
 
 ---
 
+## 🔀 Deux versions, installables côte à côte
+
+| | <img src="docs/icon.png" width="64"><br>**Di-Allô** (Play Store) | <img src="docs/icon-f.png" width="64"><br>**Di-Allô F** (GitHub, version complète) |
+|---|---|---|
+| Où | Play Store (en test fermé pour l'instant) | [Releases](../../releases) de ce dépôt : `Di-Allo-F.apk` |
+| Identifiant | `fr.soaresden.diallo` | `fr.soaresden.diallo.github` |
+| Mises à jour | par le Play Store | intégrées (l'appli prévient et installe) |
+| Tout le reste (clavier musical, écran d'appel, gestes, stats, Wrapped, 23 thèmes, widgets, notes, carte…) | ✅ | ✅ |
+| 🎙️ Enregistrement des appels (MP3) | ❌ | ✅ |
+| 📼 Messagerie visuelle (Free) | ❌ | ✅ |
+| 💬 Sauvegarde des SMS / MMS | ❌ | ✅ |
+
+**Di-Allô F = la version Play Store + l'enregistrement des appels + la messagerie visuelle + la sauvegarde des SMS.**
+Ces fonctions demandent des autorisations que le Play Store réserve à d'autres types d'applis, d'où la version F.
+
+Les deux ont un identifiant et une icône différents : elles peuvent être installées ensemble sans se gêner.
+Dans le même dossier de travail, chacune garde ses fichiers (`notes.json` / `notes-f.json`, `reglages.json` / `reglages-f.json`,
+`Sauvegardes/` / `Sauvegardes F/`) et peut restaurer ceux de l'autre. Une seule peut être l'appli Téléphone par défaut à la fois :
+c'est elle qui affiche l'écran d'appel.
+
+> **Tu avais installé l'ancienne version GitHub** (`Di-Allo.apk`, avant le 26/11/2026) ? Sa dernière mise à jour t'explique
+> comment passer au Play Store : sauvegarde, désinstallation, installation depuis le Store, puis « Restaurer ».
+> Tu peux aussi installer Di-Allô F à côté et restaurer tes notes et réglages depuis le même dossier.
+
+---
+
 ## ✨ Ce que fait Di-Allô
 
 ### ⌨️ Clavier
@@ -27,7 +53,7 @@
 - **Double appel** : mettre en attente et répondre, raccrocher et répondre, basculer entre les deux
 - **Conférence** : fusionner, parler en privé à un participant, raccrocher un participant
 - **Refuser avec un SMS** (réponses rapides personnalisables)
-- 🎙️ **Enregistrement des appels en MP3**, les deux voix, sans autre appli : bouton 🔴 pendant l'appel, ou automatique (contacts / tous). Fichiers rangés dans `Rec/` de ton dossier (`aaaa-mm-jj-hhmmss-NOM.mp3`), reliés aux appels (🎙️ dans Récents), listés par contact dans l'onglet **REC** et sur la fiche du contact. Configuration guidée une seule fois (débogage sans fil).
+- 🎙️ *(Di-Allô F)* **Enregistrement des appels en MP3**, les deux voix, sans autre appli : bouton 🔴 pendant l'appel, ou automatique (contacts / tous). Fichiers rangés dans `Rec/` de ton dossier (`aaaa-mm-jj-hhmmss-NOM.mp3`), reliés aux appels (🎙️ dans Récents), listés par contact dans l'onglet **REC** et sur la fiche du contact. Configuration guidée une seule fois (débogage sans fil).
 - 📝 **Notes pendant l'appel**, rangées par contact. La dernière note s'affiche quand la personne rappelle.
 - 🕘 **Historique** des appels avec la personne, directement dans l'écran d'appel
 - Écran éteint contre la joue (capteur de proximité)
@@ -55,13 +81,16 @@
 - Widgets d'écran d'accueil : **Favoris** (4 ou 8, favoris ou plus appelés, 4 styles) et **contact 1×1**, un appui, un appel
 - 🌍 **6 langues** : français, anglais, espagnol, allemand, italien, portugais (automatique ou au choix)
 - Touche le logo 😎 pour une petite surprise
-- 📁 **Dossier de travail** : notes et réglages synchronisés automatiquement, et **sauvegarde quotidienne complète** du journal d'appels et des SMS/MMS (photos comprises) au format *SMS Backup & Restore*. Restauration intégrée.
+- 📼 *(Di-Allô F)* **Messagerie visuelle** Free : la liste des messages vocaux, à écouter dans l'appli
+- 📁 **Dossier de travail** : notes et réglages synchronisés automatiquement, et **sauvegarde quotidienne complète** du journal d'appels (et, dans Di-Allô F, des SMS/MMS photos comprises) au format *SMS Backup & Restore*. Restauration intégrée.
 
 ---
 
 ## 📲 Installation
 
-1. Télécharge le dernier `Di-Allo.apk` dans les [Releases](../../releases).
+**Di-Allô** : depuis le Play Store. **Di-Allô F** :
+
+1. Télécharge le dernier `Di-Allo-F.apk` dans les [Releases](../../releases) (pas `Di-Allo.apk`, réservé aux anciennes installations).
 2. Installe-le (autorise l'installation depuis ton navigateur ou ton gestionnaire de fichiers si Android le demande).
 3. Ouvre Di-Allô, accepte les autorisations, puis **« Définir comme téléphone par défaut »**.
 4. Choisis un **dossier de travail** (par exemple `Di-Allo`) : notes, réglages et sauvegardes y seront rangés.
@@ -72,7 +101,7 @@
 | Autorisation | Pourquoi |
 |---|---|
 | Journal d'appels, contacts, téléphone | Afficher, rechercher et passer les appels |
-| SMS (lecture) | Sauvegarde des SMS/MMS, réponses rapides |
+| SMS (lecture, Di-Allô F) | Sauvegarde des SMS/MMS, messagerie visuelle |
 | Notifications | Appel en cours, appel entrant |
 | Internet | Tuiles de la carte et géocodage des adresses |
 | Capteurs | Proximité et accéléromètre (haut-parleur auto, gestes), sans autorisation à demander |
@@ -93,8 +122,9 @@ Aucune donnée ne quitte le téléphone : pas de compte, pas de pub, pas de pist
 Prérequis : JDK 17 et le SDK Android (via Android Studio ou les outils en ligne de commande).
 
 ```bash
-./gradlew :app:assembleDebug
-# APK : app/build/outputs/apk/debug/app-debug.apk
+./gradlew :app:assembleGithubDebug    # Di-Allô F
+./gradlew :app:assemblePlayDebug      # Di-Allô (Play Store)
+# APK : app/build/outputs/apk/<github|play>/debug/
 ```
 
 La version est automatique : `AAAA-MM-JJ-NN` (NN = numéro du build du jour), voir `version.properties`.

@@ -29,6 +29,8 @@ import java.util.concurrent.Executors
 /**
  * Dossier de travail choisi sur le téléphone :
  *  - notes.json et reglages.json, tenus à jour automatiquement ;
+ *    (la version F a ses propres fichiers, notes-f.json, reglages-f.json, « Sauvegardes F », pour que les deux versions
+ *    installées côte à côte dans le même dossier ne s'écrasent pas ; chacune relit ceux de l'autre si elle n'a pas encore les siens) ;
  *  - Sauvegardes/ : journal d'appels + SMS/MMS complets au format « SMS Backup & Restore ».
  * Après une réinstallation, on rechoisit le même dossier et tout revient.
  */
@@ -37,6 +39,23 @@ object DataFolder {
     private const val LAST = "last_backup"
     private val IGNORED = setOf(KEY, LAST)
     private const val KEEP = 7                      // nombre de sauvegardes gardées par type
+    private val F = BuildConfig.FULL && !BuildConfig.LEGACY
+    private val NOTES = if (F) "notes-f.json" else "notes.json"
+    private val NOTES_OTHER = if (F) "notes.json" else "notes-f.json"
+    private val SETTINGS = if (F) "reglages-f.json" else "reglages.json"
+    private val SETTINGS_OTHER = if (F) "reglages.json" else "reglages-f.json"
+    private val BACKUPS = if (F) "Sauvegardes F" else "Sauvegardes"
+    private val BACKUPS_OTHER = if (F) "Sauvegardes" else "Sauvegardes F"
+    /** Autres fichiers de réglages sauvegardés avec « hyperdial », et les clés propres au téléphone qu'on n'y met pas. */
+    private val EXTRA = mapOf(
+        "favnums" to emptySet(), "speeddial" to emptySet(), "sim_choice" to emptySet(),
+        "recorder" to setOf("port", "token", "paired", "adb_port"),
+    )
+    /**
+     * Vrai entre le choix d'un dossier et la réponse à « Restaurer ? » : rien n'écrit reglages.json pendant ce temps,
+     * sinon la sauvegarde automatique (lancée dès le retour du sélecteur) écrasait les réglages à restaurer par ceux par défaut.
+     */
+    @Volatile private var hold = false
 
     private val exec = Executors.newSingleThreadExecutor()
     private val h = Handler(Looper.getMainLooper())
@@ -62,6 +81,7 @@ object DataFolder {
 
     fun choose(ctx: Context, u: Uri) {
         try { ctx.contentResolver.takePersistableUriPermission(u, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION) } catch (_: Throwable) { }
+        hold = true
         prefs(ctx).edit().putString(KEY, u.toString()).apply()
         folderVersion.value++
     }
@@ -72,6 +92,7 @@ object DataFolder {
         val app = ctx.applicationContext
         listener = SharedPreferences.OnSharedPreferenceChangeListener { _, k -> if (k != null && k !in IGNORED && !k.startsWith("col_") && !restoring) scheduleSync(app) }
         prefs(app).registerOnSharedPreferenceChangeListener(listener)
+        EXTRA.keys.forEach { app.getSharedPreferences(it, Context.MODE_PRIVATE).registerOnSharedPreferenceChangeListener(listener) }
     }
 
     fun scheduleSync(ctx: Context) {
@@ -84,11 +105,14 @@ object DataFolder {
 
     /* ---------------- Notes + réglages ---------------- */
 
-    fun syncNow(ctx: Context): Boolean {
+    /** [force] : la réponse à « Restaurer ? » est donnée (ou il n'y avait rien à restaurer), on peut écrire. */
+    fun syncNow(ctx: Context, force: Boolean = false): Boolean {
+        if (force) hold = false
+        if (hold) return false
         val dir = tree(ctx) ?: return false
         return try {
-            writeText(ctx, dir, "notes.json", NotesRepository.toJson(NotesRepository.list(ctx)))
-            writeText(ctx, dir, "reglages.json", settingsJson(ctx).toString(1))
+            writeText(ctx, dir, NOTES, NotesRepository.toJson(NotesRepository.list(ctx)))
+            writeText(ctx, dir, SETTINGS, settingsJson(ctx).toString(1))
             status.value = tr("✅ Notes et réglages enregistrés · {0}", now())
             true
         } catch (_: Throwable) { status.value = tr("❌ Impossible d'écrire dans le dossier"); false }
@@ -101,11 +125,20 @@ object DataFolder {
     private fun readText(ctx: Context, dir: DocumentFile, name: String): String? =
         dir.findFile(name)?.let { f -> try { ctx.contentResolver.openInputStream(f.uri)?.use { it.readBytes().toString(Charsets.UTF_8) } } catch (_: Throwable) { null } }
 
+    /** Le fichier de cette version, sinon celui de l'autre (passage de l'une à l'autre). */
+    private fun readOwnOrOther(ctx: Context, dir: DocumentFile, own: String, other: String) = readText(ctx, dir, own) ?: readText(ctx, dir, other)
+
     private fun settingsJson(ctx: Context): JSONObject {
         val o = JSONObject().put("_app", "Di-Allô").put("_date", System.currentTimeMillis()).put("_version", appVersion(ctx))
+        val files = JSONObject()
+        EXTRA.forEach { (name, skip) -> files.put(name, dump(ctx.getSharedPreferences(name, Context.MODE_PRIVATE), skip)) }
+        return o.put("prefs", dump(prefs(ctx), IGNORED)).put("files", files)
+    }
+
+    private fun dump(sp: SharedPreferences, skip: Set<String>): JSONObject {
         val vals = JSONObject()
-        prefs(ctx).all.forEach { (k, v) ->
-            if (k in IGNORED) return@forEach
+        sp.all.forEach { (k, v) ->
+            if (k in skip) return@forEach
             when (v) {
                 is Boolean -> vals.put(k, JSONObject().put("t", "b").put("v", v))
                 is Int -> vals.put(k, JSONObject().put("t", "i").put("v", v))
@@ -115,7 +148,7 @@ object DataFolder {
                 is Set<*> -> vals.put(k, JSONObject().put("t", "ss").put("v", org.json.JSONArray(v.map { it.toString() })))
             }
         }
-        return o.put("prefs", vals)
+        return vals
     }
 
     data class Found(val notes: Int, val settings: Int, val date: Long, val backups: Int)
@@ -123,10 +156,10 @@ object DataFolder {
     /** Ce que contient le dossier (pour proposer une restauration). */
     fun inspect(ctx: Context): Found? {
         val dir = tree(ctx) ?: return null
-        val notes = readText(ctx, dir, "notes.json")?.let { NotesRepository.fromJson(it).size } ?: 0
-        val set = readText(ctx, dir, "reglages.json")?.let { try { JSONObject(it) } catch (_: Throwable) { null } }
+        val notes = readOwnOrOther(ctx, dir, NOTES, NOTES_OTHER)?.let { NotesRepository.fromJson(it).size } ?: 0
+        val set = readOwnOrOther(ctx, dir, SETTINGS, SETTINGS_OTHER)?.let { try { JSONObject(it) } catch (_: Throwable) { null } }
         val nSet = set?.optJSONObject("prefs")?.length() ?: 0
-        val backups = dir.findFile("Sauvegardes")?.listFiles()?.count { it.name?.endsWith(".xml") == true } ?: 0
+        val backups = listOf(BACKUPS, BACKUPS_OTHER).sumOf { b -> dir.findFile(b)?.listFiles()?.count { it.name?.endsWith(".xml") == true } ?: 0 }
         if (notes == 0 && nSet == 0 && backups == 0) return null
         return Found(notes, nSet, set?.optLong("_date") ?: 0L, backups)
     }
@@ -134,40 +167,52 @@ object DataFolder {
     /** Restaure notes + réglages depuis le dossier. Retourne (notes ajoutées, réglages appliqués). */
     fun restore(ctx: Context): Pair<Int, Int> {
         val dir = tree(ctx) ?: return 0 to 0
-        val added = readText(ctx, dir, "notes.json")?.let { NotesRepository.merge(ctx, NotesRepository.fromJson(it)) } ?: 0
+        val added = readOwnOrOther(ctx, dir, NOTES, NOTES_OTHER)?.let { NotesRepository.merge(ctx, NotesRepository.fromJson(it)) } ?: 0
         var n = 0
-        readText(ctx, dir, "reglages.json")?.let { txt ->
-            val p = try { JSONObject(txt).optJSONObject("prefs") } catch (_: Throwable) { null } ?: return@let
+        readOwnOrOther(ctx, dir, SETTINGS, SETTINGS_OTHER)?.let { txt ->
+            val root = try { JSONObject(txt) } catch (_: Throwable) { null } ?: return@let
             restoring = true
-            val e = prefs(ctx).edit()
-            p.keys().forEach { k ->
-                if (k in IGNORED) return@forEach
-                val o = p.optJSONObject(k) ?: return@forEach
-                when (o.optString("t")) {
-                    "b" -> e.putBoolean(k, o.optBoolean("v"))
-                    "i" -> e.putInt(k, o.optInt("v"))
-                    "l" -> e.putLong(k, o.optLong("v"))
-                    "f" -> e.putFloat(k, o.optDouble("v").toFloat())
-                    "s" -> e.putString(k, o.optString("v"))
-                    "ss" -> { val a = o.optJSONArray("v"); e.putStringSet(k, (0 until (a?.length() ?: 0)).map { a!!.getString(it) }.toSet()) }
-                    else -> return@forEach
-                }
-                n++
-            }
-            e.commit()
-            restoring = false
+            try {
+                root.optJSONObject("prefs")?.let { n += load(prefs(ctx), it, IGNORED) }
+                val files = root.optJSONObject("files")
+                EXTRA.forEach { (name, skip) -> files?.optJSONObject(name)?.let { n += load(ctx.getSharedPreferences(name, Context.MODE_PRIVATE), it, skip) } }
+            } finally { restoring = false }
         }
+        hold = false
         status.value = trn(added, "♻️ Restauré : {0} note, {1} réglages · {2}", "♻️ Restauré : {0} notes, {1} réglages · {2}", n, now())
         return added to n
+    }
+
+    /** Remet les valeurs sauvegardées dans [sp] ; retourne le nombre de réglages appliqués. */
+    private fun load(sp: SharedPreferences, p: JSONObject, skip: Set<String>): Int {
+        var n = 0
+        val e = sp.edit()
+        p.keys().forEach { k ->
+            if (k in skip) return@forEach
+            val o = p.optJSONObject(k) ?: return@forEach
+            when (o.optString("t")) {
+                "b" -> e.putBoolean(k, o.optBoolean("v"))
+                "i" -> e.putInt(k, o.optInt("v"))
+                "l" -> e.putLong(k, o.optLong("v"))
+                "f" -> e.putFloat(k, o.optDouble("v").toFloat())
+                "s" -> e.putString(k, o.optString("v"))
+                "ss" -> { val a = o.optJSONArray("v"); e.putStringSet(k, (0 until (a?.length() ?: 0)).map { a!!.getString(it) }.toSet()) }
+                else -> return@forEach
+            }
+            n++
+        }
+        e.commit()
+        return n
     }
 
     data class Backup(val name: String, val uri: Uri, val date: Long, val calls: Boolean, val size: Long = 0L)
 
     /** Sauvegardes présentes dans Sauvegardes/, de la plus récente à la plus ancienne. */
     fun backups(ctx: Context): List<Backup> {
-        val dir = tree(ctx)?.findFile("Sauvegardes") ?: return emptyList()
+        val root = tree(ctx) ?: return emptyList()
         val fmt = SimpleDateFormat("yyyyMMddHHmmss", Locale.US)
-        return dir.listFiles().mapNotNull { f ->
+        // celles de cette version, puis celles de l'autre version installée à côté (même dossier)
+        return listOfNotNull(root.findFile(BACKUPS), root.findFile(BACKUPS_OTHER)).flatMap { it.listFiles().toList() }.mapNotNull { f ->
             val n = f.name ?: return@mapNotNull null
             if (!n.endsWith(".xml")) return@mapNotNull null
             val calls = n.startsWith("calls-"); if (!calls && !n.startsWith("sms-")) return@mapNotNull null
@@ -202,7 +247,7 @@ object DataFolder {
 
     private fun backupNow(ctx: Context) {
         val dir = tree(ctx) ?: return
-        val out = dir.findFile("Sauvegardes") ?: dir.createDirectory("Sauvegardes") ?: return
+        val out = dir.findFile(BACKUPS) ?: dir.createDirectory(BACKUPS) ?: return
         val stamp = SimpleDateFormat("yyyyMMddHHmmss", Locale.US).format(Date())
         val parts = ArrayList<String>()
         try {

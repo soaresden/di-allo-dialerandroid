@@ -35,12 +35,12 @@ internal fun rememberFolderPicker(onRestored: () -> Unit): () -> Unit {
         scope.launch {
             val f = withContext(Dispatchers.IO) { DataFolder.inspect(ctx) }
             if (f != null && (f.notes > 0 || f.settings > 0)) found = f
-            else withContext(Dispatchers.IO) { DataFolder.syncNow(ctx); DataFolder.autoBackupIfDue(ctx) }
+            else withContext(Dispatchers.IO) { DataFolder.syncNow(ctx, force = true); DataFolder.autoBackupIfDue(ctx) }
         }
     }
     found?.let { f ->
         AlertDialog(
-            onDismissRequest = { found = null },
+            onDismissRequest = { },   // il faut répondre : d'ici là, rien n'écrase les réglages du dossier
             icon = { Icon(Icons.Filled.Restore, null) },
             title = { Text(tr("Données Di-Allô trouvées")) },
             text = {
@@ -54,13 +54,13 @@ internal fun rememberFolderPicker(onRestored: () -> Unit): () -> Unit {
                 Button(onClick = {
                     found = null
                     scope.launch {
-                        withContext(Dispatchers.IO) { DataFolder.restore(ctx); DataFolder.syncNow(ctx) }
+                        withContext(Dispatchers.IO) { DataFolder.restore(ctx); DataFolder.syncNow(ctx, force = true) }
                         onRestored()
                     }
                 }) { Text(tr("Restaurer")) }
             },
             dismissButton = {
-                TextButton(onClick = { found = null; scope.launch(Dispatchers.IO) { DataFolder.syncNow(ctx) } }) { Text(tr("Non, écraser avec l'actuel")) }
+                TextButton(onClick = { found = null; scope.launch(Dispatchers.IO) { DataFolder.syncNow(ctx, force = true) } }) { Text(tr("Non, écraser avec l'actuel")) }
             }
         )
     }

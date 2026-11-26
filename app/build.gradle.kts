@@ -58,14 +58,27 @@ android {
         create("github") {
             dimension = "dist"
             versionNameSuffix = "f"   // f = full (GitHub), p = Play Store : 2026-11-26-03f / 2026-11-26-03p
+            // identifiant à part (fr.soaresden.diallo.github) : s'installe à côté de la version Play Store
+            applicationIdSuffix = ".github"
             buildConfigField("boolean", "FULL", "true")
-            signingConfig = signingConfigs.getByName("debug")   // même signature qu'avant : les mises à jour continuent
+            buildConfigField("boolean", "LEGACY", "false")
+            signingConfig = signingConfigs.getByName("debug")
+        }
+        create("legacy") {
+            dimension = "dist"
+            // Dernière version pour les anciennes installations GitHub (fr.soaresden.diallo) : elle se met à jour
+            // par-dessus, ne cherche plus de mises à jour et explique le passage à la version Play Store.
+            versionNameSuffix = "f"
+            buildConfigField("boolean", "FULL", "true")
+            buildConfigField("boolean", "LEGACY", "true")
+            signingConfig = signingConfigs.getByName("debug")
         }
         create("play") {
             dimension = "dist"
             // Play Store : sans mise à jour automatique, sans enregistrement d'appels, sans SMS
             versionNameSuffix = "p"
             buildConfigField("boolean", "FULL", "false")
+            buildConfigField("boolean", "LEGACY", "false")
             targetSdk = 36
             signingConfig = signingConfigs.findByName("upload") ?: signingConfigs.getByName("debug")
         }
