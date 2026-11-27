@@ -57,6 +57,9 @@ class OngoingCallActivity : ComponentActivity() {
         super.onCreate(savedInstanceState); CrashLog.install(this); I18n.ensure(this)
         setShowWhenLocked(true)
         setTurnScreenOn(true)
+        // anciens drapeaux en plus : certaines surcouches (HyperOS, MIUI) ne respectent qu'eux
+        @Suppress("DEPRECATION")
+        window.addFlags(android.view.WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or android.view.WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON)
         handle(intent)
         setContent { HyperTheme(loadTheme(this)) { CallScreen(onDone = { close() }, onProximity = { proximity(it) }) } }
     }

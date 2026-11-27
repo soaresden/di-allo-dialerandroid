@@ -85,10 +85,25 @@ class HyperInCallService : InCallService() {
         // nom du contact tout de suite : la première notification (celle qui sonne) l'affiche déjà
         if (number.isNotBlank() && !names.containsKey(number)) lookupContact(this, number)?.let { names[number] = it }
         refresh()
+        if (call.parent == null && call.details?.callDirection == Call.Details.DIRECTION_INCOMING) wakeScreen()
         if (call.parent == null) startActivity(
             Intent(this, OngoingCallActivity::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
         )
+    }
+
+    /**
+     * Appel entrant : allume l'écran. setTurnScreenOn de l'écran d'appel ne suffit pas partout
+     * (HyperOS / MIUI l'ignorent souvent), le verrou de réveil, lui, marche partout.
+     */
+    private fun wakeScreen() {
+        val pm = getSystemService(android.os.PowerManager::class.java) ?: return
+        if (pm.isInteractive) return
+        try {
+            @Suppress("DEPRECATION")
+            pm.newWakeLock(android.os.PowerManager.SCREEN_BRIGHT_WAKE_LOCK or android.os.PowerManager.ACQUIRE_CAUSES_WAKEUP or android.os.PowerManager.ON_AFTER_RELEASE,
+                "diallo:ring").apply { setReferenceCounted(false); acquire(10_000L) }
+        } catch (_: Throwable) { }
     }
 
     override fun onCallRemoved(call: Call) {
