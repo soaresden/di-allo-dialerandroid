@@ -14,7 +14,6 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Process
 import android.provider.Settings
-import android.telecom.CallAudioState
 import android.telecom.DisconnectCause
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -170,36 +169,21 @@ internal fun CallScreenAccessDialog() {
 }
 
 /**
- * Tonalité de fin d'appel (« tut tut tut ») quand le correspondant raccroche ou que l'appel coupe.
- * Rien quand c'est toi qui raccroches. Écouteur, sauf si l'appel était sur haut-parleur ou en Bluetooth.
+ * Tonalité de fin d'appel : un seul « tut » quand le correspondant raccroche ou que l'appel coupe.
+ * Rien quand c'est toi qui raccroches. Joué sur le flux de l'appel, sans jamais toucher au mode audio :
+ * un mode « communication » resté actif (appli mise en pause par HyperOS) empêche le téléphone de sonner.
  */
 internal object EndTone {
     private val main = Handler(Looper.getMainLooper())
 
-    fun onEnded(ctx: Context, cause: DisconnectCause?, route: Int?) {
+    fun onEnded(cause: DisconnectCause?) {
         val code = cause?.code ?: return
         if (code == DisconnectCause.LOCAL || code == DisconnectCause.REJECTED || code == DisconnectCause.MISSED ||
             code == DisconnectCause.CANCELED || code == DisconnectCause.ANSWERED_ELSEWHERE || code == DisconnectCause.CALL_PULLED) return
-        val am = ctx.getSystemService(AudioManager::class.java) ?: return
-        val earpiece = route == null || route == CallAudioState.ROUTE_EARPIECE || route == CallAudioState.ROUTE_WIRED_HEADSET
-        main.postDelayed({
-            var ourMode = false
-            try {
-                if (earpiece && am.mode == AudioManager.MODE_NORMAL) {
-                    am.mode = AudioManager.MODE_IN_COMMUNICATION
-                    @Suppress("DEPRECATION") am.isSpeakerphoneOn = false
-                    ourMode = true
-                }
-                val tg = ToneGenerator(AudioManager.STREAM_VOICE_CALL, 80)
-                tg.startTone(ToneGenerator.TONE_SUP_BUSY, 2600)   // 425 Hz, 3 bips
-                main.postDelayed({
-                    try { tg.release() } catch (_: Throwable) { }
-                    if (ourMode && HyperInCallService.calls.isEmpty() && am.mode == AudioManager.MODE_IN_COMMUNICATION)
-                        try { am.mode = AudioManager.MODE_NORMAL } catch (_: Throwable) { }
-                }, 2800)
-            } catch (_: Throwable) {
-                if (ourMode) try { am.mode = AudioManager.MODE_NORMAL } catch (_: Throwable) { }
-            }
-        }, 150)
+        try {
+            val tg = ToneGenerator(AudioManager.STREAM_VOICE_CALL, 80)
+            tg.startTone(ToneGenerator.TONE_SUP_BUSY, 400)   // 425 Hz, un seul bip
+            main.postDelayed({ try { tg.release() } catch (_: Throwable) { } }, 600)
+        } catch (_: Throwable) { }
     }
 }

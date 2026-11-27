@@ -27,7 +27,12 @@ class HyperInCallService : InCallService() {
     private val simAsked = HashSet<Call>()   // appels en attente de SIM déjà traités (SIM retenue / voiture)
 
     private val callback = object : Call.Callback() {
-        override fun onStateChanged(call: Call, state: Int) = refresh()
+        override fun onStateChanged(call: Call, state: Int) {
+            // le correspondant a raccroché / l'appel a coupé : un « tut », joué pendant que l'appel a encore le son
+            if (state == Call.STATE_DISCONNECTED && call.parent == null && call in everActive && liveCalls().none { it != call })
+                EndTone.onEnded(call.details?.disconnectCause)
+            refresh()
+        }
         override fun onDetailsChanged(call: Call, details: Call.Details) = refresh()
         override fun onChildrenChanged(call: Call, children: MutableList<Call>) = refresh()
         override fun onParentChanged(call: Call, parent: Call?) = refresh()
@@ -112,8 +117,6 @@ class HyperInCallService : InCallService() {
         simAsked.remove(call)
         val wasActive = everActive.remove(call)
         RingGestures.onCallEnded(this, call, wasActive)
-        // le correspondant a raccroché / l'appel a coupé : « tut tut tut », comme le téléphone d'origine
-        if (wasActive && call.parent == null && Companion.calls.isEmpty()) EndTone.onEnded(this, call.details?.disconnectCause, audio.value?.route)
         // appel reçu sans réponse : l'appelant laisse peut-être un message, on ira voir la messagerie Free
         if (!wasActive && call.details?.callDirection == Call.Details.DIRECTION_INCOMING) fr.soaresden.diallo.vvm.Vvm.afterMissedCall(this)
         if (Companion.calls.isEmpty()) {
