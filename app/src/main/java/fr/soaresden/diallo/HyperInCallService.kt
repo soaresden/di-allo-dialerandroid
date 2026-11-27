@@ -112,6 +112,8 @@ class HyperInCallService : InCallService() {
         simAsked.remove(call)
         val wasActive = everActive.remove(call)
         RingGestures.onCallEnded(this, call, wasActive)
+        // le correspondant a raccroché / l'appel a coupé : « tut tut tut », comme le téléphone d'origine
+        if (wasActive && call.parent == null && Companion.calls.isEmpty()) EndTone.onEnded(this, call.details?.disconnectCause, audio.value?.route)
         // appel reçu sans réponse : l'appelant laisse peut-être un message, on ira voir la messagerie Free
         if (!wasActive && call.details?.callDirection == Call.Details.DIRECTION_INCOMING) fr.soaresden.diallo.vvm.Vvm.afterMissedCall(this)
         if (Companion.calls.isEmpty()) {

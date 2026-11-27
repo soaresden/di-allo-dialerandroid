@@ -92,6 +92,7 @@ private fun Root(theme: String, onTheme: (String) -> Unit) {
     var wrapped by remember { mutableStateOf(false) }
     FolderPrompt { (ctx as? android.app.Activity)?.recreate() }
     LegacyMoveDialog()
+    CallScreenAccessDialog()
     CrashReport()
     var pending by remember { mutableStateOf<String?>(null) }
     var detail by remember { mutableStateOf<String?>(null) }

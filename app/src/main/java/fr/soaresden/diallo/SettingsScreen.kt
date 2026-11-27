@@ -171,6 +171,12 @@ internal fun SettingsScreen(
             SectionCard(tr("Téléphone")) {
                 SettingRow(tr("Application Téléphone par défaut"), if (isDefault) "Di-Allô" else tr("Non défini"), if (isDefault) null else tr("Définir"), onSetDefault); Spacer(Modifier.height(8.dp))
                 SettingRow(tr("Accès journal / contacts"), if (granted) tr("Accordé") else tr("Refusé"), if (granted) null else tr("Autoriser"), onGrant); Spacer(Modifier.height(8.dp))
+                var miss by remember { mutableStateOf(0) }
+                Text(tr("Écran d'appel"), fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground)
+                Text(if (miss == 0) tr("L'écran s'allume quand on t'appelle") else trn(miss, "⚠️ {0} autorisation manquante : l'écran peut rester éteint quand on t'appelle", "⚠️ {0} autorisations manquantes : l'écran peut rester éteint quand on t'appelle"),
+                    fontSize = 12.5.sp, color = if (miss == 0) muted() else Amber)
+                CallScreenAccessList { miss = it }
+                Spacer(Modifier.height(8.dp))
                 Text(tr("Appels chargés : {0}", callCount), fontSize = 12.5.sp, color = muted())
             }
             if (smsDefault) SectionCard(tr("⚠️ Di-Allô est l'app SMS par défaut"), collapsible = false) {

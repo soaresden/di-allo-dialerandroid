@@ -3,6 +3,10 @@
 Les versions sont numérotées `AAAA-MM-JJ-NN` (date du build, puis numéro du build du jour).
 La dernière version est dans les [Releases](../../releases). Seules les versions récentes sont listées ici.
 
+## 2026-11-27-02
+- 📱 **Écran d'appel** : Di-Allô vérifie les autorisations qui allument l'écran pour un appel (notifications plein écran, « Allumer l'écran », et sur Xiaomi « Afficher sur l'écran de verrouillage » et « Fenêtres pop-up en arrière-plan »). Il prévient s'il en manque une et ouvre le bon réglage. Aussi dans Réglages › Téléphone
+- 📴 Tonalité de fin d'appel « tut tut tut » quand le correspondant raccroche ou que l'appel coupe
+
 ## 2026-11-27-01
 - 📱 Appel entrant : l'écran s'allume tout seul, même verrouillé. Sur HyperOS / MIUI il fallait parfois appuyer sur le bouton pour voir qui appelait
 

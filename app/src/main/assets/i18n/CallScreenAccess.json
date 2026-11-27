@@ -1,0 +1,86 @@
+{
+ "Notifications plein écran": {
+  "en": "Full-screen notifications",
+  "es": "Notificaciones a pantalla completa",
+  "de": "Vollbild-Benachrichtigungen",
+  "it": "Notifiche a schermo intero",
+  "pt": "Notificações em tela cheia"
+ },
+ "Allumer l'écran": {
+  "en": "Turn screen on",
+  "es": "Encender la pantalla",
+  "de": "Bildschirm einschalten",
+  "it": "Accendere lo schermo",
+  "pt": "Ligar a tela"
+ },
+ "Afficher sur l'écran de verrouillage": {
+  "en": "Show on lock screen",
+  "es": "Mostrar en la pantalla de bloqueo",
+  "de": "Auf dem Sperrbildschirm anzeigen",
+  "it": "Mostra sulla schermata di blocco",
+  "pt": "Mostrar na tela de bloqueio"
+ },
+ "Fenêtres pop-up en arrière-plan": {
+  "en": "Display pop-up windows while running in the background",
+  "es": "Ventanas emergentes en segundo plano",
+  "de": "Pop-up-Fenster im Hintergrund",
+  "it": "Finestre pop-up in background",
+  "pt": "Janelas pop-up em segundo plano"
+ },
+ "Sur Xiaomi, ces réglages sont dans « Autres autorisations ».": {
+  "en": "On Xiaomi, these settings are under “Other permissions”.",
+  "es": "En Xiaomi, estos ajustes están en «Otros permisos».",
+  "de": "Bei Xiaomi findest du sie unter „Weitere Berechtigungen“.",
+  "it": "Su Xiaomi, queste impostazioni sono in «Altre autorizzazioni».",
+  "pt": "No Xiaomi, essas opções ficam em “Outras permissões”."
+ },
+ "📱 Écran d'appel": {
+  "en": "📱 Call screen",
+  "es": "📱 Pantalla de llamada",
+  "de": "📱 Anrufbildschirm",
+  "it": "📱 Schermata di chiamata",
+  "pt": "📱 Tela de chamada"
+ },
+ "Pour que l'écran s'allume et montre qui t'appelle, même verrouillé, Di-Allô a besoin de ces autorisations :": {
+  "en": "So the screen turns on and shows who's calling, even when locked, Di-Allô needs these permissions:",
+  "es": "Para que la pantalla se encienda y muestre quién llama, incluso bloqueada, Di-Allô necesita estos permisos:",
+  "de": "Damit sich der Bildschirm einschaltet und zeigt, wer anruft – auch gesperrt –, braucht Di-Allô diese Berechtigungen:",
+  "it": "Perché lo schermo si accenda e mostri chi chiama, anche bloccato, Di-Allô ha bisogno di queste autorizzazioni:",
+  "pt": "Para a tela acender e mostrar quem está ligando, mesmo bloqueada, o Di-Allô precisa destas permissões:"
+ },
+ "Ne plus demander": {
+  "en": "Don't ask again",
+  "es": "No volver a preguntar",
+  "de": "Nicht mehr fragen",
+  "it": "Non chiedere più",
+  "pt": "Não perguntar de novo"
+ },
+ "Écran d'appel": {
+  "en": "Call screen",
+  "es": "Pantalla de llamada",
+  "de": "Anrufbildschirm",
+  "it": "Schermata di chiamata",
+  "pt": "Tela de chamada"
+ },
+ "L'écran s'allume quand on t'appelle": {
+  "en": "The screen turns on when someone calls",
+  "es": "La pantalla se enciende cuando te llaman",
+  "de": "Der Bildschirm geht an, wenn jemand anruft",
+  "it": "Lo schermo si accende quando ti chiamano",
+  "pt": "A tela acende quando alguém liga"
+ },
+ "⚠️ {0} autorisation manquante : l'écran peut rester éteint quand on t'appelle": {
+  "en": "⚠️ {0} permission missing: the screen may stay off when someone calls",
+  "es": "⚠️ Falta {0} permiso: la pantalla puede quedarse apagada cuando te llaman",
+  "de": "⚠️ {0} Berechtigung fehlt: der Bildschirm bleibt bei Anrufen evtl. aus",
+  "it": "⚠️ Manca {0} autorizzazione: lo schermo può restare spento quando ti chiamano",
+  "pt": "⚠️ Falta {0} permissão: a tela pode ficar apagada quando alguém liga"
+ },
+ "⚠️ {0} autorisations manquantes : l'écran peut rester éteint quand on t'appelle": {
+  "en": "⚠️ {0} permissions missing: the screen may stay off when someone calls",
+  "es": "⚠️ Faltan {0} permisos: la pantalla puede quedarse apagada cuando te llaman",
+  "de": "⚠️ {0} Berechtigungen fehlen: der Bildschirm bleibt bei Anrufen evtl. aus",
+  "it": "⚠️ Mancano {0} autorizzazioni: lo schermo può restare spento quando ti chiamano",
+  "pt": "⚠️ Faltam {0} permissões: a tela pode ficar apagada quando alguém liga"
+ }
+}
